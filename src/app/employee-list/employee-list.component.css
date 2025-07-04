@@ -1,0 +1,29 @@
+.container {
+    padding-left: 20px; /* Adjust the value as needed */
+    padding-right: 20px;
+  }
+
+.heading-container {
+    display: flex;
+    justify-content: center; /* Center the button horizontally */
+  }  
+
+.green-button {
+    background-color: #42ac45; /* Green background color */
+    margin-top: 20px;
+  }
+  
+  .green-button:hover {
+    background-color: #45a049; /* Darker green on hover */
+  }
+
+  .grey-button {
+    background-color: #739474; /* Green background color */
+    color: white; /* White text color */
+    margin-right: 20px;
+  }
+
+  .red-button {
+    background-color: rgb(231, 46, 46); /* Green background color */
+    color: white; /* White text color */
+  }

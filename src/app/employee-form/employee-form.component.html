@@ -1,0 +1,23 @@
+<div class="container">
+    <h2 *ngIf="employeeId">Edit Employee</h2>
+    <h2 *ngIf="!employeeId">Create Employee</h2>
+  
+    <form [formGroup]="employeeForm" (ngSubmit)="onSubmit()">
+      <mat-form-field>
+        <mat-label>Name</mat-label>
+        <input matInput formControlName="name" />
+      </mat-form-field>
+      <br>
+      <mat-form-field>
+        <mat-label>Position</mat-label>
+        <input matInput formControlName="position" />
+      </mat-form-field>
+      <br>
+      <mat-form-field>
+        <mat-label>Salary</mat-label>
+        <input matInput formControlName="salary" />
+      </mat-form-field>
+      <br>
+      <button mat-raised-button color="primary" type="submit">Save</button>
+    </form>
+  </div>
