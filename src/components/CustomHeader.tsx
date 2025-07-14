@@ -14,6 +14,7 @@ interface Props {
   title?: string;
   showBack?: boolean;
   showFavorite?: boolean;
+  isFavorite?: boolean; 
   showShare?: boolean;
   onBackPress?: () => void;
   onFavoritePress?: () => void;
@@ -25,6 +26,7 @@ const CustomHeader: React.FC<Props> = ({
   showBack = false,
   showFavorite = false,
   showShare = false,
+  isFavorite=false,
   onBackPress,
   onFavoritePress,
   onSharePress,
@@ -49,7 +51,12 @@ const CustomHeader: React.FC<Props> = ({
         <View style={styles.sideRight}>
           {showFavorite && (
             <TouchableOpacity onPress={onFavoritePress} style={styles.iconSpacing}>
-              <Ionicons name="heart-outline" size={22} color="#000" />
+              {/* <Ionicons name="heart-outline" size={22} color="#000" /> */}
+              <Ionicons
+  name={isFavorite ? 'heart' : 'heart-outline'}
+  size={22}
+  color={isFavorite ? 'red' : '#000'}
+/>
             </TouchableOpacity>
           )}
           {showShare && (

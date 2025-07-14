@@ -1,11 +1,16 @@
 import React, { useRef, useState } from 'react';
-import { ScrollView, View, StyleSheet, NativeScrollEvent, NativeSyntheticEvent ,Share} from 'react-native';
+import { ScrollView, View, StyleSheet, NativeScrollEvent, NativeSyntheticEvent ,Dimensions,Share} from 'react-native';
 import PromoBanner from '../components/PromoBanner';
 import TabBar from '../components/TabBar';
 import TabContent, { TAB_LIST, TabName } from '../components/TabContent';
 import CustomHeader from '../components/CustomHeader';
 import { goBack, navigate } from '../utils/NavigationUtils'; 
  
+ 
+
+const screenHeight = Dimensions.get('window').height;
+const bottomPadding = screenHeight * 0.40; // e.g., 25% of screen height
+
 
 const ServiceMenuScreen = () => {
   const scrollRef = useRef<ScrollView>(null);
@@ -71,6 +76,7 @@ const onSharePress = async () => {
         title="Ayala Heights "
         showBack={true}
         showFavorite={true}  
+        isFavorite={true}
         showShare={true}
         onBackPress={() =>  goBack() }
         onFavoritePress={() => console.log('Fav')}
@@ -82,6 +88,7 @@ const onSharePress = async () => {
       stickyHeaderIndices={[1]}
       onScroll={handleScroll}
       scrollEventThrottle={16}
+      contentContainerStyle={{ paddingBottom: bottomPadding }}
     >
      
 

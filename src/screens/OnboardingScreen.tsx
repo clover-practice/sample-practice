@@ -11,7 +11,7 @@ const OnboardingScreen = () => {
         console.log("TOKEN IS ", token);
 
         setTimeout(() => {
-          if (token === "true1s") {
+          if (token === "true1") {
             replace('MainApp'); // User is logged in
           } else {
             replace('Login'); // Not logged in
@@ -24,7 +24,7 @@ const OnboardingScreen = () => {
 
     checkLoginStatus(); // 👈 This must be inside useEffect
   }, []);
-
+123456789
   return (
     <View style={styles.container}>
       <Text style={styles.title}>MyApp</Text>

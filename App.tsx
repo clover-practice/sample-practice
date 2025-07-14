@@ -8,7 +8,7 @@ import { TabBarVisibilityProvider } from './src/components/TabBarVisibilityConte
 import { ThemeProvider } from './src/theme/ThemeContext';
 import { navigationRef } from './src/utils/NavigationUtils';
 
-  const   App=()=> {
+  const App=()=> {
   useEffect(() => {
     // Configure status bar when app mounts
     StatusBar.setBarStyle('dark-content'); // Light icons: 'light-content'

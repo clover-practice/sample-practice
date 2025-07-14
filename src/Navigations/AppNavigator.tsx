@@ -5,6 +5,7 @@ import BottomTabs from './BottomTabs';
 import EditProfileScreen from '../screens/EditProfileScreen';
 import ServiceMenuScreen from '../screens/ServiceMenuScreen';
 import OtpScreen from '../screens/OtpScreen';
+import StickyTabBarScreen from '../screens/StickyTabBarScreen';
 const Stack = createNativeStackNavigator();
  
 
@@ -16,6 +17,7 @@ const AppNavigator = () => (
           <Stack.Screen name='EditProfileScreen' component={EditProfileScreen}/>
           <Stack.Screen name='ServiceMenuScreen' component={ServiceMenuScreen}/>
           <Stack.Screen name='OtpScreen' component={OtpScreen}/>
+          <Stack.Screen name='StickyTabBarScreen' component={StickyTabBarScreen}/>
           
         </Stack.Navigator>
 );
