@@ -12,12 +12,12 @@ import Animated, {
 } from 'react-native-reanimated'; 
 import { useTabBarVisibility } from '../components/TabBarVisibilityContext';
 import CustomCarousel from '../components/CustomCarousel';
-
+import Constants from '../constants/Constants';
+ 
 const HomeScreen = () => {
   const tabBarHeight = useBottomTabBarHeight();
   const { translateY } = useTabBarVisibility();
-  const scrollY = useSharedValue(0);
-
+  const scrollY = useSharedValue(0); 
   const scrollHandler = useAnimatedScrollHandler({
     onScroll: (event) => {
       const currentY = event.contentOffset.y;
@@ -45,11 +45,11 @@ const HomeScreen = () => {
         contentContainerStyle={styles.scrollContent}
       >
         <TopSearchBar
-          city="Mumbai"
+          city={Constants.CUREENT_LOCATON}
           offerLabel="50% Offer"
           userInitial={firstChar}
           onPressAvatar={() => navigate('ServiceMenuScreen')}
-          onPressLocation={() => navigate('ServiceMenuScreen')}
+          onPressLocation={() => navigate('StickyTabBarScreen')}
         />
          
         <CustomCarousel
@@ -62,13 +62,7 @@ const HomeScreen = () => {
 
         
         <BreakerText text="SALON BY PRODUCTS" />
-        <BreakerText text="SALON NEAR BY YOU" />
-        <BreakerText text="SALON BY PRODUCTS" />
-        <BreakerText text="SALON NEAR BY YOU" />
-        <BreakerText text="SALON BY PRODUCTS" />
-        <BreakerText text="SALON NEAR BY YOU" />
-        <BreakerText text="SALON BY PRODUCTS" />
-        <BreakerText text="SALON NEAR BY YOU" />
+        <BreakerText text="SALON NEAR BY YOU" /> 
 
          
 

@@ -47,8 +47,8 @@ const styles = StyleSheet.create({
   },
   sectionTitle: {
     fontSize: 22,
-    fontWeight: 'bold',
-    marginBottom: 10,
+    marginTop:35,
+    fontWeight: 'bold', 
   },
   sectionContent: {
     fontSize: 16,

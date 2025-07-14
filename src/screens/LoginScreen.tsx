@@ -4,6 +4,10 @@ import React,{useState} from 'react';
 import { navigate, replace } from '../utils/NavigationUtils';
 import AsyncStorage from '@react-native-async-storage/async-storage'; 
 import MobileNumberInput from '../components/NumberInput';
+import CustomButton from '../components/CustomButton';
+import Colors from '../constants/colors';
+import Ionicons from 'react-native-vector-icons/Ionicons';
+import Constants from '../constants/Constants';
 
 const LoginScreen = () => { 
   const [quantity, setQuantity] = useState(1);
@@ -24,26 +28,16 @@ const LoginScreen = () => {
       <Text style={{marginBottom:30}}>LoginScreen</Text>
         <MobileNumberInput
         value={mobile}
-        onChange={setMobile}
-        prefix="+91"
-        maxLength={10}
+        onChange={setMobile}  
+      /> 
+     
+       <CustomButton
+        title={Constants.SEND_OTP}
+        onPress={() => handleLogin()}
+        rightIcon={<Ionicons name="chevron-forward" size={20} color="white" />}
+        style={{ marginTop: 40 }}
       />
-      <TouchableOpacity
-        style={{
-          backgroundColor: 'dodgerblue',
-          width: '100%',
-          paddingVertical: 15,
-          alignItems: 'center',
-          justifyContent: 'center',
-          marginTop:30,
-          borderRadius: 8,
-        }}
-        onPress={handleLogin}
-      >
-        <Text style={{ color: 'white', textAlign: 'center', fontSize: 16 }}>
-          Send Otp
-        </Text>
-      </TouchableOpacity>
+
     </View>
   );
 };
