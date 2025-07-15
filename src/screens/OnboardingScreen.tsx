@@ -1,7 +1,9 @@
-import React, { useEffect } from 'react';
-import { View, Text, StyleSheet, ActivityIndicator } from 'react-native';
+import React, { useEffect,useState } from 'react';
+import { View, Text, StyleSheet, ActivityIndicator,TouchableOpacity } from 'react-native';
 import { replace } from '../utils/NavigationUtils';
 import AsyncStorage from '@react-native-async-storage/async-storage'; 
+import { useNavigation, useRoute, RouteProp } from '@react-navigation/native'; // <--- ADD these imports
+import { StackNavigationProp } from '@react-navigation/stack'; // <--- ADD this import
 
 const OnboardingScreen = () => {
   useEffect(() => {
@@ -11,7 +13,7 @@ const OnboardingScreen = () => {
         console.log("TOKEN IS ", token);
 
         setTimeout(() => {
-          if (token === "true1") {
+          if (token === "true") {
             replace('MainApp'); // User is logged in
           } else {
             replace('Login'); // Not logged in
