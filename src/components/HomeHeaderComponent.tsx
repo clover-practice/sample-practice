@@ -5,7 +5,9 @@ import {
   TextInput,
   StyleSheet,
   Modal,
-  Pressable,Platform
+  Pressable,Platform,
+  TouchableOpacity,
+  
 } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 
@@ -31,29 +33,29 @@ const TopSearchBar: React.FC<TopSearchBarProps> = ({
       {/* Top row */}
       <View style={styles.topRow}>
         {/* Location */}
-        <Pressable onPress={onPressLocation}>
+        <TouchableOpacity onPress={onPressLocation}>
           <View style={styles.locationContainer}>
             <Ionicons name="location-sharp" size={20} color="red" />
             <Text style={styles.cityText}>{city}</Text>
           </View>
-        </Pressable>
+        </TouchableOpacity>
 
         {/* Right side: offer + avatar */}
         <View style={styles.rightContainer}>
-          <Pressable onPress={() => setModalVisible(true)}>
+          <TouchableOpacity onPress={() => setModalVisible(true)}>
             <View style={styles.offerButton}>
               <Ionicons name="pricetag" size={14} color="#0f0" />
               <Text style={styles.offerText} numberOfLines={1}>
                 {offerLabel}
               </Text>
             </View>
-          </Pressable>
+          </TouchableOpacity>
 
-          <Pressable onPress={onPressAvatar}>
+          <TouchableOpacity onPress={onPressAvatar}>
             <View style={styles.avatar}>
               <Text style={styles.avatarText}>{userInitial}</Text>
             </View>
-          </Pressable>
+          </TouchableOpacity>
         </View>
       </View>
 
@@ -106,6 +108,7 @@ const styles = StyleSheet.create({
   locationContainer: {
     flexDirection: 'row',
     alignItems: 'center',
+    padding:10
   },
   cityText: {
     fontWeight: 'bold',
