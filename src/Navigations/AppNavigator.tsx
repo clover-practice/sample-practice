@@ -8,11 +8,24 @@ import OtpScreen from '../screens/OtpScreen';
 import StickyTabBarScreen from '../screens/StickyTabBarScreen';
 import MapPicker from '../screens/GoogleMaps/MapPicker';
 import MapAndListView from '../screens/MapAndListView';
+import { NavigationContainer } from '@react-navigation/native';
+import { StatusBar, Platform } from 'react-native';
+import { TabBarVisibilityProvider } from '../components/TabBarVisibilityContext';
+import { navigationRef } from '../utils/NavigationUtils';
+import { ThemeProvider } from '../theme/ThemeContext';
 const Stack = createNativeStackNavigator();
  
 
 const AppNavigator = () => (
-   <Stack.Navigator screenOptions={{ headerShown: false }}>
+<ThemeProvider>
+      <NavigationContainer ref={navigationRef}>
+        <TabBarVisibilityProvider>
+          <StatusBar
+            translucent={Platform.OS === 'android' ? false : true}
+            backgroundColor="#ffffff"
+            barStyle="dark-content"
+        />
+        <Stack.Navigator screenOptions={{ headerShown: false }}>
           <Stack.Screen name="Onboarding" component={OnboardingScreen} />
           <Stack.Screen name="Login" component={LoginScreen} />
           <Stack.Screen name="MainApp" component={BottomTabs} />
@@ -24,6 +37,11 @@ const AppNavigator = () => (
           <Stack.Screen name='MapAndListView' component={MapAndListView}/>
           
         </Stack.Navigator>
+           
+        </TabBarVisibilityProvider>
+      </NavigationContainer>
+    </ThemeProvider>
+
 );
 
 export default AppNavigator;

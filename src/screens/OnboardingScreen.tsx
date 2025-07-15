@@ -4,13 +4,17 @@ import { replace } from '../utils/NavigationUtils';
 import AsyncStorage from '@react-native-async-storage/async-storage'; 
 import { useNavigation, useRoute, RouteProp } from '@react-navigation/native'; // <--- ADD these imports
 import { StackNavigationProp } from '@react-navigation/stack'; // <--- ADD this import
+import React, { useEffect } from 'react';
+import { View, Text, StyleSheet, ActivityIndicator } from 'react-native';
+import { replace } from '../utils/NavigationUtils'; 
+import { getValue } from '../utils/keychainStorage';
+import Constants from '../constants/Constants';
 
-const OnboardingScreen = () => {
-  useEffect(() => {
-    const checkLoginStatus = async () => {
-      try {
-        const token = await AsyncStorage.getItem('userToken');
-        console.log("TOKEN IS ", token);
+const OnboardingScreen = () => { 
+useEffect(() => {
+  const checkLoginStatus = async () => {
+    const isLoggedIn = await getValue(Constants.IS_LOGIN);
+    console.log("TOKEN IS  isLoggedIn :- ", isLoggedIn);
 
         setTimeout(() => {
           if (token === "true") {
@@ -21,12 +25,20 @@ const OnboardingScreen = () => {
         }, 1500); // Simulated splash delay
       } catch (error) {
         replace('Login'); // Fallback in case of error
+    setTimeout(() => {
+      if (isLoggedIn === true) {
+        replace('MainApp');
+      } else {
+        replace('Login');
       }
-    };
+    }, 1500);
+  };
 
-    checkLoginStatus(); // 👈 This must be inside useEffect
-  }, []);
-123456789
+  checkLoginStatus();
+}, []);
+
+
+
   return (
     <View style={styles.container}>
       <Text style={styles.title}>MyApp</Text>

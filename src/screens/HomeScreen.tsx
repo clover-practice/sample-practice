@@ -8,6 +8,9 @@ import {
 } from 'react-native';
 import Geolocation from 'react-native-geolocation-service';
 import TopSearchBar from '../components/HomeHeaderComponent';
+import React, { useEffect,useState} from 'react';
+import { View, StyleSheet, SafeAreaView } from 'react-native';
+import TopSearchBar from '../components/HomeHeaderComponent'; 
 import BreakerText from '../components/BreakerText';
 import CustomCarousel from '../components/CustomCarousel';
 import { getAddressFromLocation } from '@logisticinfotech/react-native-geocoding-reversegeocoding';
@@ -42,6 +45,8 @@ type RootStackParamList = {
 type HomeScreenRouteProp = RouteProp<RootStackParamList, 'HomeScreen'>;
 
 
+import { getValue } from '../utils/keychainStorage';
+ 
 const HomeScreen = () => {
   const [currentCity, setCurrentCity] = useState('Fetching...');
   const name = 'R'; // Assuming 'R' is a placeholder for a user's name
@@ -164,6 +169,21 @@ const HomeScreen = () => {
     },
   });
 
+  const [userName, setUserName] = useState('');
+useEffect(() => { 
+  
+  getUserData();
+}, []);
+
+   const getUserData = async () => {
+    const userName = await getValue(Constants.USER_NAME);
+     console.log("GET USER NAME :- ", userName);
+    //  const name = "R";
+  setUserName(userName.charAt(0).toUpperCase());
+
+    
+  };
+
   return (
     <SafeAreaView style={styles.safeArea}>
       <Animated.ScrollView
@@ -176,7 +196,7 @@ const HomeScreen = () => {
           city={Constants.CUREENT_LOCATON}
           city={currentCity} // This will now reflect the selected address
           offerLabel="50% Offer"
-          userInitial={firstChar}
+          userInitial={userName}
           onPressAvatar={() => navigate('ServiceMenuScreen')}
           onPressLocation={() => navigate('StickyTabBarScreen')}
           onPressLocation={() => navigate('MapPicker')} // This navigates to MapPicker
@@ -209,6 +229,13 @@ const HomeScreen = () => {
         <BreakerText text="SALON BY PRODUCTS" />
         <BreakerText text="SALON NEAR BY YOU" />
 
+
+        
+        <BreakerText text="SALON BY PRODUCTS" /> 
+
+         
+
+        {/* Spacer to avoid bottom content hiding under tab bar */}
         <View style={{ height: tabBarHeight + 20 }} />
       </Animated.ScrollView>
     </SafeAreaView>

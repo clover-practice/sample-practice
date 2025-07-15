@@ -46,7 +46,15 @@ const Strings = {
   // Labels
   LANGUAGE: 'Language',
   SELECT_LANGUAGE: 'Select Language',
-  CUREENT_LOCATON:'Mumbai'
+  CUREENT_LOCATON: 'Mumbai',
+  API_KEY: 'os_v2_app_3flp5qwr2van3nnutrkxeczr5qahiypzl2bufuvbjgyucdo7dusd2tuj5ncfxvfgsvwfp6inuhvwvl3gozwaudbilrwccvgkqz4fn3y',
+  APP_ID: 'd956fec2-d1d5-40dd-b5b4-9c55720b31ec',
+  
+
+  //==================================== Storage the Key Id ====================================
+  USER_NAME: 'user_name',
+  IS_LOGIN: 'is_login',
+  
   
 
 
