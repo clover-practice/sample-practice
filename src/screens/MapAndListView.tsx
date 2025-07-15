@@ -155,7 +155,7 @@ const MapAndListView: React.FC = () => {
         showsVerticalScrollIndicator
         contentContainerStyle={styles.flatListContainer}
         keyExtractor={(item) => item.id}
-        renderItem={renderListItem}
+        renderItem={renderListItem} 
         ListEmptyComponent={() => (
           <View style={styles.noResultsContainer}>
             <Text style={styles.noResultsText}>No results found.</Text>

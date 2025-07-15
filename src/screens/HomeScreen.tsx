@@ -7,10 +7,7 @@ import {
   PermissionsAndroid,
 } from 'react-native';
 import Geolocation from 'react-native-geolocation-service';
-import TopSearchBar from '../components/HomeHeaderComponent';
-import React, { useEffect,useState} from 'react';
-import { View, StyleSheet, SafeAreaView } from 'react-native';
-import TopSearchBar from '../components/HomeHeaderComponent'; 
+import TopSearchBar from '../components/HomeHeaderComponent';  
 import BreakerText from '../components/BreakerText';
 import CustomCarousel from '../components/CustomCarousel';
 import { getAddressFromLocation } from '@logisticinfotech/react-native-geocoding-reversegeocoding';
@@ -21,14 +18,12 @@ import Animated, {
   useAnimatedScrollHandler,
   withTiming,
 } from 'react-native-reanimated';
-import { useTabBarVisibility } from '../components/TabBarVisibilityContext';
-import CustomCarousel from '../components/CustomCarousel';
+import { useTabBarVisibility } from '../components/TabBarVisibilityContext'; 
 import Constants from '../constants/Constants';
  
 
 // --- NEW IMPORTS FOR NAVIGATION PARAMS ---
-import { useRoute, RouteProp } from '@react-navigation/native';
-import { StackScreenProps } from '@react-navigation/stack'; // Keep this if you're using createStackNavigator from this package.
+import { useRoute, RouteProp } from '@react-navigation/native'; 
 import MapAndListView from './MapAndListView';
 
 // --- IMPORTANT: Define RootStackParamList (must match MapPicker.tsx and AppNavigator.tsx) ---
@@ -191,14 +186,13 @@ useEffect(() => {
         scrollEventThrottle={16}
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.scrollContent}
+         
       >
-        <TopSearchBar
-          city={Constants.CUREENT_LOCATON}
+        <TopSearchBar 
           city={currentCity} // This will now reflect the selected address
           offerLabel="50% Offer"
           userInitial={userName}
-          onPressAvatar={() => navigate('ServiceMenuScreen')}
-          onPressLocation={() => navigate('StickyTabBarScreen')}
+          onPressAvatar={() => navigate('ServiceMenuScreen')} 
           onPressLocation={() => navigate('MapPicker')} // This navigates to MapPicker
         />
 
@@ -223,11 +217,8 @@ useEffect(() => {
         />
 
         <BreakerText text="SALON BY PRODUCTS" />
-        <BreakerText text="SALON NEAR BY YOU" /> 
-        <BreakerText text="SALON NEAR BY YOU" />
-        <MapAndListView/>
-        <BreakerText text="SALON BY PRODUCTS" />
-        <BreakerText text="SALON NEAR BY YOU" />
+        <BreakerText text="SALON NEAR BY YOU" />  
+        <MapAndListView/> 
 
 
         
@@ -248,7 +239,8 @@ const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
     backgroundColor: '#fff',
-    marginTop: 50
+    marginTop: 50,
+    marginBottom:20,
   },
   scrollContent: {
     paddingBottom: 20,
