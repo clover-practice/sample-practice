@@ -19,6 +19,9 @@ import Animated, {
   withTiming,
 } from 'react-native-reanimated';
 import { useTabBarVisibility } from '../components/TabBarVisibilityContext';
+import CustomCarousel from '../components/CustomCarousel';
+import Constants from '../constants/Constants';
+ 
 
 // --- NEW IMPORTS FOR NAVIGATION PARAMS ---
 import { useRoute, RouteProp } from '@react-navigation/native';
@@ -145,8 +148,7 @@ const HomeScreen = () => {
 
   const tabBarHeight = useBottomTabBarHeight();
   const { translateY } = useTabBarVisibility();
-  const scrollY = useSharedValue(0);
-
+  const scrollY = useSharedValue(0); 
   const scrollHandler = useAnimatedScrollHandler({
     onScroll: (event) => {
       const currentY = event.contentOffset.y;
@@ -171,10 +173,12 @@ const HomeScreen = () => {
         contentContainerStyle={styles.scrollContent}
       >
         <TopSearchBar
+          city={Constants.CUREENT_LOCATON}
           city={currentCity} // This will now reflect the selected address
           offerLabel="50% Offer"
           userInitial={firstChar}
           onPressAvatar={() => navigate('ServiceMenuScreen')}
+          onPressLocation={() => navigate('StickyTabBarScreen')}
           onPressLocation={() => navigate('MapPicker')} // This navigates to MapPicker
         />
 
@@ -199,6 +203,7 @@ const HomeScreen = () => {
         />
 
         <BreakerText text="SALON BY PRODUCTS" />
+        <BreakerText text="SALON NEAR BY YOU" /> 
         <BreakerText text="SALON NEAR BY YOU" />
         <MapAndListView/>
         <BreakerText text="SALON BY PRODUCTS" />

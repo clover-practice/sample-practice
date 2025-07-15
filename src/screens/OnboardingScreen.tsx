@@ -26,7 +26,7 @@ const OnboardingScreen = () => {
 
     checkLoginStatus(); // 👈 This must be inside useEffect
   }, []);
-
+123456789
   return (
     <View style={styles.container}>
       <Text style={styles.title}>MyApp</Text>

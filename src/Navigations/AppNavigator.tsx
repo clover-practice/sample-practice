@@ -5,6 +5,7 @@ import BottomTabs from './BottomTabs';
 import EditProfileScreen from '../screens/EditProfileScreen';
 import ServiceMenuScreen from '../screens/ServiceMenuScreen';
 import OtpScreen from '../screens/OtpScreen';
+import StickyTabBarScreen from '../screens/StickyTabBarScreen';
 import MapPicker from '../screens/GoogleMaps/MapPicker';
 import MapAndListView from '../screens/MapAndListView';
 const Stack = createNativeStackNavigator();
@@ -18,6 +19,7 @@ const AppNavigator = () => (
           <Stack.Screen name='EditProfileScreen' component={EditProfileScreen}/>
           <Stack.Screen name='ServiceMenuScreen' component={ServiceMenuScreen}/>
           <Stack.Screen name='OtpScreen' component={OtpScreen}/>
+          <Stack.Screen name='StickyTabBarScreen' component={StickyTabBarScreen}/>
           <Stack.Screen name='MapPicker' component={MapPicker}/>
           <Stack.Screen name='MapAndListView' component={MapAndListView}/>
           

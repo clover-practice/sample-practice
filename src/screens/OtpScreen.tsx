@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect,useRef,useState } from 'react';
 import {
   Text,
   TouchableOpacity,
@@ -9,11 +9,15 @@ import {
   Platform,
   Keyboard,
   TouchableWithoutFeedback,
+  Button
 } from 'react-native';
 import OtpInput from '../components/OtpInput';
 import { goBack, navigate } from '../utils/NavigationUtils';
 import CustomHeader from '../components/CustomHeader';
-import { useRoute, RouteProp } from '@react-navigation/native';
+import { useRoute, RouteProp } from '@react-navigation/native'; 
+import CustomButton from '../components/CustomButton';
+import Constants from '../constants/Constants'; 
+import BottomSheetAlert, { BottomSheetAlertRef } from '../components/BottomSheetAlert';
 
 // Define expected route parameters
 type RootStackParamList = {
@@ -24,6 +28,8 @@ type RootStackParamList = {
 type OtpScreenRouteProp = RouteProp<RootStackParamList, 'OtpScreen'>;
 
 const OtpScreen = () => {
+    // const [showAlert, setShowAlert] = useState(false);
+
   const route = useRoute<OtpScreenRouteProp>();
   const mobile = route.params?.mobile ?? ''; // Fallback to empty string if undefined
 
@@ -31,9 +37,12 @@ const OtpScreen = () => {
     console.log('Mobile number received:', mobile);
   }, [mobile]);
 
-  const handleLogin = () => {
+  const handleSubmitOtp = () => {
     navigate('MainApp');
   };
+
+ 
+
 
   return (
     <View style={styles.container}>
@@ -55,11 +64,14 @@ const OtpScreen = () => {
                 : 'An OTP has been sent to your mobile number.'}
             </Text>
 
-            <OtpInput />
+            <OtpInput /> 
+ 
+            <CustomButton
+              title={Constants.SUBMIT}
+              onPress={() => navigate('MainApp')}   
+              style={{ marginTop: 40 }}
+            />
 
-            <TouchableOpacity style={styles.submitButton} onPress={handleLogin}>
-              <Text style={styles.submitButtonText}>Submit</Text>
-            </TouchableOpacity>
           </ScrollView>
         </KeyboardAvoidingView>
       </TouchableWithoutFeedback>
