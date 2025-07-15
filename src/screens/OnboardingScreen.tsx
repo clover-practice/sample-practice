@@ -1,3 +1,9 @@
+import React, { useEffect,useState } from 'react';
+import { View, Text, StyleSheet, ActivityIndicator,TouchableOpacity } from 'react-native';
+import { replace } from '../utils/NavigationUtils';
+import AsyncStorage from '@react-native-async-storage/async-storage'; 
+import { useNavigation, useRoute, RouteProp } from '@react-navigation/native'; // <--- ADD these imports
+import { StackNavigationProp } from '@react-navigation/stack'; // <--- ADD this import
 import React, { useEffect } from 'react';
 import { View, Text, StyleSheet, ActivityIndicator } from 'react-native';
 import { replace } from '../utils/NavigationUtils'; 
@@ -10,6 +16,15 @@ useEffect(() => {
     const isLoggedIn = await getValue(Constants.IS_LOGIN);
     console.log("TOKEN IS  isLoggedIn :- ", isLoggedIn);
 
+        setTimeout(() => {
+          if (token === "true") {
+            replace('MainApp'); // User is logged in
+          } else {
+            replace('Login'); // Not logged in
+          }
+        }, 1500); // Simulated splash delay
+      } catch (error) {
+        replace('Login'); // Fallback in case of error
     setTimeout(() => {
       if (isLoggedIn === true) {
         replace('MainApp');

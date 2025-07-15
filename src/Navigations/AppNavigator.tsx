@@ -6,6 +6,8 @@ import EditProfileScreen from '../screens/EditProfileScreen';
 import ServiceMenuScreen from '../screens/ServiceMenuScreen';
 import OtpScreen from '../screens/OtpScreen';
 import StickyTabBarScreen from '../screens/StickyTabBarScreen';
+import MapPicker from '../screens/GoogleMaps/MapPicker';
+import MapAndListView from '../screens/MapAndListView';
 import { NavigationContainer } from '@react-navigation/native';
 import { StatusBar, Platform } from 'react-native';
 import { TabBarVisibilityProvider } from '../components/TabBarVisibilityContext';
@@ -31,6 +33,8 @@ const AppNavigator = () => (
           <Stack.Screen name='ServiceMenuScreen' component={ServiceMenuScreen}/>
           <Stack.Screen name='OtpScreen' component={OtpScreen}/>
           <Stack.Screen name='StickyTabBarScreen' component={StickyTabBarScreen}/>
+          <Stack.Screen name='MapPicker' component={MapPicker}/>
+          <Stack.Screen name='MapAndListView' component={MapAndListView}/>
           
         </Stack.Navigator>
            
