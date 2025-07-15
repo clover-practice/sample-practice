@@ -1,8 +1,7 @@
 // screens/LoginScreen.tsx
 import { View, Text, TouchableOpacity } from 'react-native';
 import React,{useState} from 'react'; 
-import { navigate, replace } from '../utils/NavigationUtils';
-import AsyncStorage from '@react-native-async-storage/async-storage'; 
+import { navigate, replace } from '../utils/NavigationUtils'; 
 import MobileNumberInput from '../components/NumberInput';
 import CustomButton from '../components/CustomButton';
 import Colors from '../constants/colors';
@@ -11,15 +10,9 @@ import Constants from '../constants/Constants';
 
 const LoginScreen = () => { 
   const [quantity, setQuantity] = useState(1);
-    const [mobile, setMobile] = useState('');
-  // const handleLogin = () => {
-  //   login(); // ✅ Set isAuthenticated to true
-  //    replace('MainApp'); // or 'Dashboard' or whatever your target screen is
-  // };
+    const [mobile, setMobile] = useState(''); 
 
-  const handleLogin = async () => {
-    await AsyncStorage.setItem('userToken',  "true");
-    // replace('MainApp');
+  const handleLogin = async () => { 
     navigate('OtpScreen',{ mobile: mobile });
   };
 

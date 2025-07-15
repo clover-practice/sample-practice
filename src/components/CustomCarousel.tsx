@@ -79,6 +79,7 @@ const CustomCarousel: React.FC<CustomCarouselProps> = ({ data = [] }) => {
       >
               {data.map((item, index) => (
                 <PromoBanner
+                key={item.id.toString()} 
                 promoText={ item.titleMessage}
                 bannerImage={ item.uri}
                 />

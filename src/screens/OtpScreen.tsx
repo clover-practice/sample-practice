@@ -18,6 +18,7 @@ import { useRoute, RouteProp } from '@react-navigation/native';
 import CustomButton from '../components/CustomButton';
 import Constants from '../constants/Constants'; 
 import BottomSheetAlert, { BottomSheetAlertRef } from '../components/BottomSheetAlert';
+import { setValue } from '../utils/keychainStorage';
 
 // Define expected route parameters
 type RootStackParamList = {
@@ -37,9 +38,11 @@ const OtpScreen = () => {
     console.log('Mobile number received:', mobile);
   }, [mobile]);
 
-  const handleSubmitOtp = () => {
-    navigate('MainApp');
-  };
+  const handleSubmitOtp = async () => {
+    await setValue(Constants.IS_LOGIN, true);
+    await setValue(Constants.USER_NAME, "Nilesh");
+  navigate('MainApp');
+};
 
  
 
@@ -68,7 +71,7 @@ const OtpScreen = () => {
  
             <CustomButton
               title={Constants.SUBMIT}
-              onPress={() => navigate('MainApp')}   
+              onPress={() =>  handleSubmitOtp() }   
               style={{ marginTop: 40 }}
             />
 

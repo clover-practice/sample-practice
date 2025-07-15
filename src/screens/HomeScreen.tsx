@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect,useState} from 'react';
 import { View, StyleSheet, SafeAreaView } from 'react-native';
 import TopSearchBar from '../components/HomeHeaderComponent'; 
 import BreakerText from '../components/BreakerText';
@@ -13,6 +13,7 @@ import Animated, {
 import { useTabBarVisibility } from '../components/TabBarVisibilityContext';
 import CustomCarousel from '../components/CustomCarousel';
 import Constants from '../constants/Constants';
+import { getValue } from '../utils/keychainStorage';
  
 const HomeScreen = () => {
   const tabBarHeight = useBottomTabBarHeight();
@@ -33,8 +34,20 @@ const HomeScreen = () => {
     },
   });
 
-  const name = "R";
-  const firstChar = name.charAt(0).toUpperCase();
+  const [userName, setUserName] = useState('');
+useEffect(() => { 
+  
+  getUserData();
+}, []);
+
+   const getUserData = async () => {
+    const userName = await getValue(Constants.USER_NAME);
+     console.log("GET USER NAME :- ", userName);
+    //  const name = "R";
+  setUserName(userName.charAt(0).toUpperCase());
+
+    
+  };
 
   return (
     <SafeAreaView style={styles.safeArea}>
@@ -47,7 +60,7 @@ const HomeScreen = () => {
         <TopSearchBar
           city={Constants.CUREENT_LOCATON}
           offerLabel="50% Offer"
-          userInitial={firstChar}
+          userInitial={userName}
           onPressAvatar={() => navigate('ServiceMenuScreen')}
           onPressLocation={() => navigate('StickyTabBarScreen')}
         />
@@ -61,8 +74,7 @@ const HomeScreen = () => {
         />
 
         
-        <BreakerText text="SALON BY PRODUCTS" />
-        <BreakerText text="SALON NEAR BY YOU" /> 
+        <BreakerText text="SALON BY PRODUCTS" /> 
 
          
 
