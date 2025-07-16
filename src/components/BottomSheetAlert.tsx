@@ -1,9 +1,4 @@
-import React, {
-  useState,
-  useRef,
-  forwardRef,
-  useImperativeHandle,
-} from 'react';
+import React, {useState, useRef, forwardRef, useImperativeHandle} from 'react';
 import {
   Animated,
   Modal,
@@ -28,7 +23,7 @@ export type BottomSheetAlertRef = {
   show: (props: Props) => void;
 };
 
-const { height: SCREEN_HEIGHT } = Dimensions.get('window');
+const {height: SCREEN_HEIGHT} = Dimensions.get('window');
 
 const BottomSheetAlert = forwardRef<BottomSheetAlertRef>((_, ref) => {
   const [visible, setVisible] = useState(false);
@@ -69,25 +64,26 @@ const BottomSheetAlert = forwardRef<BottomSheetAlertRef>((_, ref) => {
     },
   }));
 
-  const { title, message, confirmText, cancelText, onConfirm } =
-    propsRef.current;
+  const {title, message, confirmText, cancelText, onConfirm} = propsRef.current;
 
   return (
     <Modal transparent visible={visible} animationType="none">
       <TouchableWithoutFeedback onPress={() => slideOut()}>
         <View style={styles.backdrop}>
           <TouchableWithoutFeedback>
-            <Animated.View style={[styles.container, { transform: [{ translateY }] }]}>
+            <Animated.View
+              style={[styles.container, {transform: [{translateY}]}]}>
               {title ? <Text style={styles.title}>{title}</Text> : null}
               <Text style={styles.message}>{message}</Text>
               <View style={styles.buttonContainer}>
-                <TouchableOpacity style={styles.cancelButton} onPress={() => slideOut()}>
+                <TouchableOpacity
+                  style={styles.cancelButton}
+                  onPress={() => slideOut()}>
                   <Text style={styles.cancelText}>{cancelText}</Text>
                 </TouchableOpacity>
                 <TouchableOpacity
                   style={styles.confirmButton}
-                  onPress={() => slideOut(onConfirm)}
-                >
+                  onPress={() => slideOut(onConfirm)}>
                   <Text style={styles.confirmText}>{confirmText}</Text>
                 </TouchableOpacity>
               </View>
@@ -152,10 +148,8 @@ const styles = StyleSheet.create({
 
 export default BottomSheetAlert;
 
-
-
-               
-{/* <BottomSheetAlert ref={alertRef} />
+{
+  /* <BottomSheetAlert ref={alertRef} />
              
 const alertRef = useRef<BottomSheetAlertRef>(null);
 
@@ -167,4 +161,5 @@ const alertRef = useRef<BottomSheetAlertRef>(null);
       cancelText: 'Cancel',
       onConfirm: () => console.log('User logged out!'),
     });
-  }; */}
+  }; */
+}

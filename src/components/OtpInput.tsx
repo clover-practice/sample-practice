@@ -1,11 +1,12 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, {useEffect, useRef, useState} from 'react';
 import {
   View,
   TextInput,
   StyleSheet,
   Text,
   TouchableOpacity,
-  Keyboard,Platform
+  Keyboard,
+  Platform,
 } from 'react-native';
 
 const OTP_LENGTH = 6;
@@ -20,7 +21,7 @@ const OtpInput = () => {
 
   useEffect(() => {
     if (timer > 0) {
-      const interval = setInterval(() => setTimer((prev) => prev - 1), 1000);
+      const interval = setInterval(() => setTimer(prev => prev - 1), 1000);
       return () => clearInterval(interval);
     } else {
       setResendVisible(true);
@@ -65,9 +66,9 @@ const OtpInput = () => {
         {otp.map((value, index) => (
           <TextInput
             key={index}
-            ref={(ref) => (inputRefs.current[index] = ref)}
+            ref={ref => (inputRefs.current[index] = ref)}
             value={value}
-            onChangeText={(text) => handleChange(text, index)}
+            onChangeText={text => handleChange(text, index)}
             keyboardType="numeric"
             maxLength={1}
             style={styles.otpBox}
@@ -78,28 +79,21 @@ const OtpInput = () => {
         ))}
       </View>
       <View style={styles.timerContainer}>
-      {!resendVisible ? (
-        <Text
-          style={[
-            styles.timer,
-            timer < 15 && { color: 'red' }  
-          ]}
-        >
-          Resend OTP in {timer} s
-        </Text>
-
-        
-      ) : (
-        <TouchableOpacity onPress={handleResend}>
-          <Text style={styles.resend}>Resend OTP</Text>
-        </TouchableOpacity>
+        {!resendVisible ? (
+          <Text style={[styles.timer, timer < 15 && {color: 'red'}]}>
+            Resend OTP in {timer} s
+          </Text>
+        ) : (
+          <TouchableOpacity onPress={handleResend}>
+            <Text style={styles.resend}>Resend OTP</Text>
+          </TouchableOpacity>
         )}
-        </View>
+      </View>
     </View>
   );
 };
 
-export default OtpInput;  
+export default OtpInput;
 
 export const styles = StyleSheet.create({
   container: {
@@ -108,7 +102,7 @@ export const styles = StyleSheet.create({
     marginBottom: 30,
   },
   title: {
-    fontSize: Platform.OS==='android' ? 20 :18,
+    fontSize: Platform.OS === 'android' ? 20 : 18,
     marginBottom: 20,
     fontWeight: '600',
   },
@@ -130,22 +124,22 @@ export const styles = StyleSheet.create({
   },
   timer: {
     marginTop: 20,
-    fontSize: Platform.OS==='android' ? 18 :16,
+    fontSize: Platform.OS === 'android' ? 18 : 16,
     color: 'gray',
     justifyContent: 'flex-end',
-    alignItems:'flex-end',
+    alignItems: 'flex-end',
   },
   resend: {
     marginTop: 20,
     fontSize: 16,
     justifyContent: 'flex-end',
-    alignItems:'flex-end',
+    alignItems: 'flex-end',
     color: 'dodgerblue',
     fontWeight: '600',
   },
   timerContainer: {
-  alignSelf: 'flex-end',
-  marginTop: 10,
-  marginRight: 20,
-},
+    alignSelf: 'flex-end',
+    marginTop: 10,
+    marginRight: 20,
+  },
 });
