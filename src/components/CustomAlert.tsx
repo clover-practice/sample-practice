@@ -10,9 +10,8 @@ import {
 } from 'react-native';
 import Colors from '../constants/colors';
 import Strings from '../constants/Constants';
- 
 
-const { width } = Dimensions.get('window');
+const {width} = Dimensions.get('window');
 
 type Props = {
   visible: boolean;
@@ -40,8 +39,7 @@ const CustomAlert: React.FC<Props> = ({
       visible={visible}
       transparent
       animationType="fade"
-      onRequestClose={onClose}
-    >
+      onRequestClose={onClose}>
       <View style={styles.overlay}>
         <View style={styles.container}>
           {title && <Text style={styles.title}>{title}</Text>}
@@ -50,8 +48,7 @@ const CustomAlert: React.FC<Props> = ({
             {showCancelButton && (
               <TouchableOpacity
                 style={[styles.button, styles.cancelButton]}
-                onPress={onClose}
-              >
+                onPress={onClose}>
                 <Text style={styles.cancelText}>{cancelText}</Text>
               </TouchableOpacity>
             )}
@@ -60,8 +57,7 @@ const CustomAlert: React.FC<Props> = ({
               onPress={() => {
                 onConfirm?.();
                 onClose();
-              }}
-            >
+              }}>
               <Text style={styles.confirmText}>{confirmText}</Text>
             </TouchableOpacity>
           </View>
@@ -86,7 +82,7 @@ const styles = StyleSheet.create({
     ...Platform.select({
       ios: {
         shadowColor: '#000',
-        shadowOffset: { width: 0, height: 2 },
+        shadowOffset: {width: 0, height: 2},
         shadowOpacity: 0.25,
         shadowRadius: 4,
       },
@@ -137,8 +133,6 @@ const styles = StyleSheet.create({
 });
 
 export default CustomAlert;
-
-
 
 // const [visible, setVisible] = useState(false);
 //    <CustomAlert
