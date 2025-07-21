@@ -17,7 +17,7 @@ useEffect(() => {
       } else {
         replace('Login');
       }
-    }, 15000);
+    }, 1500);
   };
 
   checkLoginStatus();

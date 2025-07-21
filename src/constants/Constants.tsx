@@ -10,8 +10,8 @@ const Strings = {
   CLOSE: 'Close',
   CONFIRM: 'Confirm',
 
-    // Auth
-  SEND_OTP:'Send Otp',
+  // Auth
+  SEND_OTP: 'Send Otp',
   LOGIN: 'Login',
   LOGOUT: 'Logout',
   SIGN_UP: 'Sign Up',
@@ -47,17 +47,25 @@ const Strings = {
   LANGUAGE: 'Language',
   SELECT_LANGUAGE: 'Select Language',
   CUREENT_LOCATON: 'Mumbai',
-  API_KEY: 'os_v2_app_3flp5qwr2van3nnutrkxeczr5qahiypzl2bufuvbjgyucdo7dusd2tuj5ncfxvfgsvwfp6inuhvwvl3gozwaudbilrwccvgkqz4fn3y',
+  API_KEY:
+    'os_v2_app_3flp5qwr2van3nnutrkxeczr5qahiypzl2bufuvbjgyucdo7dusd2tuj5ncfxvfgsvwfp6inuhvwvl3gozwaudbilrwccvgkqz4fn3y',
   APP_ID: 'd956fec2-d1d5-40dd-b5b4-9c55720b31ec',
-  
 
   //==================================== Storage the Key Id ====================================
   USER_NAME: 'user_name',
   IS_LOGIN: 'is_login',
-  
-  
+  WOMAN: 'Women',
+  MAN: 'Men',
 
+  //==================================== Screen Title ====================================
+  My_Appointments: 'My Appointments',
+  MY_ACCOUNT: 'My Account',
+  SCREEN_PADDING: 6,
+  BOTTOM_PADDING: 30,
 
+  // https://www.google.com/search?q=how+to+handle+the+push+notification+in+react+native&oq=how+to+handle+the+push+notification+in+react+native+&gs_lcrp=EgZjaHJvbWUyBggAEEUYOTIICAEQABgWGB4yCAgCEAAYFhgeMggIAxAAGBYYHjIICAQQABgWGB4yCAgFEAAYFhgeMggIBhAAGBYYHjIICAcQABgWGB4yCAgIEAAYFhgeMggICRAAGBYYHtIBCTI2MjUyajBqN6gCALACAA&sourceid=chrome&ie=UTF-8
+  //https://notifee.app/react-native/docs/android/appearance
+  //https://rnfirebase.io/messaging/server-integration#send-messages-to-topics
 };
 
 export default Strings;

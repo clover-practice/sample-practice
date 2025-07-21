@@ -189,7 +189,7 @@ const HomeScreen = () => {
           city={currentCity} // This will now reflect the selected address
           offerLabel="50% Offer"
           userInitial={userName}
-          onPressAvatar={() => navigate('ServiceMenuScreen')}
+          onPressAvatar={() => navigate('EditProfileScreen')}
           onPressLocation={() => navigate('MapPicker')} // This navigates to MapPicker
         />
 

@@ -25,14 +25,20 @@ const Colors = {
 
   // Others
   TRANSPARENT_BLACK: 'rgba(0,0,0,0.5)',
-  DEFAULT_BUTTON_COLOR: "dodgerblue",
-  
-  
-  DANGER: '#DC3545', 
+  DEFAULT_BUTTON_COLOR: 'dodgerblue',
+
+  DANGER: '#DC3545',
   INFO: '#00CED1',
   BACKGROUND: '#F5F5F5',
+  STATUS_BAR_COLOR: '#fff',
   TEXT_DARK: '#222',
   TEXT_LIGHT: '#FFF',
+  CARD_COLOR: '#0e84ff',
+  BORDER_COLOR: '#f2f2f2',
+
+  // ICON COLORS
+  ICON_COLOR: '0e84ff',
+  
 };
 
 export default Colors;
