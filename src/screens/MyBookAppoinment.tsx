@@ -14,7 +14,7 @@ import responsive from '../utils/responsive';
 import Constants from '../constants/Constants';
 import Colors from '../constants/colors'; // Assuming you have this instead of importing from 'react-native'
 
-const MyAppointmentBooking = () => {
+const MyBookAppoinment = () => {
   const [selectedButton, setSelectedButton] = useState('');
   return (
     <SafeAreaView style={styles.safeArea}>
@@ -63,7 +63,7 @@ const MyAppointmentBooking = () => {
   );
 };
 
-export default MyAppointmentBooking;
+export default MyBookAppoinment;
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,

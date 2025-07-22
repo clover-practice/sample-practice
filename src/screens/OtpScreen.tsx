@@ -1,4 +1,4 @@
-import React, { useEffect,useRef,useState } from 'react';
+import React, {useEffect, useRef, useState} from 'react';
 import {
   Text,
   TouchableOpacity,
@@ -9,27 +9,29 @@ import {
   Platform,
   Keyboard,
   TouchableWithoutFeedback,
-  Button
+  Button,
 } from 'react-native';
 import OtpInput from '../components/OtpInput';
-import { goBack, navigate } from '../utils/NavigationUtils';
+import {goBack, navigate} from '../utils/NavigationUtils';
 import CustomHeader from '../components/CustomHeader';
-import { useRoute, RouteProp } from '@react-navigation/native'; 
+import {useRoute, RouteProp} from '@react-navigation/native';
 import CustomButton from '../components/CustomButton';
-import Constants from '../constants/Constants'; 
-import BottomSheetAlert, { BottomSheetAlertRef } from '../components/BottomSheetAlert';
-import { setValue } from '../utils/keychainStorage';
+import Constants from '../constants/Constants';
+import BottomSheetAlert, {
+  BottomSheetAlertRef,
+} from '../components/BottomSheetAlert';
+import {setValue} from '../utils/keychainStorage';
 
 // Define expected route parameters
 type RootStackParamList = {
-  OtpScreen: { mobile: string };
+  OtpScreen: {mobile: string};
 };
 
 // Route prop type for this screen
 type OtpScreenRouteProp = RouteProp<RootStackParamList, 'OtpScreen'>;
 
 const OtpScreen = () => {
-    // const [showAlert, setShowAlert] = useState(false);
+  // const [showAlert, setShowAlert] = useState(false);
 
   const route = useRoute<OtpScreenRouteProp>();
   const mobile = route.params?.mobile ?? ''; // Fallback to empty string if undefined
@@ -40,41 +42,39 @@ const OtpScreen = () => {
 
   const handleSubmitOtp = async () => {
     await setValue(Constants.IS_LOGIN, true);
-    await setValue(Constants.USER_NAME, "Nilesh");
-  navigate('MainApp');
-};
-
- 
-
+    await setValue(Constants.USER_NAME, 'Nilesh');
+    navigate('MainApp');
+  };
 
   return (
     <View style={styles.container}>
-      <CustomHeader showBack={true} onBackPress={goBack} />
+      <CustomHeader
+        title="Login with otp"
+        showBack={true}
+        onBackPress={goBack}
+      />
 
       <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
         <KeyboardAvoidingView
-          style={{ flex: 1 }}
+          style={{flex: 1}}
           behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-          keyboardVerticalOffset={Platform.OS === 'ios' ? 100 : 0}
-        >
+          keyboardVerticalOffset={Platform.OS === 'ios' ? 100 : 0}>
           <ScrollView
             contentContainerStyle={styles.content}
-            keyboardShouldPersistTaps="handled"
-          >
+            keyboardShouldPersistTaps="handled">
             <Text style={styles.otpInfoText}>
               {mobile
                 ? `An OTP has been sent to your mobile number\n+91 ${mobile}`
                 : 'An OTP has been sent to your mobile number.'}
             </Text>
 
-            <OtpInput /> 
- 
+            <OtpInput />
+
             <CustomButton
               title={Constants.SUBMIT}
-              onPress={() =>  handleSubmitOtp() }   
-              style={{ marginTop: 40 }}
+              onPress={() => handleSubmitOtp()}
+              style={{marginTop: 40}}
             />
-
           </ScrollView>
         </KeyboardAvoidingView>
       </TouchableWithoutFeedback>
@@ -97,7 +97,7 @@ const styles = StyleSheet.create({
     paddingBottom: 40,
   },
   otpInfoText: {
-    fontSize: Platform.OS==='android' ? 18 :15,
+    fontSize: Platform.OS === 'android' ? 18 : 15,
     marginBottom: 20,
     color: '#333',
     textAlign: 'center',
@@ -114,6 +114,6 @@ const styles = StyleSheet.create({
   submitButtonText: {
     color: 'white',
     textAlign: 'center',
-    fontSize: Platform.OS==='android' ? 18 :16,
+    fontSize: Platform.OS === 'android' ? 18 : 16,
   },
 });

@@ -63,7 +63,7 @@ const EditProfileScreen = () => {
         <Section
           title="My Appointments"
           icon="calendar-today"
-          onPress={() => navigate('MyAppointmentBooking')}
+          onPress={() => navigate('MyBookAppoinment')}
         />
         <Section
           title="My Wallet"
@@ -105,7 +105,7 @@ const EditProfileScreen = () => {
           <Section
             title="Share App"
             icon="share"
-            onPress={() => console.log('Share App')}
+            onPress={() => console.log('Invite Friends & Family')}
           />
           <View style={styles.sectionDevider}></View>
           <Section

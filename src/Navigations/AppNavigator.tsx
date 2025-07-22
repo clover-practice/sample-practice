@@ -14,7 +14,9 @@ import {TabBarVisibilityProvider} from '../components/TabBarVisibilityContext';
 import {navigationRef} from '../utils/NavigationUtils';
 import {ThemeProvider} from '../theme/ThemeContext';
 import MyWalletScreen from '../screens/MyWalletScreen';
-import MyAppointmentBooking from '../screens/MyAppointmentBooking';
+import MyBookAppoinment from '../screens/MyBookAppoinment';
+import AppointmmentBooking from '../screens/AppointmmentBooking';
+import CartScreen from '../screens/CartScreen';
 const Stack = createNativeStackNavigator();
 
 const AppNavigator = () => (
@@ -47,9 +49,10 @@ const AppNavigator = () => (
           <Stack.Screen name="MapAndListView" component={MapAndListView} />
           <Stack.Screen name="MyWalletScreen" component={MyWalletScreen} />
           <Stack.Screen
-            name="MyAppointmentBooking"
-            component={MyAppointmentBooking}
+            name="AppointmmentBooking"
+            component={AppointmmentBooking}
           />
+          <Stack.Screen name="MyBookAppoinment" component={MyBookAppoinment} />
         </Stack.Navigator>
       </TabBarVisibilityProvider>
     </NavigationContainer>
