@@ -13,6 +13,7 @@ import { StatusBar, Platform } from 'react-native';
 import { TabBarVisibilityProvider } from '../components/TabBarVisibilityContext';
 import { navigationRef } from '../utils/NavigationUtils';
 import { ThemeProvider } from '../theme/ThemeContext';
+import PermissionScreen from '../screens/PermissionScreen';
 const Stack = createNativeStackNavigator();
  
 
@@ -34,7 +35,8 @@ const AppNavigator = () => (
           <Stack.Screen name='OtpScreen' component={OtpScreen}/>
           <Stack.Screen name='StickyTabBarScreen' component={StickyTabBarScreen}/>
           <Stack.Screen name='MapPicker' component={MapPicker}/>
-          <Stack.Screen name='MapAndListView' component={MapAndListView}/>
+          
+        <Stack.Screen name='PermissionScreen' component={PermissionScreen}/>
           
         </Stack.Navigator>
            

@@ -15,9 +15,10 @@ useEffect(() => {
       if (isLoggedIn === true) {
         replace('MainApp');
       } else {
-        replace('Login');
+        replace('PermissionScreen');
+       // replace('Login');
       }
-    }, 15000);
+    }, 5000);
   };
 
   checkLoginStatus();
