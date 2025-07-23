@@ -1,6 +1,17 @@
 const Strings = {
   // App
   APP_NAME: 'MyReactNativeApp',
+  //Current Address
+  CURRENT_ADDRESS:'FETCHING',
+
+   // GOMAPS_API_KEY:'AlzaSyHbXxV_iKjbmuS9F2kTeHuMdpp6j0UGYOe', //(Anil Account)
+    GOMAPS_API_KEY:'AlzaSy6joRYE14YzhEOOje7VQoXFaVwWfWpYb-A', //(Rupesh Account)
+    // GOMAPS_API_KEY:'AIzaSyBME9Zx44gJNIIcKIhKMMEgn7Ne1s462fU', //(github Account)
+   // GOMAPS_API_KEY:'AlzaSyeqlZxnju2ak-RqPEideRLyfF0u7H1vd7m',   // Yogesh
+    
+    NEARBY_PLACES_API_URL:'https://maps.gomaps.pro/maps/api/place/nearbysearch/json',
+    NAME_PLACE:'hospital',
+    REDIUS:'5000',
 
   // Common
   OK: 'OK',
@@ -54,6 +65,18 @@ const Strings = {
   //==================================== Storage the Key Id ====================================
   USER_NAME: 'user_name',
   IS_LOGIN: 'is_login',
+  
+  LATITUDE:'latitude',
+  LONITUDE:'longitude',
+  CITY_ADDRESS:'city_address',
+
+  
+
+
+  
+  
+
+
   WOMAN: 'Women',
   MAN: 'Men',
 

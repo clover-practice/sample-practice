@@ -15,8 +15,9 @@ useEffect(() => {
       if (isLoggedIn === true) {
         replace('MainApp');
       } else {
-        replace('Login');
-      }
+        // replace('PermissionScreen');
+       replace('Login');
+      } 
     }, 1500);
   };
 

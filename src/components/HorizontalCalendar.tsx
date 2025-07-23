@@ -1,18 +1,18 @@
-import React, {useState} from 'react';
-import {View, Text, FlatList, TouchableOpacity, StyleSheet} from 'react-native';
+import React, { useState } from 'react';
+import { View, Text, FlatList, TouchableOpacity, StyleSheet } from 'react-native';
 
 const getNextDays = () => {
   const days = [];
   const today = new Date();
-  for (let i = 0; i < 60; i++) {
+  for (let i = 0; i < 7; i++) {
     const date = new Date(today);
     date.setDate(today.getDate() + i);
     days.push({
       id: i,
       date,
-      day: date.toLocaleString('default', {weekday: 'short'}), // Tue
+      day: date.toLocaleString('default', { weekday: 'short' }), // Tue
       dateNum: date.getDate(), // 22
-      month: date.toLocaleString('default', {month: 'short'}), // Apr
+      month: date.toLocaleString('default', { month: 'short' }), // Apr
     });
   }
 
@@ -27,13 +27,12 @@ const getFormattedDate = (date: Date): string => {
     date.getFullYear() === today.getFullYear();
 
   const day = date.getDate();
-  const weekday = date.toLocaleString('default', {weekday: 'long'});
-  const month = date.toLocaleString('default', {month: 'short'});
+  const weekday = date.toLocaleString('default', { weekday: 'long' });
+  const month = date.toLocaleString('default', { month: 'short' });
   const year = date.getFullYear();
 
-  return `${
-    isToday ? 'Today' : weekday
-  } | ${day} ${month}, ${weekday}, ${year}`;
+  return `${isToday ? 'Today' : weekday
+    } | ${day} ${month}, ${weekday}, ${year}`;
 };
 
 const HorizontalCalendar = () => {
@@ -57,8 +56,8 @@ const HorizontalCalendar = () => {
         data={days}
         keyExtractor={item => item.id.toString()}
         showsHorizontalScrollIndicator={false}
-        contentContainerStyle={{paddingVertical: 12}}
-        renderItem={({item}) => {
+        contentContainerStyle={{ paddingVertical: 12 }}
+        renderItem={({ item }) => {
           const isSelected = selectedDate.id === item.id;
           return (
             <TouchableOpacity
