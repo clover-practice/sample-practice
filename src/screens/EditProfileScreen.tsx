@@ -7,6 +7,7 @@ import {
   StyleSheet,
   SafeAreaView,
   StatusBar,
+  Platform,
 } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
@@ -16,6 +17,8 @@ import Colors from '../constants/colors';
 import CustomHeader from '../components/CustomHeader';
 import LinearGradient from 'react-native-linear-gradient';
 import Constants from '../constants/Constants';
+import CustomButton from '../components/CustomButton';
+import {clearAll, getValue, setValue} from '../utils/keychainStorage';
 
 const EditProfileScreen = () => {
   return (
@@ -30,94 +33,111 @@ const EditProfileScreen = () => {
         showBack={true}
         showShare={true}
         onBackPress={() => goBack()}
-        rightIconName="notifications-outline" // from Ionicons
+        rightIconName="notifications-outline"
       />
 
-      <ScrollView contentContainerStyle={styles.scrollContainer}>
-        {/* User Info Card */}
-        <View style={styles.card}>
-          <View style={styles.rowBetween}>
-            <View>
-              <Text style={styles.username}>ROHIT</Text>
-              <Text style={styles.mobile}>8452046123</Text>
+      {/* Main Content with Scrollable + Fixed Footer */}
+      <View style={styles.container}>
+        <ScrollView contentContainerStyle={styles.scrollContainer}>
+          {/* User Info Card */}
+          <View style={styles.card}>
+            <View style={styles.rowBetween}>
+              <View>
+                <Text style={styles.username}>ROHIT</Text>
+                <Text style={styles.mobile}>8452046123</Text>
+              </View>
+              <TouchableOpacity>
+                <Text style={styles.edit}>EDIT</Text>
+              </TouchableOpacity>
             </View>
-            <TouchableOpacity>
-              <Text style={styles.edit}>EDIT</Text>
-            </TouchableOpacity>
+            <LinearGradient
+              colors={['#0072ff', '#00c6ff']}
+              start={{x: 0, y: 0}}
+              end={{x: 1, y: 0}}
+              style={styles.gradientCard}>
+              <View style={styles.pointsBanner}>
+                <Text style={styles.pointsText}>
+                  Awesome. You have received <Text style={styles.bold}>25</Text>{' '}
+                  points.
+                </Text>
+              </View>
+            </LinearGradient>
           </View>
-          <LinearGradient
-            colors={['#0072ff', '#00c6ff']}
-            start={{x: 0, y: 0}}
-            end={{x: 1, y: 0}}
-            style={styles.gradientCard}>
-            <View style={styles.pointsBanner}>
-              <Text style={styles.pointsText}>
-                Awesome. You have received <Text style={styles.bold}>25</Text>{' '}
-                points.
-              </Text>
-            </View>
-          </LinearGradient>
-        </View>
 
-        {/* Sections */}
-        <Section
-          title="My Appointments"
-          icon="calendar-today"
-          onPress={() => navigate('MyBookAppoinment')}
-        />
-        <Section
-          title="My Wallet"
-          icon="account-balance-wallet"
-          onPress={() => navigate('MyWalletScreen')}
-        />
+          {/* Sections */}
+          <Section
+            title="My Appointments"
+            icon="calendar-today"
+            onPress={() => navigate('MyBookAppoinment')}
+          />
+          <Section
+            title="My Wallet"
+            icon="account-balance-wallet"
+            onPress={() => navigate('MyWalletScreen')}
+          />
 
-        {/* Gift Card Section */}
-        <Text style={styles.sectionTitle}>Gift Card</Text>
-        <View style={styles.sectionGroup}>
-          <Section
-            title="Buy Gift Card"
-            icon="card-giftcard"
-            onPress={() => console.log('Buy Gift Card')}
-          />
-          <View style={styles.sectionDevider}></View>
-          <Section
-            title="Claim Gift Card"
-            icon="redeem"
-            onPress={() => console.log('Claim Gift Card')}
-          />
-          <View style={styles.sectionDevider}></View>
-          <Section
-            title="Purchase History"
-            icon="history"
-            onPress={() => console.log('Purchase History')}
+          {/* Gift Card Section */}
+          <Text style={styles.sectionTitle}>Gift Card</Text>
+          <View style={styles.sectionGroup}>
+            <Section
+              title="Buy Gift Card"
+              icon="card-giftcard"
+              onPress={() => console.log('Buy Gift Card')}
+            />
+            <View style={styles.sectionDevider}></View>
+            <Section
+              title="Claim Gift Card"
+              icon="redeem"
+              onPress={() => console.log('Claim Gift Card')}
+            />
+            <View style={styles.sectionDevider}></View>
+            <Section
+              title="Purchase History"
+              icon="history"
+              onPress={() => console.log('Purchase History')}
+            />
+          </View>
+
+          {/* Spread the love Section */}
+          <Text style={styles.sectionTitle}>Spread the love</Text>
+          <View style={styles.sectionGroup}>
+            <Section
+              title="Invite Friends & Family"
+              icon="group"
+              onPress={() => console.log('Invite Friends & Family')}
+            />
+            <View style={styles.sectionDevider}></View>
+            <Section
+              title="Share App"
+              icon="share"
+              onPress={() => console.log('Share App')}
+            />
+            <View style={styles.sectionDevider}></View>
+            <Section
+              title="Your Favourite Places"
+              icon="favorite-border"
+              onPress={() => console.log('Your Favourite Places')}
+            />
+          </View>
+        </ScrollView>
+
+        <View style={styles.logoutButton}>
+          <CustomButton
+            title="Logout"
+            style={styles.logoutBtnStyle}
+            textStyle={styles.logoutText}
+            rightIcon={<Ionicons name="log-out" size={20} color="white" />}
+            onPress={async () => {
+              await clearAll();
+              navigate('Login');
+            }}
           />
         </View>
-
-        {/* Spread the love Section */}
-        <Text style={styles.sectionTitle}>Spread the love</Text>
-        <View style={styles.sectionGroup}>
-          <Section
-            title="Invite Friends & Family"
-            icon="group"
-            onPress={() => console.log('Invite Friends & Family')}
-          />
-          <View style={styles.sectionDevider}></View>
-          <Section
-            title="Share App"
-            icon="share"
-            onPress={() => console.log('Invite Friends & Family')}
-          />
-          <View style={styles.sectionDevider}></View>
-          <Section
-            title="Your Favourite Places"
-            icon="favorite-border"
-            onPress={() => console.log('Your Favourite Places')}
-          />
-        </View>
-      </ScrollView>
+      </View>
     </SafeAreaView>
   );
 };
+export default EditProfileScreen;
 
 const Section: React.FC<{
   title: string;
@@ -140,33 +160,23 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: Colors.BACKGROUND,
   },
+  container: {
+    flex: 1,
+    justifyContent: 'space-between',
+  },
   scrollContainer: {
     padding: responsive.padding(Constants.SCREEN_PADDING),
-    paddingBottom: responsive.padding(Constants.BOTTOM_PADDING),
-  },
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: responsive.margin(10),
-    backgroundColor: Colors.STATUS_BAR_COLOR,
-  },
-  title: {
-    fontSize: responsive.fontSize(20),
-    fontWeight: '600',
-    color: '#111',
+    paddingBottom: responsive.padding(80), // Give extra space above logout
   },
   card: {
     backgroundColor: '#fff',
     paddingTop: responsive.padding(15),
     borderRadius: responsive.borderRadius(10),
     marginBottom: responsive.margin(15),
-    // Add shadow (iOS)
     shadowColor: '#000',
     shadowOffset: {width: 0, height: 1},
     shadowOpacity: 0.1,
     shadowRadius: 3,
-    // Elevation (Android)
     elevation: 2,
   },
   rowBetween: {
@@ -197,18 +207,12 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     fontSize: responsive.fontSize(14),
   },
-
   pointsBanner: {
     padding: responsive.padding(10),
-    overflow: 'hidden',
-    position: 'relative',
     justifyContent: 'center',
     alignItems: 'center',
-    borderBottomEndRadius: responsive.borderRadius(8),
-    borderBottomLeftRadius: responsive.borderRadius(8),
     marginTop: responsive.margin(8),
   },
-
   pointsText: {
     color: '#fff',
     fontSize: responsive.fontSize(13),
@@ -222,12 +226,10 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
     borderRadius: 8,
     padding: 5,
-    // Add shadow (iOS)
     shadowColor: '#000',
     shadowOffset: {width: 0, height: 0.5},
     shadowOpacity: 0.1,
     shadowRadius: 3,
-    // Elevation (Android)
     elevation: 0.5,
   },
   sectionTitle: {
@@ -244,45 +246,36 @@ const styles = StyleSheet.create({
     borderRadius: responsive.borderRadius(10),
     marginBottom: responsive.margin(10),
   },
-  sectionRowGroup: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#fff',
-    padding: responsive.padding(12),
-    borderRadius: responsive.borderRadius(10),
-    marginBottom: responsive.margin(10),
-    // Add shadow (iOS)
-    shadowColor: '#000',
-    shadowOffset: {width: 0, height: 0.5},
-    shadowOpacity: 0.1,
-    shadowRadius: 3,
-    // Elevation (Android)
-    elevation: 0.5,
-  },
-
   sectionText: {
     flex: 1,
     marginLeft: responsive.margin(10),
     fontSize: responsive.fontSize(14),
     color: '#111',
   },
-
   sectionDevider: {
-    flex: 1,
     width: '100%',
     backgroundColor: '#f8f9fb',
     height: 2,
   },
-  gradientLayerContainer: {
-    ...StyleSheet.absoluteFillObject,
-    flexDirection: 'row',
-    zIndex: -1,
+
+  logoutButton: {
+    paddingVertical: responsive.padding(50),
+    backgroundColor: '#fff',
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderTopColor: '#eee',
+    borderTopWidth: 1,
   },
 
-  gradientStep: {
-    flex: 1,
-    width: '100%',
+  logoutBtnStyle: {
+    alignSelf: 'center',
+    backgroundColor: '#d00',
+    paddingVertical: responsive.padding(10),
+    paddingHorizontal: responsive.padding(25),
+  },
+  logoutText: {
+    fontSize: responsive.fontSize(14),
+    fontWeight: '600',
+    color: '#fff',
   },
 });
-
-export default EditProfileScreen;

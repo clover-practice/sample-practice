@@ -18,6 +18,7 @@ import AppointmmentBooking from '../screens/AppointmmentBooking';
 import CartScreen from '../screens/CartScreen';
 import PermissionScreen from '../screens/PermissionScreen';
 import LoginScreen from '../screens/LoginScreen';
+import SalonDetailScreen from '../screens/SalonDetailScreen';
 const Stack = createNativeStackNavigator();
 
 const AppNavigator = () => (
@@ -48,6 +49,7 @@ const AppNavigator = () => (
             component={AppointmmentBooking}
           />
           <Stack.Screen name="MyBookAppoinment" component={MyBookAppoinment} />
+          <Stack.Screen name='SalonDetailScreen' component={SalonDetailScreen}/>
         </Stack.Navigator>
       </TabBarVisibilityProvider>
     </NavigationContainer>

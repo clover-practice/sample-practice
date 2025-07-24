@@ -10,6 +10,7 @@ import {
   SafeAreaView,
   StatusBar,
   TextInput,
+  Platform,
 } from 'react-native';
 import Animated, {
   useSharedValue,
@@ -25,6 +26,7 @@ import responsive from '../utils/responsive';
 import ExpandableServiceItem from './categorycomponent/ExpandableServiceItem';
 import Constants from '../constants/Constants';
 import {useCart} from '../contexts/CartContext';
+import {useHideTabBarOnScroll} from '../components/useHideTabBarOnScroll';
 
 const LEFT_MENU = [
   {
@@ -104,25 +106,9 @@ const CategoryScreen = () => {
   const {items} = useCart(); // Get current cart items
 
   const {translateY} = useTabBarVisibility();
+  const scrollHandler = useHideTabBarOnScroll(translateY);
   const scrollY = useSharedValue(0);
   const prevScrollY = useSharedValue(0);
-
-  const scrollHandler = useAnimatedScrollHandler({
-    onScroll: event => {
-      const currentY = event.contentOffset.y;
-      const diff = currentY - prevScrollY.value;
-
-      if (diff > 10) {
-        // Scrolling up – hide tab bar
-        translateY.value = withTiming(100);
-      } else if (diff < -10) {
-        // Scrolling down – show tab bar
-        translateY.value = withTiming(0);
-      }
-
-      prevScrollY.value = currentY;
-    },
-  });
 
   const renderLeftMenu = ({item}: any) => (
     <TouchableOpacity
