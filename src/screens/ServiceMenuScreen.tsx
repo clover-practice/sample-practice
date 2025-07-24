@@ -1,16 +1,21 @@
-import React, { useRef, useState } from 'react';
-import { ScrollView, View, StyleSheet, NativeScrollEvent, NativeSyntheticEvent ,Dimensions,Share} from 'react-native';
+import React, {useRef, useState} from 'react';
+import {
+  ScrollView,
+  View,
+  StyleSheet,
+  NativeScrollEvent,
+  NativeSyntheticEvent,
+  Dimensions,
+  Share,
+} from 'react-native';
 import PromoBanner from '../components/PromoBanner';
 import TabBar from '../components/TabBar';
-import TabContent, { TAB_LIST, TabName } from '../components/TabContent';
+import TabContent, {TAB_LIST, TabName} from '../components/TabContent';
 import CustomHeader from '../components/CustomHeader';
-import { goBack, navigate } from '../utils/NavigationUtils'; 
- 
- 
+import {goBack, navigate} from '../utils/NavigationUtils';
 
 const screenHeight = Dimensions.get('window').height;
-const bottomPadding = screenHeight * 0.40; // e.g., 25% of screen height
-
+const bottomPadding = screenHeight * 0.4; // e.g., 25% of screen height
 
 const ServiceMenuScreen = () => {
   const scrollRef = useRef<ScrollView>(null);
@@ -36,7 +41,7 @@ const ServiceMenuScreen = () => {
 
   const handleTabPress = (tab: TabName) => {
     const y = sectionPositions.current[tab];
-    scrollRef.current?.scrollTo({ y, animated: true });
+    scrollRef.current?.scrollTo({y, animated: true});
     setActiveTab(tab);
   };
 
@@ -44,63 +49,52 @@ const ServiceMenuScreen = () => {
     sectionPositions.current[tab] = y;
   };
 
+  const onSharePress = async () => {
+    try {
+      const result = await Share.share({
+        message: 'Check out this awesome service at Ayala Heights!',
+        url: 'https://example.com/ayala-heights', // Optional
+        title: 'Ayala Heights Service',
+      });
 
-const onSharePress = async () => {
-  try {
-    const result = await Share.share({
-      message: 'Check out this awesome service at Ayala Heights!',
-      url: 'https://example.com/ayala-heights', // Optional
-      title: 'Ayala Heights Service',
-    });
-
-    if (result.action === Share.sharedAction) {
-      if (result.activityType) {
-        console.log('Shared with activity type:', result.activityType);
-      } else {
-        console.log('Shared successfully');
+      if (result.action === Share.sharedAction) {
+        if (result.activityType) {
+          console.log('Shared with activity type:', result.activityType);
+        } else {
+          console.log('Shared successfully');
+        }
+      } else if (result.action === Share.dismissedAction) {
+        console.log('Share dismissed');
       }
-    } else if (result.action === Share.dismissedAction) {
-      console.log('Share dismissed');
+    } catch (error) {
+      console.error('Error sharing:', error);
     }
-  } catch (error) {
-    console.error('Error sharing:', error);
-  }
-};
-
-
+  };
 
   return (
     <View style={styles.container}>
-
       <CustomHeader
         title="Ayala Heights "
         showBack={true}
-        showFavorite={true}  
-        isFavorite={true}
         showShare={true}
-        onBackPress={() =>  goBack() }
-        onFavoritePress={() => console.log('Fav')}
+        onBackPress={() => goBack()}
         onSharePress={() => onSharePress()}
-
       />
-    <ScrollView
-      ref={scrollRef} 
-      stickyHeaderIndices={[1]}
-      onScroll={handleScroll}
-      scrollEventThrottle={16}
-      contentContainerStyle={{ paddingBottom: bottomPadding }}
-    >
-     
+      <ScrollView
+        ref={scrollRef}
+        stickyHeaderIndices={[1]}
+        onScroll={handleScroll}
+        scrollEventThrottle={16}
+        contentContainerStyle={{paddingBottom: bottomPadding}}>
+        <PromoBanner
+          promoText="A new way to be fresh this summer!"
+          bannerImage={require('../assets/images/banner.png')}
+        />
 
-      <PromoBanner
-        promoText="A new way to be fresh this summer!"
-        bannerImage={require('../assets/images/banner.png')}
-      />
-
-      <TabBar activeTab={activeTab} onTabPress={handleTabPress} /> 
-      <TabContent onSectionLayout={onLayoutCapture} />
+        <TabBar activeTab={activeTab} onTabPress={handleTabPress} />
+        <TabContent onSectionLayout={onLayoutCapture} />
       </ScrollView>
-      </View>
+    </View>
   );
 };
 
@@ -110,7 +104,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#fff',
-    marginTop:50
+    marginTop: 50,
   },
   text: {
     marginTop: 100,
@@ -118,4 +112,3 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
 });
-

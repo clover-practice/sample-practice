@@ -1,79 +1,61 @@
-// components/CustomHeader.tsx
 import React from 'react';
-import {
-  View,
-  Text,
-  TouchableOpacity,
-  StyleSheet,
-  Platform,
-  SafeAreaView,
-} from 'react-native';
+import {View, Text, TouchableOpacity, StyleSheet} from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
+import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import responsive from '../utils/responsive';
 
 interface Props {
-  title?: string;
+  title: string;
   showBack?: boolean;
-  showFavorite?: boolean;
-  isFavorite?: boolean;
   showShare?: boolean;
   onBackPress?: () => void;
-  onFavoritePress?: () => void;
   onSharePress?: () => void;
+  rightIconName?: string; // Ionicons by default
+  iconLibrary?: 'Ionicons' | 'MaterialIcons'; // Optional icon library
 }
 
 const CustomHeader: React.FC<Props> = ({
   title,
   showBack = false,
-  showFavorite = false,
   showShare = false,
-  isFavorite = false,
   onBackPress,
-  onFavoritePress,
   onSharePress,
+  rightIconName = 'share-social-outline',
+  iconLibrary = 'Ionicons',
 }) => {
+  const renderRightIcon = () => {
+    if (!showShare) return null;
+    const IconComponent =
+      iconLibrary === 'MaterialIcons' ? MaterialIcons : Ionicons;
+
+    return (
+      <TouchableOpacity onPress={onSharePress}>
+        <IconComponent
+          name={rightIconName}
+          size={responsive.fontSize(22)}
+          color="#000"
+        />
+      </TouchableOpacity>
+    );
+  };
+
   return (
     <View style={styles.container}>
-      <View style={styles.side}>
-        {showBack && (
-          <TouchableOpacity onPress={onBackPress}>
-            <Ionicons
-              name="chevron-back-outline"
-              size={responsive.fontSize(26)}
-              color="#000"
-            />
-          </TouchableOpacity>
-        )}
-      </View>
+      {showBack ? (
+        <TouchableOpacity onPress={onBackPress}>
+          <Ionicons
+            name="chevron-back-outline"
+            size={responsive.fontSize(26)}
+            color="#000"
+          />
+        </TouchableOpacity>
+      ) : (
+        <View style={styles.placeholder} />
+      )}
 
-      <View style={styles.titleContainer}>
-        <Text style={styles.title} numberOfLines={1}>
-          {title}
-        </Text>
-      </View>
+      <Text style={styles.title}>{title}</Text>
 
-      <View style={styles.sideRight}>
-        {showFavorite && (
-          <TouchableOpacity
-            onPress={onFavoritePress}
-            style={styles.iconSpacing}>
-            <Ionicons
-              name={isFavorite ? 'heart' : 'heart-outline'}
-              size={responsive.fontSize(22)}
-              color={isFavorite ? 'red' : '#000'}
-            />
-          </TouchableOpacity>
-        )}
-        {showShare && (
-          <TouchableOpacity onPress={onSharePress}>
-            <Ionicons
-              name="share-social-outline"
-              size={responsive.fontSize(22)}
-              color="#000"
-            />
-          </TouchableOpacity>
-        )}
-      </View>
+      {renderRightIcon() || <View style={styles.placeholder} />}
     </View>
   );
 };
@@ -82,34 +64,19 @@ export default CustomHeader;
 
 const styles = StyleSheet.create({
   container: {
-    height: responsive.height(56),
     flexDirection: 'row',
+    paddingVertical: responsive.padding(6),
+    paddingHorizontal: responsive.padding(8),
     alignItems: 'center',
-    paddingHorizontal: responsive.padding(16),
-    backgroundColor: '#f5f5f5',
-    borderBottomWidth: 1,
-    borderBottomColor: '#eee',
-  },
-  side: {
-    width: responsive.width(40),
-    justifyContent: 'center',
-    alignItems: 'flex-start',
-  },
-  titleContainer: {
-    flex: 1,
-    alignItems: 'center',
+    justifyContent: 'space-between',
+    backgroundColor: '#fff',
   },
   title: {
-    fontSize: responsive.fontSize(17),
+    fontSize: responsive.fontSize(18),
     fontWeight: '600',
+    color: '#000',
   },
-  sideRight: {
-    width: responsive.width(40),
-    flexDirection: 'row',
-    justifyContent: 'flex-end',
-    alignItems: 'center',
-  },
-  iconSpacing: {
-    marginRight: responsive.margin(12),
+  placeholder: {
+    width: responsive.width(26), // to keep spacing consistent
   },
 });

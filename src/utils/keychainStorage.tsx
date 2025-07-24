@@ -57,3 +57,13 @@ export const storeUser = async (user: Record<string, any>) => {
 export const getUser = async (): Promise<Record<string, any> | null> => {
   return await getValue('user');
 };
+//location based
+export const storeLocation = async (latitude: number, longitude: number, address: string) => {
+  const locationData = { latitude, longitude, address };
+  await setValue('location', locationData);
+};
+
+export const getLocation = async (): Promise<{ latitude: number; longitude: number; address: string } | null> => {
+  return await getValue('location');
+};
+

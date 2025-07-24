@@ -11,32 +11,29 @@ import {
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import responsive from '../utils/responsive';
-import {goBack} from '../utils/NavigationUtils';
+import {goBack, navigate} from '../utils/NavigationUtils';
+import Colors from '../constants/colors';
+import CustomHeader from '../components/CustomHeader';
+import LinearGradient from 'react-native-linear-gradient';
+import Constants from '../constants/Constants';
 
 const EditProfileScreen = () => {
   return (
     <SafeAreaView style={styles.safeArea}>
-      <StatusBar backgroundColor="#f8f9fb" barStyle="dark-content" />
-      <ScrollView contentContainerStyle={styles.scrollContainer}>
-        {/* Header */}
-        <View style={styles.header}>
-          <TouchableOpacity onPress={goBack}>
-            <Ionicons
-              name="chevron-back-outline"
-              size={responsive.fontSize(26)}
-              color="#111"
-            />
-          </TouchableOpacity>
-          <Text style={styles.title}>My Account</Text>
-          <TouchableOpacity>
-            <Ionicons
-              name="notifications-outline"
-              size={responsive.fontSize(22)}
-              color="#111"
-            />
-          </TouchableOpacity>
-        </View>
+      <StatusBar
+        backgroundColor={Colors.STATUS_BAR_COLOR}
+        barStyle="dark-content"
+      />
 
+      <CustomHeader
+        title="My Account"
+        showBack={true}
+        showShare={true}
+        onBackPress={() => goBack()}
+        rightIconName="notifications-outline" // from Ionicons
+      />
+
+      <ScrollView contentContainerStyle={styles.scrollContainer}>
         {/* User Info Card */}
         <View style={styles.card}>
           <View style={styles.rowBetween}>
@@ -48,40 +45,86 @@ const EditProfileScreen = () => {
               <Text style={styles.edit}>EDIT</Text>
             </TouchableOpacity>
           </View>
-          <View style={styles.pointsBanner}>
-            <Text style={styles.pointsText}>
-              Awesome. You have received <Text style={styles.bold}>25</Text>{' '}
-              points.
-            </Text>
-          </View>
+          <LinearGradient
+            colors={['#0072ff', '#00c6ff']}
+            start={{x: 0, y: 0}}
+            end={{x: 1, y: 0}}
+            style={styles.gradientCard}>
+            <View style={styles.pointsBanner}>
+              <Text style={styles.pointsText}>
+                Awesome. You have received <Text style={styles.bold}>25</Text>{' '}
+                points.
+              </Text>
+            </View>
+          </LinearGradient>
         </View>
 
         {/* Sections */}
-        <Section title="My Appointments" icon="calendar-today" />
-        <Section title="My Wallet" icon="account-balance-wallet" />
+        <Section
+          title="My Appointments"
+          icon="calendar-today"
+          onPress={() => navigate('MyBookAppoinment')}
+        />
+        <Section
+          title="My Wallet"
+          icon="account-balance-wallet"
+          onPress={() => navigate('MyWalletScreen')}
+        />
 
         {/* Gift Card Section */}
+        <Text style={styles.sectionTitle}>Gift Card</Text>
         <View style={styles.sectionGroup}>
-          <Text style={styles.sectionTitle}>Gift Card</Text>
-          <Section title="Buy Gift Card" icon="card-giftcard" />
-          <Section title="Claim Gift Card" icon="redeem" />
-          <Section title="Purchase History" icon="history" />
+          <Section
+            title="Buy Gift Card"
+            icon="card-giftcard"
+            onPress={() => console.log('Buy Gift Card')}
+          />
+          <View style={styles.sectionDevider}></View>
+          <Section
+            title="Claim Gift Card"
+            icon="redeem"
+            onPress={() => console.log('Claim Gift Card')}
+          />
+          <View style={styles.sectionDevider}></View>
+          <Section
+            title="Purchase History"
+            icon="history"
+            onPress={() => console.log('Purchase History')}
+          />
         </View>
 
         {/* Spread the love Section */}
+        <Text style={styles.sectionTitle}>Spread the love</Text>
         <View style={styles.sectionGroup}>
-          <Text style={styles.sectionTitle}>Spread the love</Text>
-          <Section title="Invite Friends & Family" icon="group" />
-          <Section title="Share App" icon="share" />
-          <Section title="Your Favourite Places" icon="favorite-border" />
+          <Section
+            title="Invite Friends & Family"
+            icon="group"
+            onPress={() => console.log('Invite Friends & Family')}
+          />
+          <View style={styles.sectionDevider}></View>
+          <Section
+            title="Share App"
+            icon="share"
+            onPress={() => console.log('Invite Friends & Family')}
+          />
+          <View style={styles.sectionDevider}></View>
+          <Section
+            title="Your Favourite Places"
+            icon="favorite-border"
+            onPress={() => console.log('Your Favourite Places')}
+          />
         </View>
       </ScrollView>
     </SafeAreaView>
   );
 };
 
-const Section = ({title, icon}: {title: string; icon: string}) => (
-  <TouchableOpacity style={styles.sectionRow}>
+const Section: React.FC<{
+  title: string;
+  icon: string;
+  onPress: () => void;
+}> = ({title, icon, onPress}) => (
+  <TouchableOpacity style={styles.sectionRow} onPress={onPress}>
     <MaterialIcons name={icon} size={responsive.fontSize(20)} color="#555" />
     <Text style={styles.sectionText}>{title}</Text>
     <Ionicons
@@ -95,17 +138,18 @@ const Section = ({title, icon}: {title: string; icon: string}) => (
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: '#f8f9fb',
+    backgroundColor: Colors.BACKGROUND,
   },
   scrollContainer: {
-    padding: responsive.padding(16),
-    paddingBottom: responsive.padding(30),
+    padding: responsive.padding(Constants.SCREEN_PADDING),
+    paddingBottom: responsive.padding(Constants.BOTTOM_PADDING),
   },
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
     marginBottom: responsive.margin(10),
+    backgroundColor: Colors.STATUS_BAR_COLOR,
   },
   title: {
     fontSize: responsive.fontSize(20),
@@ -132,6 +176,13 @@ const styles = StyleSheet.create({
     paddingLeft: 10,
     paddingEnd: 10,
   },
+  gradientCard: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderBottomLeftRadius: responsive.borderRadius(10),
+    borderBottomRightRadius: responsive.borderRadius(10),
+  },
   username: {
     fontSize: responsive.fontSize(16),
     fontWeight: '700',
@@ -146,15 +197,18 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     fontSize: responsive.fontSize(14),
   },
+
   pointsBanner: {
-    backgroundColor: '#0e84ff',
     padding: responsive.padding(10),
+    overflow: 'hidden',
+    position: 'relative',
+    justifyContent: 'center',
+    alignItems: 'center',
     borderBottomEndRadius: responsive.borderRadius(8),
     borderBottomLeftRadius: responsive.borderRadius(8),
     marginTop: responsive.margin(8),
-    justifyContent: 'center',
-    alignItems: 'center',
   },
+
   pointsText: {
     color: '#fff',
     fontSize: responsive.fontSize(13),
@@ -163,16 +217,34 @@ const styles = StyleSheet.create({
     fontWeight: '700',
   },
   sectionGroup: {
-    marginTop: responsive.margin(20),
+    marginTop: responsive.margin(10),
     marginBottom: responsive.margin(5),
+    backgroundColor: '#fff',
+    borderRadius: 8,
+    padding: 5,
+    // Add shadow (iOS)
+    shadowColor: '#000',
+    shadowOffset: {width: 0, height: 0.5},
+    shadowOpacity: 0.1,
+    shadowRadius: 3,
+    // Elevation (Android)
+    elevation: 0.5,
   },
   sectionTitle: {
     fontWeight: '600',
     fontSize: responsive.fontSize(15),
-    marginBottom: responsive.margin(5),
+    marginTop: responsive.margin(5),
     color: '#555',
   },
   sectionRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#fff',
+    padding: responsive.padding(12),
+    borderRadius: responsive.borderRadius(10),
+    marginBottom: responsive.margin(10),
+  },
+  sectionRowGroup: {
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: '#fff',
@@ -187,11 +259,29 @@ const styles = StyleSheet.create({
     // Elevation (Android)
     elevation: 0.5,
   },
+
   sectionText: {
     flex: 1,
     marginLeft: responsive.margin(10),
     fontSize: responsive.fontSize(14),
     color: '#111',
+  },
+
+  sectionDevider: {
+    flex: 1,
+    width: '100%',
+    backgroundColor: '#f8f9fb',
+    height: 2,
+  },
+  gradientLayerContainer: {
+    ...StyleSheet.absoluteFillObject,
+    flexDirection: 'row',
+    zIndex: -1,
+  },
+
+  gradientStep: {
+    flex: 1,
+    width: '100%',
   },
 });
 
