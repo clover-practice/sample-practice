@@ -1,7 +1,8 @@
 import React from 'react';
-import {View, Text, TouchableOpacity, StyleSheet} from 'react-native';
+import {View, Text, TouchableOpacity, StyleSheet, Platform} from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
+import {SafeAreaView} from 'react-native-safe-area-context';
 import responsive from '../utils/responsive';
 
 interface Props {
@@ -10,8 +11,8 @@ interface Props {
   showShare?: boolean;
   onBackPress?: () => void;
   onSharePress?: () => void;
-  rightIconName?: string; // Ionicons by default
-  iconLibrary?: 'Ionicons' | 'MaterialIcons'; // Optional icon library
+  rightIconName?: string;
+  iconLibrary?: 'Ionicons' | 'MaterialIcons';
 }
 
 const CustomHeader: React.FC<Props> = ({
@@ -24,7 +25,8 @@ const CustomHeader: React.FC<Props> = ({
   iconLibrary = 'Ionicons',
 }) => {
   const renderRightIcon = () => {
-    if (!showShare) return null;
+    if (!showShare) return <View style={styles.placeholder} />;
+
     const IconComponent =
       iconLibrary === 'MaterialIcons' ? MaterialIcons : Ionicons;
 
@@ -40,33 +42,38 @@ const CustomHeader: React.FC<Props> = ({
   };
 
   return (
-    <View style={styles.container}>
-      {showBack ? (
-        <TouchableOpacity onPress={onBackPress}>
-          <Ionicons
-            name="chevron-back-outline"
-            size={responsive.fontSize(26)}
-            color="#000"
-          />
-        </TouchableOpacity>
-      ) : (
-        <View style={styles.placeholder} />
-      )}
+    <SafeAreaView edges={['top']} style={styles.safeArea}>
+      <View style={styles.container}>
+        {showBack ? (
+          <TouchableOpacity onPress={onBackPress}>
+            <Ionicons
+              name="chevron-back-outline"
+              size={responsive.fontSize(26)}
+              color="#000"
+            />
+          </TouchableOpacity>
+        ) : (
+          <View style={styles.placeholder} />
+        )}
 
-      <Text style={styles.title}>{title}</Text>
+        <Text style={styles.title}>{title}</Text>
 
-      {renderRightIcon() || <View style={styles.placeholder} />}
-    </View>
+        {renderRightIcon()}
+      </View>
+    </SafeAreaView>
   );
 };
 
 export default CustomHeader;
 
 const styles = StyleSheet.create({
+  safeArea: {
+    backgroundColor: '#fff',
+  },
   container: {
     flexDirection: 'row',
     paddingVertical: responsive.padding(6),
-    paddingHorizontal: responsive.padding(8),
+    paddingHorizontal: responsive.padding(6),
     alignItems: 'center',
     justifyContent: 'space-between',
     backgroundColor: '#fff',
@@ -77,6 +84,6 @@ const styles = StyleSheet.create({
     color: '#000',
   },
   placeholder: {
-    width: responsive.width(26), // to keep spacing consistent
+    width: responsive.width(26),
   },
 });

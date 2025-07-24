@@ -6,6 +6,10 @@ const ProfileScreen = () => {
   return (
     <View style={styles.container}>
       <Text style={styles.text}>Welcome to Your Profile</Text>
+      <Button
+        title="SalonScreeb"
+        onPress={() => navigate('SalonDetailScreen')}
+      />
     </View>
   );
 };
