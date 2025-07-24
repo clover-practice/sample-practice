@@ -10,9 +10,14 @@ import {
 } from 'react-native';
 
 const OTP_LENGTH = 6;
-const RESEND_TIME = 20; // in seconds
+const RESEND_TIME = 20;
 
-const OtpInput = () => {
+type OtpInputProps = {
+  value?: string;
+  onChange?: (value: string) => void;
+};
+
+const OtpInput: React.FC<OtpInputProps> = ({value, onChange}) => {
   const [otp, setOtp] = useState<string[]>(Array(OTP_LENGTH).fill(''));
   const [timer, setTimer] = useState(RESEND_TIME);
   const [resendVisible, setResendVisible] = useState(false);
@@ -29,11 +34,14 @@ const OtpInput = () => {
   }, [timer]);
 
   const handleChange = (text: string, index: number) => {
-    if (!/^\d*$/.test(text)) return; // Only allow digits
+    if (!/^\d*$/.test(text)) return;
 
     const newOtp = [...otp];
     newOtp[index] = text;
     setOtp(newOtp);
+
+    const joinedOtp = newOtp.join('');
+    onChange?.(joinedOtp);
 
     if (text && index < OTP_LENGTH - 1) {
       inputRefs.current[index + 1]?.focus();
@@ -43,7 +51,6 @@ const OtpInput = () => {
       inputRefs.current[index - 1]?.focus();
     }
 
-    // Auto-dismiss keyboard if last digit filled
     if (index === OTP_LENGTH - 1 && text.length === 1) {
       Keyboard.dismiss();
     }
@@ -51,11 +58,13 @@ const OtpInput = () => {
 
   const handleResend = () => {
     setOtp(Array(OTP_LENGTH).fill(''));
+    onChange?.('');
     setTimer(RESEND_TIME);
     setResendVisible(false);
     inputRefs.current[0]?.focus();
 
     // TODO: Trigger your resend OTP API here
+    console.log('🔁 Resend OTP');
   };
 
   return (
@@ -63,11 +72,11 @@ const OtpInput = () => {
       <Text style={styles.title}>Enter OTP</Text>
 
       <View style={styles.otpContainer}>
-        {otp.map((value, index) => (
+        {otp.map((digit, index) => (
           <TextInput
             key={index}
             ref={ref => (inputRefs.current[index] = ref)}
-            value={value}
+            value={digit}
             onChangeText={text => handleChange(text, index)}
             keyboardType="numeric"
             maxLength={1}
@@ -78,10 +87,11 @@ const OtpInput = () => {
           />
         ))}
       </View>
+
       <View style={styles.timerContainer}>
         {!resendVisible ? (
           <Text style={[styles.timer, timer < 15 && {color: 'red'}]}>
-            Resend OTP in {timer} s
+            Resend OTP in {timer}s
           </Text>
         ) : (
           <TouchableOpacity onPress={handleResend}>
@@ -95,7 +105,7 @@ const OtpInput = () => {
 
 export default OtpInput;
 
-export const styles = StyleSheet.create({
+const styles = StyleSheet.create({
   container: {
     alignItems: 'center',
     justifyContent: 'center',
@@ -109,7 +119,7 @@ export const styles = StyleSheet.create({
   otpContainer: {
     flexDirection: 'row',
     justifyContent: 'center',
-    gap: 10, // You can also use marginRight
+    gap: 10,
   },
   otpBox: {
     width: 50,
@@ -124,16 +134,12 @@ export const styles = StyleSheet.create({
   },
   timer: {
     marginTop: 20,
-    fontSize: Platform.OS === 'android' ? 18 : 16,
+    fontSize: 16,
     color: 'gray',
-    justifyContent: 'flex-end',
-    alignItems: 'flex-end',
   },
   resend: {
     marginTop: 20,
     fontSize: 16,
-    justifyContent: 'flex-end',
-    alignItems: 'flex-end',
     color: 'dodgerblue',
     fontWeight: '600',
   },

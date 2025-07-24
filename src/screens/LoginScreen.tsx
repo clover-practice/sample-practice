@@ -10,17 +10,18 @@ import axios from 'axios';
 import { setValue, storeLocation } from '../utils/keychainStorage';
 import Constants from '../constants/Constants';
 
-const getAddressFromLocation = async (lat: number, lon: number): Promise<any> => {
+const getAddressFromLocation = async (lat: number, lon: number) => {
   const url = `https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lon}&format=json&addressdetails=1`;
-  const { data } = await axios.get(url, {
-    headers: { 'User-Agent': 'YourAppName/1.0 (your@email.com)' }
+  const {data} = await axios.get(url, {
+    headers: {'User-Agent': 'YourAppName/1.0 (your@email.com)'},
   });
   return data;
 };
 
 const LoginScreen = () => {
   const [mobile, setMobile] = useState('');
-  const [currentCity, setCurrentCity] = useState<string>('Fetching location...');
+  const [currentCity, setCurrentCity] = useState('Fetching location...');
+  const isMobileValid = mobile.length === 10;
 
   const fetchAndStoreLocation = () => {
     Geolocation.getCurrentPosition(
@@ -47,12 +48,11 @@ const LoginScreen = () => {
     );
   };
 
-  useEffect(() => {
     fetchAndStoreLocation();
   }, []);
 
   const handleLogin = () => {
-    navigate('OtpScreen', { mobile });
+    navigate('OtpScreen', {mobile});
   };
 
   return (
@@ -60,17 +60,23 @@ const LoginScreen = () => {
       <Text style={styles.header}>LoginScreen</Text>
      
 
-      <MobileNumberInput value={mobile} onChange={setMobile} />
-
-      <CustomButton
-        title={Constants.SEND_OTP}
-        onPress={handleLogin}
-        rightIcon={<Ionicons name="chevron-forward" size={20} color="white" />}
-        style={{ marginTop: 40 }}
-      />
-    </View>
+            <MobileNumberInput value={mobile} onChange={setMobile} /> 
+            <CustomButton
+              title={Constants.CONTINUE}
+              onPress={handleLogin}
+              disabled={!isMobileValid}
+              backgroundColor={isMobileValid ? Colors.PRIMARY : 'transparent'}
+              textColor={isMobileValid ? Colors.WHITE : Colors.GRAY_DARK}
+              style={styles.button}
+            />
+          </ScrollView>
+        </TouchableWithoutFeedback>
+      </KeyboardAvoidingView>
+    </SafeAreaView>
   );
 };
+
+export default LoginScreen;
 
 const styles = StyleSheet.create({
   container: { flex: 1, padding: 20, backgroundColor: '#fff', justifyContent: 'center', alignItems: 'center' },
