@@ -55,6 +55,7 @@ type HomeScreenRouteProp = RouteProp<RootStackParamList, 'HomeScreen'>;
 // Assuming these are in utils/keychainStorage.ts based on your context
 import { getLocation, getValue, setValue, storeLocation } from '../utils/keychainStorage';
 
+
 const HomeScreen = () => {
 
   const [currentCity, setCurrentCity] = useState('Fetching...');
@@ -337,6 +338,7 @@ const HomeScreen = () => {
         )}
 
         <BreakerText text="SALON BY PRODUCTS" />
+        {/* <PlaceDetailsScreen/> */}
 
         {/* Spacer view to ensure content at the bottom isn't hidden by the tab bar */}
         <View style={{ height: tabBarHeight + 20 }} />
