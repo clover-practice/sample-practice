@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, {useEffect, useState} from 'react';
 import {
   View,
   StyleSheet,
@@ -9,25 +9,25 @@ import {
   Text,
   TouchableOpacity,
   Alert,
-  StatusBar
+  StatusBar,
 } from 'react-native';
 import Geolocation from 'react-native-geolocation-service';
 import TopSearchBar from '../components/HomeHeaderComponent';
 import BreakerText from '../components/BreakerText';
 import CustomCarousel from '../components/CustomCarousel';
-import { getAddressFromLocation } from '@logisticinfotech/react-native-geocoding-reversegeocoding';
-import { navigate } from '../utils/NavigationUtils';
-import { useBottomTabBarHeight } from '@react-navigation/bottom-tabs';
+import {getAddressFromLocation} from '@logisticinfotech/react-native-geocoding-reversegeocoding';
+import {navigate} from '../utils/NavigationUtils';
+import {useBottomTabBarHeight} from '@react-navigation/bottom-tabs';
 import Animated, {
   useSharedValue,
   useAnimatedScrollHandler,
   withTiming,
 } from 'react-native-reanimated';
-import { useTabBarVisibility } from '../components/TabBarVisibilityContext';
+import {useTabBarVisibility} from '../components/TabBarVisibilityContext';
 import Constants from '../constants/Constants';
 
 // NEW IMPORTS FOR NAVIGATION PARAMS
-import { useRoute, RouteProp } from '@react-navigation/native';
+import {useRoute, RouteProp} from '@react-navigation/native';
 import MapAndListView from './MapAndListView';
 
 // IMPORTANT: Define RootStackParamList (must match MapPicker.tsx and AppNavigator.tsx)
@@ -37,7 +37,12 @@ import MapAndListView from './MapAndListView';
  * Ensures type safety for navigation operations.
  */
 type RootStackParamList = {
-  HomeScreen: { selectedAddress?: string; selectedCoords?: { latitude: number; longitude: number } } | undefined;
+  HomeScreen:
+    | {
+        selectedAddress?: string;
+        selectedCoords?: {latitude: number; longitude: number};
+      }
+    | undefined;
   MapPicker: undefined;
   Login: undefined;
   Onboarding: undefined;
@@ -53,32 +58,41 @@ type RootStackParamList = {
 type HomeScreenRouteProp = RouteProp<RootStackParamList, 'HomeScreen'>;
 
 // Assuming these are in utils/keychainStorage.ts based on your context
-import { getLocation, getValue, setValue, storeLocation } from '../utils/keychainStorage';
-
+import {
+  getLocation,
+  getValue,
+  setValue,
+  storeLocation,
+} from '../utils/keychainStorage';
+import {useHideTabBarOnScroll} from '../components/useHideTabBarOnScroll';
 
 const HomeScreen = () => {
-
   const [currentCity, setCurrentCity] = useState('Fetching...');
-  const [userCoordinates, setUserCoordinates] = useState<{ latitude: number; longitude: number } | null>(null);
+  const [userCoordinates, setUserCoordinates] = useState<{
+    latitude: number;
+    longitude: number;
+  } | null>(null);
 
   const [locationLoading, setLocationLoading] = useState(true);
   const [locationError, setLocationError] = useState<string | null>(null);
   const [userName, setUserName] = useState('');
   const route = useRoute<HomeScreenRouteProp>();
   const tabBarHeight = useBottomTabBarHeight();
-  const { translateY } = useTabBarVisibility();
+  const {translateY} = useTabBarVisibility();
   const scrollY = useSharedValue(0);
+
   const hasLocationPermission = async (): Promise<boolean> => {
     if (Platform.OS === 'android') {
       const granted = await PermissionsAndroid.request(
         PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
         {
           title: 'Location Permission',
-          message: 'This app needs access to your location to find nearby services.',
+          message:
+            'This app needs access to your location to find nearby services.',
           buttonNeutral: 'Ask Me Later',
           buttonNegative: 'Cancel',
           buttonPositive: 'OK',
-        }
+        },
       );
       return granted === PermissionsAndroid.RESULTS.GRANTED;
     } else {
@@ -88,7 +102,6 @@ const HomeScreen = () => {
     }
   };
 
-
   const requestAndFetchAddress = async (): Promise<void> => {
     setLocationLoading(true); // Start loading
     setLocationError(null); // Clear any previous errors
@@ -97,13 +110,19 @@ const HomeScreen = () => {
       const permissionGranted = await hasLocationPermission();
       if (!permissionGranted) {
         console.warn('Permission not granted!');
-        setLocationError('Location permission denied. Please enable location services in your device settings.');
+        setLocationError(
+          'Location permission denied. Please enable location services in your device settings.',
+        );
         setLocationLoading(false);
         return;
       }
 
       type GeocodeResult = {
-        city?: string; locality?: string; subAdminArea?: string; adminArea?: string;[key: string]: any;
+        city?: string;
+        locality?: string;
+        subAdminArea?: string;
+        adminArea?: string;
+        [key: string]: any;
       };
 
       type GeocodeResponse = {
@@ -111,11 +130,12 @@ const HomeScreen = () => {
       };
 
       Geolocation.getCurrentPosition(
-        async (position) => { // Use position directly to get coords
-          const { latitude, longitude } = position.coords; // Extract coords
+        async position => {
+          // Use position directly to get coords
+          const {latitude, longitude} = position.coords; // Extract coords
 
           // Set coordinates in local state
-          setUserCoordinates({ latitude, longitude });
+          setUserCoordinates({latitude, longitude});
 
           try {
             const response = await getAddressFromLocation(latitude, longitude);
@@ -146,7 +166,7 @@ const HomeScreen = () => {
           setLocationError(`Failed to get location: ${error.message}`);
           setLocationLoading(false);
         },
-        { enableHighAccuracy: true, timeout: 15000, maximumAge: 10000 },
+        {enableHighAccuracy: true, timeout: 15000, maximumAge: 10000},
       );
     } catch (err) {
       console.warn('Permission error:', err);
@@ -160,48 +180,17 @@ const HomeScreen = () => {
     const currentAdd = await getValue(Constants.CITY_ADDRESS);
     setCurrentCity(currentAdd);
     const name = await getValue(Constants.USER_NAME);
-    console.log("GET USER NAME :- ", name);
+    console.log('GET USER NAME :- ', name);
     if (name) {
       setUserName(name.charAt(0).toUpperCase());
     } else {
       setUserName('U'); // Default if no username
     }
   };
+ 
 
-  /**
-   * @constant {Animated.AnimatedScrollHandler} scrollHandler
-   * @description An animated scroll handler that updates the `translateY` shared value
-   * to hide/show the bottom tab bar based on scroll direction.
-   */
-  const scrollHandler = useAnimatedScrollHandler({
-    onScroll: event => {
-      const currentY = event.contentOffset.y;
-      const diff = currentY - scrollY.value;
-
-      // Hide tab bar if scrolling down significantly
-      if (diff > 10) {
-        translateY.value = withTiming(tabBarHeight, { duration: 200 });
-      }
-      // Show tab bar if scrolling up significantly
-      else if (diff < -10) {
-        translateY.value = withTiming(0, { duration: 200 });
-      }
-
-      scrollY.value = currentY; // Update scrollY for next comparison
-    },
-  });
-
-  // =====================================
-  // EFFECTS
-  // =====================================
-
-  /**
-   * @effect
-   * @description This effect runs once on component mount.
-   * It attempts to load location data from Keychain. If successful, it updates
-   * `currentCity` and `userCoordinates`. If no stored location, it requests
-   * live GPS location and address. It also fetches user data.
-   */
+  const scrollHandler = useHideTabBarOnScroll(translateY);
+ 
   useEffect(() => {
     (async () => {
       setLocationLoading(true); // Start loading for initial fetch
@@ -212,7 +201,7 @@ const HomeScreen = () => {
       // Check if all necessary location data is present in Keychain
       if (loc?.address && loc?.latitude && loc?.longitude) {
         setCurrentCity(loc.address);
-        setUserCoordinates({ latitude: loc.latitude, longitude: loc.longitude }); // Set coordinates from keychain
+        setUserCoordinates({latitude: loc.latitude, longitude: loc.longitude}); // Set coordinates from keychain
         console.log('🏠 Loaded from Keychain:', loc);
         setLocationLoading(false); // End loading
       } else {
@@ -221,30 +210,33 @@ const HomeScreen = () => {
     })();
     getUserData(); // Fetch user data on initial mount
   }, []); // Empty dependency array means this runs only once on mount
-
-  /**
-   * @effect
-   * @description This effect listens for updates to `selectedAddress` and `selectedCoords`
-   * from the `route.params`, typically when returning from the `MapPicker` screen.
-   * It updates the `currentCity` and `userCoordinates` states and stores the new location in Keychain.
-   */
+ 
   useEffect(() => {
     // Check if both selectedAddress AND selectedCoords parameters exist
     if (route.params?.selectedAddress && route.params?.selectedCoords) {
-      const { selectedAddress, selectedCoords } = route.params;
+      const {selectedAddress, selectedCoords} = route.params;
 
       // Only update if the new selection is genuinely different to avoid unnecessary state updates
-      if (selectedAddress !== currentCity ||
+      if (
+        selectedAddress !== currentCity ||
         selectedCoords.latitude !== userCoordinates?.latitude ||
-        selectedCoords.longitude !== userCoordinates?.longitude) {
-
+        selectedCoords.longitude !== userCoordinates?.longitude
+      ) {
         setCurrentCity(selectedAddress);
         setUserCoordinates(selectedCoords); // Update coordinates state from MapPicker
 
         // Store the new selected location (address and coordinates) in keychain
-        storeLocation(selectedCoords.latitude, selectedCoords.longitude, selectedAddress);
+        storeLocation(
+          selectedCoords.latitude,
+          selectedCoords.longitude,
+          selectedAddress,
+        );
 
-        console.log('📍 Updated from MapPicker:', selectedAddress, selectedCoords);
+        console.log(
+          '📍 Updated from MapPicker:',
+          selectedAddress,
+          selectedCoords,
+        );
         // Optional: If you want to clear the param after using it to prevent re-triggering
         // on subsequent focus, you'd typically do:
         // import { useNavigation } from '@react-navigation/native';
@@ -252,7 +244,12 @@ const HomeScreen = () => {
         // navigation.setParams({ selectedAddress: undefined, selectedCoords: undefined });
       }
     }
-  }, [route.params?.selectedAddress, route.params?.selectedCoords, currentCity, userCoordinates]); // Dependencies: changes in route params or local state
+  }, [
+    route.params?.selectedAddress,
+    route.params?.selectedCoords,
+    currentCity,
+    userCoordinates,
+  ]); // Dependencies: changes in route params or local state
 
   // =====================================
   // CONDITIONAL RENDERING / LOADING/ERROR STATES
@@ -280,7 +277,9 @@ const HomeScreen = () => {
     return (
       <SafeAreaView style={styles.centeredContainer}>
         <Text style={styles.errorText}>Error: {locationError}</Text>
-        <TouchableOpacity onPress={requestAndFetchAddress} style={styles.retryButton}>
+        <TouchableOpacity
+          onPress={requestAndFetchAddress}
+          style={styles.retryButton}>
           <Text style={styles.retryButtonText}>Retry Location</Text>
         </TouchableOpacity>
       </SafeAreaView>
@@ -297,9 +296,7 @@ const HomeScreen = () => {
         onScroll={scrollHandler}
         scrollEventThrottle={16} // Standard for smooth scroll events
         showsVerticalScrollIndicator={false}
-        contentContainerStyle={styles.scrollContent}
-      >
-
+        contentContainerStyle={styles.scrollContent}>
         <TopSearchBar
           city={currentCity} // This will now reflect the dynamically updated city/address
           offerLabel="50% Offer"
@@ -310,9 +307,21 @@ const HomeScreen = () => {
 
         <CustomCarousel
           data={[
-            { id: 1, titleMessage: 'A new way to be fresh this summer!', uri: require('../assets/images/banner.png'), },
-            { id: 2, titleMessage: 'A new way to be fresh this summer!', uri: require('../assets/images/banner.png'), },
-            { id: 3, titleMessage: 'A new way to be fresh this summer!', uri: require('../assets/images/banner.png'), },
+            {
+              id: 1,
+              titleMessage: 'A new way to be fresh this summer!',
+              uri: require('../assets/images/banner.png'),
+            },
+            {
+              id: 2,
+              titleMessage: 'A new way to be fresh this summer!',
+              uri: require('../assets/images/banner.png'),
+            },
+            {
+              id: 3,
+              titleMessage: 'A new way to be fresh this summer!',
+              uri: require('../assets/images/banner.png'),
+            },
           ]}
         />
 
@@ -326,12 +335,20 @@ const HomeScreen = () => {
         ) : (
           // Fallback message if no location is available for MapAndListView
           <View style={styles.mapListMessageContainer}>
-            <Text style={styles.infoText}>No location available to display nearby salons.</Text>
-            {locationError && <Text style={styles.infoTextSub}>{locationError}</Text>}
+            <Text style={styles.infoText}>
+              No location available to display nearby salons.
+            </Text>
+            {locationError && (
+              <Text style={styles.infoTextSub}>{locationError}</Text>
+            )}
             {/* Show retry button only if there's an error and no coordinates */}
             {!locationError && !locationLoading && (
-              <TouchableOpacity onPress={requestAndFetchAddress} style={styles.retryButton}>
-                <Text style={styles.retryButtonText}>Try Getting My Location</Text>
+              <TouchableOpacity
+                onPress={requestAndFetchAddress}
+                style={styles.retryButton}>
+                <Text style={styles.retryButtonText}>
+                  Try Getting My Location
+                </Text>
               </TouchableOpacity>
             )}
           </View>
@@ -341,7 +358,7 @@ const HomeScreen = () => {
         {/* <PlaceDetailsScreen/> */}
 
         {/* Spacer view to ensure content at the bottom isn't hidden by the tab bar */}
-        <View style={{ height: tabBarHeight + 20 }} />
+        <View style={{height: tabBarHeight + 20}} />
       </Animated.ScrollView>
     </SafeAreaView>
   );
@@ -363,7 +380,8 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
     paddingBottom: 20, // Ensure content isn't cut off by tab bar
   },
-  centeredContainer: { // For full-screen loading/error
+  centeredContainer: {
+    // For full-screen loading/error
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
@@ -393,13 +411,15 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     fontSize: 16,
   },
-  mapListLoadingContainer: { // For loading within the MapAndListView section (currently unused, but good to have)
+  mapListLoadingContainer: {
+    // For loading within the MapAndListView section (currently unused, but good to have)
     minHeight: 150, // Give it some height for visibility
     justifyContent: 'center',
     alignItems: 'center',
     paddingVertical: 20,
   },
-  mapListErrorContainer: { // For error within the MapAndListView section (currently unused, but good to have)
+  mapListErrorContainer: {
+    // For error within the MapAndListView section (currently unused, but good to have)
     minHeight: 150,
     justifyContent: 'center',
     alignItems: 'center',
@@ -408,7 +428,8 @@ const styles = StyleSheet.create({
     marginHorizontal: 5,
     borderRadius: 8,
   },
-  mapListMessageContainer: { // For general info messages within the MapAndListView section
+  mapListMessageContainer: {
+    // For general info messages within the MapAndListView section
     minHeight: 150,
     justifyContent: 'center',
     alignItems: 'center',
@@ -430,4 +451,4 @@ const styles = StyleSheet.create({
     marginTop: 5,
     marginHorizontal: 10,
   },
-}); 
+});
