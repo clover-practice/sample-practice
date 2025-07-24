@@ -8,7 +8,8 @@ const Strings = {
   GOMAPS_API_KEY: 'AlzaSy6joRYE14YzhEOOje7VQoXFaVwWfWpYb-A', //(Rupesh Account)
   // GOMAPS_API_KEY:'AIzaSyBME9Zx44gJNIIcKIhKMMEgn7Ne1s462fU', //(github Account)
   // GOMAPS_API_KEY:'AlzaSyeqlZxnju2ak-RqPEideRLyfF0u7H1vd7m',   // Yogesh
-
+  NEARBY_PLACES_DETAILS_API_URL:
+    'https://maps.gomaps.pro/maps/api/place/details/json',
   NEARBY_PLACES_API_URL:
     'https://maps.gomaps.pro/maps/api/place/nearbysearch/json',
   NAME_PLACE: 'hospital',
