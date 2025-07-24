@@ -1,26 +1,14 @@
 // screens/LoginScreen.tsx
 import React, { useState, useEffect } from 'react';
-import { View, Text, Platform, StyleSheet } from 'react-native';
+import { View, Text, StyleSheet } from 'react-native';
 import { navigate } from '../utils/NavigationUtils';
 import MobileNumberInput from '../components/NumberInput';
 import CustomButton from '../components/CustomButton';
 import Ionicons from 'react-native-vector-icons/Ionicons';
-import Colors from '../constants/colors';
-import Constants from '../constants/Constants';
 import Geolocation from 'react-native-geolocation-service';
 import axios from 'axios';
-import { request, PERMISSIONS } from 'react-native-permissions';
-import { setValue, storeLocation } from '../utils/keychainStorage'; // adjust path
-
-const hasLocationPermission = async (): Promise<boolean> => {
-  if (Platform.OS === 'android') {
-    const status = await request(PERMISSIONS.ANDROID.ACCESS_FINE_LOCATION);
-    return status === 'granted';
-  } else {
-    const status = await request(PERMISSIONS.IOS.LOCATION_WHEN_IN_USE);
-    return status === 'granted';
-  }
-};
+import { setValue, storeLocation } from '../utils/keychainStorage';
+import Constants from '../constants/Constants';
 
 const getAddressFromLocation = async (lat: number, lon: number): Promise<any> => {
   const url = `https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lon}&format=json&addressdetails=1`;
@@ -34,24 +22,17 @@ const LoginScreen = () => {
   const [mobile, setMobile] = useState('');
   const [currentCity, setCurrentCity] = useState<string>('Fetching location...');
 
-  const fetchAndStoreLocation = async () => {
-    if (!(await hasLocationPermission())) {
-      setCurrentCity('Permission Denied');
-      return;
-    }
-
+  const fetchAndStoreLocation = () => {
     Geolocation.getCurrentPosition(
       async ({ coords: { latitude, longitude } }) => {
         try {
           const response = await getAddressFromLocation(latitude, longitude);
           const addr = response.address || {};
-          // const city = addr.city || addr.town || addr.village || addr.state || 'Unknown';
-           const city = addr.city || addr.village || addr.state || 'Unknown';
+          const city = addr.city || addr.village || addr.state || 'Unknown';
           setCurrentCity(city);
 
-          const address = response.display_name || city;
           await storeLocation(latitude, longitude, city);
-          await setValue(Constants.CITY_ADDRESS,city);
+          await setValue(Constants.CITY_ADDRESS, city);
           console.log('✅ Location saved to Keychain');
         } catch (e) {
           console.warn('Geocoding error:', e);
@@ -77,7 +58,7 @@ const LoginScreen = () => {
   return (
     <View style={styles.container}>
       <Text style={styles.header}>LoginScreen</Text>
-    
+     
 
       <MobileNumberInput value={mobile} onChange={setMobile} />
 
@@ -95,7 +76,6 @@ const styles = StyleSheet.create({
   container: { flex: 1, padding: 20, backgroundColor: '#fff', justifyContent: 'center', alignItems: 'center' },
   header: { fontSize: 24, marginBottom: 20 },
   city: { fontSize: 16, marginBottom: 30 },
-  loginButton: { marginTop: 20 },
 });
 
 export default LoginScreen;

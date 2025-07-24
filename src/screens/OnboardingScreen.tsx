@@ -14,6 +14,7 @@ useEffect(() => {
     setTimeout(() => {
       if (isLoggedIn === true) {
         replace('MainApp');
+        
       } else {
         // replace('PermissionScreen');
        replace('Login');
