@@ -49,12 +49,7 @@ const LoginScreen = () => {
   const isMobileValid = mobile.length === 10;
 
   useEffect(() => {
-    const fetchAndStoreLocation = async () => {
-      if (!(await hasLocationPermission())) {
-        setCurrentCity('Permission Denied');
-        return;
-      }
-
+    const fetchAndStoreLocation = async () => {  
       Geolocation.getCurrentPosition(
         async ({coords: {latitude, longitude}}) => {
           try {
