@@ -48,32 +48,32 @@ const LoginScreen = () => {
   const [currentCity, setCurrentCity] = useState('Fetching location...');
   const isMobileValid = mobile.length === 10;
 
-  useEffect(() => {
-    const fetchAndStoreLocation = async () => {  
-      Geolocation.getCurrentPosition(
-        async ({coords: {latitude, longitude}}) => {
-          try {
-            const response = await getAddressFromLocation(latitude, longitude);
-            const addr = response.address || {};
-            const city = addr.city || addr.village || addr.state || 'Unknown';
-            setCurrentCity(city);
-            const address = response.display_name || city;
+  // useEffect(() => {
+  //   const fetchAndStoreLocation = async () => {
+  //     Geolocation.getCurrentPosition(
+  //       async ({coords: {latitude, longitude}}) => {
+  //         try {
+  //           const response = await getAddressFromLocation(latitude, longitude);
+  //           const addr = response.address || {};
+  //           const city = addr.city || addr.village || addr.state || 'Unknown';
+  //           // setCurrentCity(city);
+  //           const address = response.display_name || city;
 
-            await storeLocation(latitude, longitude, city);
-            await setValue(Constants.CITY_ADDRESS, city);
-          } catch (e) {
-            setCurrentCity('Address Unavailable');
-          }
-        },
-        error => {
-          setCurrentCity('Location Error');
-        },
-        {enableHighAccuracy: true, timeout: 15000, maximumAge: 10000},
-      );
-    };
+  //           await storeLocation(latitude, longitude, city);
+  //           await setValue(Constants.CITY_ADDRESS, city);
+  //         } catch (e) {
+  //           // setCurrentCity('Address Unavailable');
+  //         }
+  //       },
+  //       error => {
+  //         setCurrentCity('Location Error');
+  //       },
+  //       {enableHighAccuracy: true, timeout: 15000, maximumAge: 10000},
+  //     );
+  //   };
 
-    fetchAndStoreLocation();
-  }, []);
+  //   fetchAndStoreLocation();
+  // }, []);
 
   const handleLogin = () => {
     navigate('OtpScreen', {mobile});

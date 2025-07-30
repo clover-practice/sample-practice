@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import React, {useEffect, useState, useCallback} from 'react';
 import {
   View,
   StyleSheet,
@@ -8,11 +8,14 @@ import {
   Text,
   TouchableOpacity,
   StatusBar,
+  Alert, // Import Alert for user feedback
 } from 'react-native';
 import Geolocation from 'react-native-geolocation-service';
 import TopSearchBar from '../components/HomeHeaderComponent';
 import BreakerText from '../components/BreakerText';
 import CustomCarousel from '../components/CustomCarousel';
+// Note: Keeping this import for existing usage, but MapPicker now uses GoMaps.
+// Ensure consistency if you want to use the same geocoding logic everywhere.
 import {getAddressFromLocation} from '@logisticinfotech/react-native-geocoding-reversegeocoding';
 import {navigate} from '../utils/NavigationUtils';
 import {useBottomTabBarHeight} from '@react-navigation/bottom-tabs';
@@ -20,7 +23,12 @@ import Animated from 'react-native-reanimated';
 import {useTabBarVisibility} from '../components/TabBarVisibilityContext';
 import {useRoute, RouteProp} from '@react-navigation/native';
 import MapAndListView from './MapAndListView';
-import {getLocation, getValue, storeLocation} from '../utils/keychainStorage';
+import {
+  getLocation,
+  getValue,
+  storeLocation,
+  setValue,
+} from '../utils/keychainStorage'; // Added setValue
 import {useHideTabBarOnScroll} from '../components/useHideTabBarOnScroll';
 import Constants from '../constants/Constants';
 import {SafeAreaView} from 'react-native-safe-area-context';
@@ -53,24 +61,29 @@ const HomeScreen = () => {
 
   const hasLocationPermission = async (): Promise<boolean> => {
     if (Platform.OS === 'android') {
-      const granted = await PermissionsAndroid.request(
-        PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
-        {
-          title: 'Location Permission',
-          message: 'We need your location to show nearby salons.',
-          buttonNeutral: 'Ask Me Later',
-          buttonNegative: 'Cancel',
-          buttonPositive: 'OK',
-        },
-      );
-      return granted === PermissionsAndroid.RESULTS.GRANTED;
+      try {
+        const granted = await PermissionsAndroid.request(
+          PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
+          {
+            title: 'Location Permission',
+            message: 'We need your location to show nearby salons.',
+            buttonNeutral: 'Ask Me Later',
+            buttonNegative: 'Cancel',
+            buttonPositive: 'OK',
+          },
+        );
+        return granted === PermissionsAndroid.RESULTS.GRANTED;
+      } catch (err) {
+        console.warn(err);
+        return false;
+      }
     } else {
       const status = await Geolocation.requestAuthorization('whenInUse');
       return status === 'granted';
     }
   };
 
-  const requestAndFetchAddress = async () => {
+  const requestAndFetchAddress = useCallback(async () => {
     setLocationLoading(true);
     setLocationError(null);
     setCurrentCity('Fetching...');
@@ -90,20 +103,30 @@ const HomeScreen = () => {
           setUserCoordinates({latitude, longitude});
 
           try {
+            // Using the existing geocoding library for this fallback path
             const response = await getAddressFromLocation(latitude, longitude);
             const result = (response as any)?.result;
+            // const city =
+            //   result?.formattedAddress || // Prefer formattedAddress if available
+            //   result?.city ||
+            //   result?.locality ||
+            //   result?.subAdminArea ||
+            //   result?.adminArea ||
+            //   'Unknown City';
             const city =
-              result?.city ||
-              result?.locality ||
-              result?.subAdminArea ||
-              result?.adminArea ||
-              'Unknown City';
+              result?.subLocality || ', ' || result?.locality || 'Unknown City';
+
+            console.log('RESPONSE ', result);
+            console.log('RESPONSE FROM CITY', city);
 
             setCurrentCity(city);
+            // Store this address in keychain as well
             await storeLocation(latitude, longitude, city);
+            await setValue(Constants.CITY_ADDRESS, city); // Update Constants.CITY_ADDRESS
           } catch (e) {
             setCurrentCity('Address Unavailable');
             setLocationError('Could not get address.');
+            console.error('Error fetching address:', e);
           } finally {
             setLocationLoading(false);
           }
@@ -112,48 +135,88 @@ const HomeScreen = () => {
           setCurrentCity('Location Error');
           setLocationError(error.message);
           setLocationLoading(false);
+          Alert.alert(
+            'Location Error',
+            `Failed to get current location: ${error.message}`,
+          );
         },
         {enableHighAccuracy: true, timeout: 15000, maximumAge: 10000},
       );
     } catch (err) {
       setLocationError('Error requesting location permission.');
       setLocationLoading(false);
+      console.error('Error in requestAndFetchAddress:', err);
     }
-  };
+  }, []); // useCallback to memoize the function
 
-  const getUserData = async () => {
-    const currentAdd = await getValue(Constants.CITY_ADDRESS);
-    setCurrentCity(currentAdd);
+  const getUserData = useCallback(async () => {
     const name = await getValue(Constants.USER_NAME);
     setUserName(name ? name.charAt(0).toUpperCase() : 'U');
-  };
-
-  useEffect(() => {
-    (async () => {
-      const loc = await getLocation();
-      if (loc?.address && loc?.latitude && loc?.longitude) {
-        setCurrentCity(loc.address);
-        setUserCoordinates({latitude: loc.latitude, longitude: loc.longitude});
-        setLocationLoading(false);
-      } else {
-        requestAndFetchAddress();
-      }
-    })();
-    getUserData();
   }, []);
 
   useEffect(() => {
-    if (route.params?.selectedAddress && route.params?.selectedCoords) {
-      const {selectedAddress, selectedCoords} = route.params;
-      setCurrentCity(selectedAddress);
-      setUserCoordinates(selectedCoords);
-      storeLocation(
-        selectedCoords.latitude,
-        selectedCoords.longitude,
-        selectedAddress,
-      );
-    }
-  }, [route.params]);
+    const initializeHomeScreen = async () => {
+      setLocationLoading(true); // Start loading
+
+      // 1. Prioritize navigation parameters from MapPicker
+      if (route.params?.selectedAddress && route.params?.selectedCoords) {
+        const {selectedAddress, selectedCoords} = route.params;
+        setCurrentCity(selectedAddress);
+        setUserCoordinates(selectedCoords);
+        // Ensure this new address is also stored in keychain for persistence
+        await storeLocation(
+          selectedCoords.latitude,
+          selectedCoords.longitude,
+          selectedAddress,
+        );
+        await setValue(Constants.CITY_ADDRESS, selectedAddress); // Crucial: Update Constants.CITY_ADDRESS
+        setLocationLoading(false);
+        return; // Exit early as we have the location
+      }
+
+      // 2. Fallback: Try to get address from Constants.CITY_ADDRESS first
+      const storedCityAddress = await getValue(Constants.CITY_ADDRESS);
+      if (storedCityAddress) {
+        setCurrentCity(storedCityAddress);
+        // Attempt to get coordinates from getLocation() if only address is found in CITY_ADDRESS
+        const storedLoc = await getLocation();
+        if (storedLoc?.latitude && storedLoc?.longitude) {
+          setUserCoordinates({
+            latitude: storedLoc.latitude,
+            longitude: storedLoc.longitude,
+          });
+        } else {
+          // If CITY_ADDRESS exists but no coordinates, we might need to geocode it
+          // For simplicity, we'll proceed to requestAndFetchAddress if coordinates are critical for MapAndListView
+          // Or you could add a geocoding call here for storedCityAddress
+        }
+        setLocationLoading(false);
+        await getUserData(); // Fetch user data after setting location
+        return; // Exit early as we have the address
+      }
+
+      // 3. Fallback: Try to get location (address + coords) from getLocation()
+      const storedLoc = await getLocation();
+      if (storedLoc?.address && storedLoc?.latitude && storedLoc?.longitude) {
+        setCurrentCity(storedLoc.address);
+        setUserCoordinates({
+          latitude: storedLoc.latitude,
+          longitude: storedLoc.longitude,
+        });
+        // Ensure Constants.CITY_ADDRESS is also updated with this full address if it wasn't already
+        await setValue(Constants.CITY_ADDRESS, storedLoc.address);
+        setLocationLoading(false);
+        await getUserData(); // Fetch user data after setting location
+        return; // Exit early as we have the location
+      }
+
+      // 4. Last resort: Request current device location
+      await requestAndFetchAddress(); // This also updates currentCity and keychain
+      await getUserData(); // Fetch user data after location is potentially fetched
+    };
+
+    initializeHomeScreen();
+  }, [route.params, requestAndFetchAddress, getUserData]); // Dependencies: re-run if route params change or memoized functions change
 
   if (locationLoading) {
     return (
