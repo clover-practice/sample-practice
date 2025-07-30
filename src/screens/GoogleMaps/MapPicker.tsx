@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import React, {useState, useEffect, useRef, useCallback} from 'react';
 import {
   View,
   StyleSheet,
@@ -18,19 +18,23 @@ import {
 
 // Local Imports
 import Strings from '../../constants/Constants';
-import MapView, { Marker, PROVIDER_GOOGLE, Region } from 'react-native-maps'; // Import Region type
+import MapView, {Marker, PROVIDER_GOOGLE, Region} from 'react-native-maps'; // Import Region type
 import Geolocation from 'react-native-geolocation-service';
 import debounce from 'lodash.debounce';
 import CustomHeader from '../../components/CustomHeader';
-import { goBack } from '../../utils/NavigationUtils';
-import { useNavigation, NavigationProp } from '@react-navigation/native';
-import { storeLocation, getLocation, setValue } from '../../utils/keychainStorage';
+import {goBack} from '../../utils/NavigationUtils';
+import {useNavigation, NavigationProp} from '@react-navigation/native';
+import {
+  storeLocation,
+  getLocation,
+  setValue,
+} from '../../utils/keychainStorage';
 import Constants from '../../constants/Constants';
 
 // =====================================
 // GLOBAL CONSTANTS (Declared once per file)
 // =====================================
-const { width, height } = Dimensions.get('window');
+const {width, height} = Dimensions.get('window');
 
 /**
  * @constant {number} ASPECT_RATIO
@@ -114,7 +118,10 @@ type RootStackParamList = {
   MapPicker: undefined;
   MainApp: {
     screen: 'Home';
-    params?: { selectedAddress?: string; selectedCoords?: { latitude: number; longitude: number } };
+    params?: {
+      selectedAddress?: string;
+      selectedCoords?: {latitude: number; longitude: number};
+    };
   };
 };
 
@@ -144,14 +151,15 @@ const MapPicker: React.FC = () => {
    * @state {string} selectedAddressText
    * @description The user-friendly text representation of the selected address.
    */
-  const [selectedAddressText, setSelectedAddressText] = useState<string>('Select a location');
+  const [selectedAddressText, setSelectedAddressText] =
+    useState<string>('Select a location');
 
   /**
    * @state {string} addressToStoreInKeychain
    * @description The address text that will actually be stored in the Keychain (simplified).
    */
-  const [addressToStoreInKeychain, setAddressToStoreInKeychain] = useState<string>('');
-
+  const [addressToStoreInKeychain, setAddressToStoreInKeychain] =
+    useState<string>('');
 
   /**
    * @state {boolean} loading
@@ -187,7 +195,8 @@ const MapPicker: React.FC = () => {
    * @state {boolean} displaySearchResults
    * @description Controls the visibility of the search predictions FlatList.
    */
-  const [displaySearchResults, setDisplaySearchResults] = useState<boolean>(false);
+  const [displaySearchResults, setDisplaySearchResults] =
+    useState<boolean>(false);
 
   // =====================================
   // EFFECTS
@@ -216,30 +225,30 @@ const MapPicker: React.FC = () => {
             longitudeDelta: LONGITUDE_DELTA,
           };
           setCurrentLocation(region);
-          setSelectedPlace(region); 
-          setAddressToStoreInKeychain(storedLocation.address); 
+          setSelectedPlace(region);
+          setAddressToStoreInKeychain(storedLocation.address);
           setSearchText(storedLocation.address);
-          await setValue(Constants.CITY_ADDRESS,storedLocation.address);
-        } else { 
+          await setValue(Constants.CITY_ADDRESS, storedLocation.address);
+        } else {
           const defaultLoc = {
-            latitude: 19.0330,
+            latitude: 19.033,
             longitude: 73.0297,
             latitudeDelta: LATITUDE_DELTA,
             longitudeDelta: LONGITUDE_DELTA,
           };
           setCurrentLocation(defaultLoc);
-          setSelectedPlace(defaultLoc);  
+          setSelectedPlace(defaultLoc);
         }
       } catch (e) {
         // Fallback to default even if Keychain retrieval fails
         const defaultLoc = {
-            latitude: 19.0330,
-            longitude: 73.0297,
-            latitudeDelta: LATITUDE_DELTA,
-            longitudeDelta: LONGITUDE_DELTA,
-          };
-          setCurrentLocation(defaultLoc);
-          setSelectedPlace(defaultLoc);  
+          latitude: 19.033,
+          longitude: 73.0297,
+          latitudeDelta: LATITUDE_DELTA,
+          longitudeDelta: LONGITUDE_DELTA,
+        };
+        setCurrentLocation(defaultLoc);
+        setSelectedPlace(defaultLoc);
       } finally {
         setLoading(false);
       }
@@ -248,20 +257,19 @@ const MapPicker: React.FC = () => {
     initializeLocation();
   }, []); // Empty dependency array ensures this runs only once on mount
 
-   
   const extractAddresses = (
     addressComponents: GoMapsAddressComponent[],
     fullFormattedAddress: string,
-    defaultAddress: string = 'Unknown Location'
-  ): { displayAddress: string; keychainAddress: string } => {
+    defaultAddress: string = 'Unknown Location',
+  ): {displayAddress: string; keychainAddress: string} => {
     let area = '';
     let city = '';
-    
+
     // Temporary holders for raw components
     let tempLocality = ''; // Generally the city or a major neighborhood
     let tempSublocalityLevel1 = ''; // Often a specific area or neighborhood
     let tempAdministrativeAreaLevel2 = ''; // Often the district/city
-    
+
     for (const component of addressComponents) {
       if (component.types.includes('sublocality_level_1')) {
         tempSublocalityLevel1 = component.long_name;
@@ -292,13 +300,24 @@ const MapPicker: React.FC = () => {
     const lowerCaseFullAddress = fullFormattedAddress.toLowerCase();
     const lowerCaseCity = city.toLowerCase();
 
-    if (lowerCaseFullAddress.includes('navi mumbai') && !lowerCaseCity.includes('navi mumbai')) {
+    if (
+      lowerCaseFullAddress.includes('navi mumbai') &&
+      !lowerCaseCity.includes('navi mumbai')
+    ) {
       city = 'Navi Mumbai';
-      if (area && area.toLowerCase().includes('thane') && lowerCaseFullAddress.includes('airoli')) {
-          area = 'Airoli';
+      if (
+        area &&
+        area.toLowerCase().includes('thane') &&
+        lowerCaseFullAddress.includes('airoli')
+      ) {
+        area = 'Airoli';
       }
-    } else if (lowerCaseFullAddress.includes('mumbai') && !lowerCaseFullAddress.includes('navi mumbai') && !lowerCaseCity.includes('mumbai')) {
-        city = 'Mumbai';
+    } else if (
+      lowerCaseFullAddress.includes('mumbai') &&
+      !lowerCaseFullAddress.includes('navi mumbai') &&
+      !lowerCaseCity.includes('mumbai')
+    ) {
+      city = 'Mumbai';
     }
 
     // --- Construct keychainAddress ---
@@ -307,7 +326,10 @@ const MapPicker: React.FC = () => {
     const normalizedCity = city.toLowerCase();
 
     if (area && city) {
-      if (normalizedArea === normalizedCity || normalizedCity.includes(normalizedArea)) {
+      if (
+        normalizedArea === normalizedCity ||
+        normalizedCity.includes(normalizedArea)
+      ) {
         keychainAddressResult = city;
       } else {
         keychainAddressResult = `${area}, ${city}`;
@@ -318,11 +340,14 @@ const MapPicker: React.FC = () => {
       keychainAddressResult = city;
     } else {
       // Fallback for keychain address if area/city components are missing
-      const parts = fullFormattedAddress.split(',').map(p => p.trim()).filter(Boolean);
+      const parts = fullFormattedAddress
+        .split(',')
+        .map(p => p.trim())
+        .filter(Boolean);
       keychainAddressResult = parts.slice(0, 2).join(', '); // Take first two significant parts
     }
     if (!keychainAddressResult) {
-        keychainAddressResult = fullFormattedAddress || defaultAddress;
+      keychainAddressResult = fullFormattedAddress || defaultAddress;
     }
 
     // --- Construct displayAddress (full address) ---
@@ -343,20 +368,25 @@ const MapPicker: React.FC = () => {
    * @param {number} longitude - Longitude of the location.
    * @returns {Promise<void>}
    */
-  const updateAddressFromCoordinates = async (latitude: number, longitude: number): Promise<void> => {
+  const updateAddressFromCoordinates = async (
+    latitude: number,
+    longitude: number,
+  ): Promise<void> => {
     setGeocodingLoading(true);
     try {
       const geocodeUrl = `https://maps.gomaps.pro/maps/api/geocode/json?latlng=${latitude},${longitude}&key=${Strings.GOMAPS_API_KEY}`;
       const response = await fetch(geocodeUrl);
-      const data: { results?: GoMapsGeocodeResult[]; status: string } = await response.json();
+      const data: {results?: GoMapsGeocodeResult[]; status: string} =
+        await response.json();
 
       if (data.results && data.results.length > 0) {
-        const fullFormattedAddress = data.results[0].formatted_address || 'Unknown Location';
-        const { displayAddress, keychainAddress } = extractAddresses(
+        const fullFormattedAddress =
+          data.results[0].formatted_address || 'Unknown Location';
+        const {displayAddress, keychainAddress} = extractAddresses(
           data.results[0].address_components,
-          fullFormattedAddress
+          fullFormattedAddress,
         );
-        
+
         setSelectedAddressText(displayAddress); // Update display text
         setAddressToStoreInKeychain(keychainAddress); // Update address for Keychain storage
         setSearchText(displayAddress); // Also update search input to reflect current map center
@@ -375,14 +405,17 @@ const MapPicker: React.FC = () => {
       setGeocodingLoading(false);
     }
   };
- 
+
   const getCurrentLocation = async (): Promise<void> => {
     setGeocodingLoading(true);
     try {
       if (Platform.OS === 'ios') {
         const status = await Geolocation.requestAuthorization('whenInUse');
         if (status !== 'granted') {
-          Alert.alert('Permission Denied', 'Please enable location services in settings to use your current location.');
+          Alert.alert(
+            'Permission Denied',
+            'Please enable location services in settings to use your current location.',
+          );
           setGeocodingLoading(false);
           return;
         }
@@ -391,21 +424,25 @@ const MapPicker: React.FC = () => {
           PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
           {
             title: 'Location Permission',
-            message: 'This app needs access to your location to show it on the map.',
+            message:
+              'This app needs access to your location to show it on the map.',
             buttonNeutral: 'Ask Me Later',
             buttonNegative: 'Cancel',
             buttonPositive: 'OK',
-          }
+          },
         );
         if (granted !== PermissionsAndroid.RESULTS.GRANTED) {
-          Alert.alert('Permission Denied', 'Please enable location services in settings to use your current location.');
+          Alert.alert(
+            'Permission Denied',
+            'Please enable location services in settings to use your current location.',
+          );
           setGeocodingLoading(false);
           return;
         }
       }
 
       Geolocation.getCurrentPosition(
-        async (position) => {
+        async position => {
           const region: Location = {
             latitude: position.coords.latitude,
             longitude: position.coords.longitude,
@@ -414,22 +451,31 @@ const MapPicker: React.FC = () => {
           };
           setCurrentLocation(region);
           setSelectedPlace(region);
-          
-          await updateAddressFromCoordinates(position.coords.latitude, position.coords.longitude);
+
+          await updateAddressFromCoordinates(
+            position.coords.latitude,
+            position.coords.longitude,
+          );
           mapRef.current?.animateToRegion(region, 1000);
         },
         (error: any) => {
           setGeocodingLoading(false);
-          Alert.alert('Location Error', 'Could not get your current location. Please ensure location services are enabled and try again.');
+          Alert.alert(
+            'Location Error',
+            'Could not get your current location. Please ensure location services are enabled and try again.',
+          );
         },
-        { enableHighAccuracy: true, timeout: 15000, maximumAge: 10000 }
+        {enableHighAccuracy: true, timeout: 15000, maximumAge: 10000},
       );
     } catch (err: any) {
       setGeocodingLoading(false);
-      Alert.alert('Error', 'Something went wrong while trying to get your current location.');
+      Alert.alert(
+        'Error',
+        'Something went wrong while trying to get your current location.',
+      );
     }
   };
- 
+
   const fetchGoMapsPredictions = async (input: string): Promise<void> => {
     if (!input) {
       setPredictions([]);
@@ -437,9 +483,11 @@ const MapPicker: React.FC = () => {
       return;
     }
     try {
-      const autocompleteUrl = `https://maps.gomaps.pro/maps/api/place/autocomplete/json?input=${encodeURIComponent(input)}&key=${Strings.GOMAPS_API_KEY}`;
+      const autocompleteUrl = `https://maps.gomaps.pro/maps/api/place/autocomplete/json?input=${encodeURIComponent(
+        input,
+      )}&key=${Strings.GOMAPS_API_KEY}`;
       const response = await fetch(autocompleteUrl);
-      const data: { predictions?: GoMapsPrediction[] } = await response.json();
+      const data: {predictions?: GoMapsPrediction[]} = await response.json();
       if (data.predictions) {
         setPredictions(data.predictions);
         setDisplaySearchResults(true);
@@ -461,9 +509,9 @@ const MapPicker: React.FC = () => {
    */
   const debouncedFetchPredictions = useCallback(
     debounce(fetchGoMapsPredictions, 500),
-    []
+    [],
   );
- 
+
   const handleSearchTextChange = (text: string): void => {
     setSearchText(text);
     setSelectedAddressText('Select a location'); // Reset selected address display
@@ -476,7 +524,7 @@ const MapPicker: React.FC = () => {
       setDisplaySearchResults(false);
     }
   };
- 
+
   const onPlaceSelect = async (prediction: GoMapsPrediction): Promise<void> => {
     setPredictions([]); // Clear predictions list
     setDisplaySearchResults(false); // Hide search results
@@ -486,15 +534,17 @@ const MapPicker: React.FC = () => {
     try {
       const detailsUrl = `https://maps.gomaps.pro/maps/api/geocode/json?place_id=${prediction.place_id}&key=${Strings.GOMAPS_API_KEY}`;
       const detailsResponse = await fetch(detailsUrl);
-      const detailsData: { results?: GoMapsGeocodeResult[]; status: string } = await detailsResponse.json();
+      const detailsData: {results?: GoMapsGeocodeResult[]; status: string} =
+        await detailsResponse.json();
 
       if (detailsData.results && detailsData.results.length > 0) {
-        const { lat, lng } = detailsData.results[0].geometry.location;
-        const fullFormattedAddress = detailsData.results[0].formatted_address || prediction.description;
-        
-        const { displayAddress, keychainAddress } = extractAddresses(
+        const {lat, lng} = detailsData.results[0].geometry.location;
+        const fullFormattedAddress =
+          detailsData.results[0].formatted_address || prediction.description;
+
+        const {displayAddress, keychainAddress} = extractAddresses(
           detailsData.results[0].address_components,
-          fullFormattedAddress
+          fullFormattedAddress,
         );
 
         const newRegion: Location = {
@@ -504,7 +554,7 @@ const MapPicker: React.FC = () => {
           longitudeDelta: LONGITUDE_DELTA,
         };
         setSelectedPlace(newRegion);
-        
+
         // Display the full address derived from formatted_address or prediction
         setSearchText(displayAddress);
         setSelectedAddressText(displayAddress);
@@ -512,32 +562,46 @@ const MapPicker: React.FC = () => {
         // Store the simplified keychainAddress in Keychain
         setAddressToStoreInKeychain(keychainAddress);
         await storeLocation(lat, lng, keychainAddress);
-        
+
         mapRef.current?.animateToRegion(newRegion, 1000); // Animate map to selected place
       } else {
-        Alert.alert('Error', 'Could not get full details for the selected place.');
+        Alert.alert(
+          'Error',
+          'Could not get full details for the selected place.',
+        );
       }
     } catch (error: any) {
-      Alert.alert('Error', 'Failed to retrieve place details. Please try again.');
+      Alert.alert(
+        'Error',
+        'Failed to retrieve place details. Please try again.',
+      );
     } finally {
       setGeocodingLoading(false); // Hide loading indicator
     }
   };
 
- 
-  const renderPredictionItem: ListRenderItem<GoMapsPrediction> = useCallback(({ item }) => (
-    <TouchableOpacity
-      style={styles.predictionItem}
-      onPress={() => onPlaceSelect(item)}
-    >
-      <Text style={styles.predictionText}>{item.description}</Text>
-    </TouchableOpacity>
-  ), [onPlaceSelect]);
+  const renderPredictionItem: ListRenderItem<GoMapsPrediction> = useCallback(
+    ({item}) => (
+      <TouchableOpacity
+        style={styles.predictionItem}
+        onPress={() => onPlaceSelect(item)}>
+        <Text style={styles.predictionText}>{item.description}</Text>
+      </TouchableOpacity>
+    ),
+    [onPlaceSelect],
+  );
 
- 
   const handleConfirmLocation = async () => {
-    if (selectedPlace && addressToStoreInKeychain && selectedAddressText !== 'Select a location') { 
-      await storeLocation(selectedPlace.latitude, selectedPlace.longitude, addressToStoreInKeychain);
+    if (
+      selectedPlace &&
+      addressToStoreInKeychain &&
+      selectedAddressText !== 'Select a location'
+    ) {
+      await storeLocation(
+        selectedPlace.latitude,
+        selectedPlace.longitude,
+        addressToStoreInKeychain,
+      );
 
       // Navigate back to the Home screen with the keychain-friendly address
       navigation.navigate('MainApp', {
@@ -551,17 +615,19 @@ const MapPicker: React.FC = () => {
         },
       });
     } else {
-      Alert.alert('Selection Error', 'Please select a location on the map or search for one before confirming.');
+      Alert.alert(
+        'Selection Error',
+        'Please select a location on the map or search for one before confirming.',
+      );
     }
   };
 
-  
   const handleMapPress = async (event: any): Promise<void> => {
     // Dismiss keyboard and hide search results when map is tapped
     Keyboard.dismiss();
     setDisplaySearchResults(false);
 
-    const { latitude, longitude } = event.nativeEvent.coordinate;
+    const {latitude, longitude} = event.nativeEvent.coordinate;
     const newLocation: Location = {
       latitude: latitude,
       longitude: longitude,
@@ -573,7 +639,6 @@ const MapPicker: React.FC = () => {
     mapRef.current?.animateToRegion(newLocation, 500); // Animate to the tapped location
   };
 
- 
   if (loading) {
     return (
       <View style={styles.centered}>
@@ -582,10 +647,14 @@ const MapPicker: React.FC = () => {
       </View>
     );
   }
- 
+
   return (
-    <SafeAreaView style={styles.safeArea}>
-      <CustomHeader showBack={true} title='Change Location' onBackPress={goBack} />
+    <View style={styles.safeArea}>
+      <CustomHeader
+        showBack={true}
+        title="Change Location"
+        onBackPress={goBack}
+      />
       <View style={styles.contentContainer}>
         <View style={styles.topSection}>
           <View style={styles.searchSection}>
@@ -595,22 +664,29 @@ const MapPicker: React.FC = () => {
               //value={searchText}
               onChangeText={handleSearchTextChange}
               onFocus={() => {
-                  // Show search results if there's enough text or existing predictions
-                  if (searchText.length > 2 || predictions.length > 0) setDisplaySearchResults(true);
+                // Show search results if there's enough text or existing predictions
+                if (searchText.length > 2 || predictions.length > 0)
+                  setDisplaySearchResults(true);
               }}
               // Delay hiding search results to allow click on items
-              onBlur={() => setTimeout(() => setDisplaySearchResults(false), 200)}
+              onBlur={() =>
+                setTimeout(() => setDisplaySearchResults(false), 200)
+              }
             />
 
             <View style={styles.orSeparator}>
               <Text style={styles.orText}>Or</Text>
             </View>
 
-            <TouchableOpacity style={styles.useCurrentLocationButton} onPress={getCurrentLocation}>
+            <TouchableOpacity
+              style={styles.useCurrentLocationButton}
+              onPress={getCurrentLocation}>
               {geocodingLoading && !displaySearchResults ? (
                 <ActivityIndicator size="small" color="#fff" />
               ) : (
-                <Text style={styles.useCurrentLocationButtonText}>Use My Current Location</Text>
+                <Text style={styles.useCurrentLocationButtonText}>
+                  Use My Current Location
+                </Text>
               )}
             </TouchableOpacity>
           </View>
@@ -619,7 +695,7 @@ const MapPicker: React.FC = () => {
           {displaySearchResults && predictions.length > 0 && (
             <FlatList<GoMapsPrediction>
               data={predictions}
-              keyExtractor={(item) => item.place_id}
+              keyExtractor={item => item.place_id}
               renderItem={renderPredictionItem}
               style={styles.predictionList}
               keyboardShouldPersistTaps="handled" // Prevents keyboard dismissal on tap outside
@@ -628,10 +704,12 @@ const MapPicker: React.FC = () => {
 
           {/* Show overlay loading indicator during geocoding, if search results are not active */}
           {geocodingLoading && displaySearchResults === false && (
-              <View style={styles.overlayLoading}>
-                  <ActivityIndicator size="large" color="#0000ff" />
-                  <Text style={styles.overlayLoadingText}>Fetching location details...</Text>
-              </View>
+            <View style={styles.overlayLoading}>
+              <ActivityIndicator size="large" color="#0000ff" />
+              <Text style={styles.overlayLoadingText}>
+                Fetching location details...
+              </Text>
+            </View>
           )}
         </View>
 
@@ -640,7 +718,14 @@ const MapPicker: React.FC = () => {
           provider={PROVIDER_GOOGLE}
           style={styles.map}
           // Set initial region to selected place or default Navi Mumbai if no place is selected
-          initialRegion={selectedPlace || { latitude: 19.0330, longitude: 73.0297, latitudeDelta: LATITUDE_DELTA, longitudeDelta: LONGITUDE_DELTA }}
+          initialRegion={
+            selectedPlace || {
+              latitude: 19.033,
+              longitude: 73.0297,
+              latitudeDelta: LATITUDE_DELTA,
+              longitudeDelta: LONGITUDE_DELTA,
+            }
+          }
           showsUserLocation={true}
           showsMyLocationButton={true}
           onPress={handleMapPress} // <--- Added onPress handler here
@@ -653,22 +738,22 @@ const MapPicker: React.FC = () => {
                 longitude: selectedPlace.longitude,
               }}
               title="Selected Location"
-              description={selectedAddressText} 
-            ></Marker>
+              description={selectedAddressText}></Marker>
           )}
         </MapView>
 
         <View style={styles.confirmButtonContainer}>
-            <Text style={styles.selectedAddressDisplay}>Selected: {selectedAddressText}</Text>
-            <TouchableOpacity
-                style={styles.confirmButton}
-                onPress={handleConfirmLocation}
-            >
-                <Text style={styles.confirmButtonText}>Confirm Location</Text>
-            </TouchableOpacity>
+          <Text style={styles.selectedAddressDisplay}>
+            Selected: {selectedAddressText}
+          </Text>
+          <TouchableOpacity
+            style={styles.confirmButton}
+            onPress={handleConfirmLocation}>
+            <Text style={styles.confirmButtonText}>Confirm Location</Text>
+          </TouchableOpacity>
         </View>
       </View>
-    </SafeAreaView>
+    </View>
   );
 };
 
@@ -679,7 +764,7 @@ const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
     backgroundColor: '#fff',
-    paddingTop: Platform.OS === 'android' ? 25 : 0, // Adjust for Android status bar
+    paddingBottom: 30,
   },
   contentContainer: {
     flex: 1,
@@ -733,7 +818,7 @@ const styles = StyleSheet.create({
     maxHeight: Dimensions.get('window').height * 0.4, // Max height for scrollable predictions
     backgroundColor: 'white',
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
+    shadowOffset: {width: 0, height: 2},
     shadowOpacity: 0.2,
     shadowRadius: 2,
     elevation: 3,
@@ -756,7 +841,7 @@ const styles = StyleSheet.create({
     position: 'absolute',
     top: '50%', // Center vertically
     left: '50%', // Center horizontally
-    transform: [{ translateX: -50 }, { translateY: -50 }], // Adjust for element size
+    transform: [{translateX: -50}, {translateY: -50}], // Adjust for element size
     backgroundColor: 'rgba(0,0,0,0.7)',
     padding: 20,
     borderRadius: 10,

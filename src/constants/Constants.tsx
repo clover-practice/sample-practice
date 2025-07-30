@@ -6,8 +6,8 @@ const Strings = {
 
   // GOMAPS_API_KEY:'AlzaSyHbXxV_iKjbmuS9F2kTeHuMdpp6j0UGYOe', //(Anil Account)
   //GOMAPS_API_KEY: 'AlzaSy6joRYE14YzhEOOje7VQoXFaVwWfWpYb-A', //(Rupesh Account)
-   //GOMAPS_API_KEY:'AlzaSyeqlZxnju2ak-RqPEideRLyfF0u7H1vd7m',   // Yogesh
-   GOMAPS_API_KEY:'AlzaSyMsAAIkQAFseZFagZUo2ci37yRTmfc0myZ',   // Sagar Sadamate
+  // GOMAPS_API_KEY: 'AlzaSyeqlZxnju2ak-RqPEideRLyfF0u7H1vd7m', // Yogesh
+  GOMAPS_API_KEY: 'AlzaSyMsAAIkQAFseZFagZUo2ci37yRTmfc0myZ', // Sagar Sadamate
   NEARBY_PLACES_DETAILS_API_URL:
     'https://maps.gomaps.pro/maps/api/place/details/json',
   NEARBY_PLACES_API_URL:

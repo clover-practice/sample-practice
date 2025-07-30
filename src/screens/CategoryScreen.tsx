@@ -33,32 +33,42 @@ const LEFT_MENU = [
   {
     id: '1',
     title: 'Hair-cut,Wash & Style',
-    icon: require('../assets/images/user.jpg'),
+    icon: require('../assets/images/services_img/hair_cut_wash.png'),
   },
-  {id: '2', title: 'Hair Color', icon: require('../assets/images/user.jpg')},
-  {id: '3', title: 'Nail Bar', icon: require('../assets/images/user.jpg')},
-  {id: '4', title: 'Face', icon: require('../assets/images/user.jpg')},
-  {id: '5', title: 'Massage & Spa', icon: require('../assets/images/user.jpg')},
-  {id: '6', title: `Men's Groming`, icon: require('../assets/images/user.jpg')},
+  {
+    id: '2',
+    title: 'Hair Color',
+    icon: require('../assets/images/services_img/hair_color.png'),
+  },
+  {
+    id: '3',
+    title: 'Nail Bar',
+    icon: require('../assets/images/services_img/nail_bar.png'),
+  },
+  {
+    id: '4',
+    title: 'Face',
+    icon: require('../assets/images/services_img/face.png'),
+  },
+  {
+    id: '5',
+    title: 'Massage & Spa',
+    icon: require('../assets/images/services_img/massage_spa.png'),
+  },
+  {
+    id: '6',
+    title: `Men's Groming`,
+    icon: require('../assets/images/services_img/hair_cut_wash.png'),
+  },
   {
     id: '7',
     title: 'Waxing,Bleaching & Threading',
-    icon: require('../assets/images/user.jpg'),
+    icon: require('../assets/images/services_img/mens_grooming.png'),
   },
   {
     id: '8',
     title: 'Beauty & Personal Care',
-    icon: require('../assets/images/user.jpg'),
-  },
-  {
-    id: '9',
-    title: 'Beauty & Personal Care',
-    icon: require('../assets/images/user.jpg'),
-  },
-  {
-    id: '10',
-    title: 'Beauty & Personal Care',
-    icon: require('../assets/images/user.jpg'),
+    icon: require('../assets/images/services_img/waxing_thread.png'),
   },
 ];
 
