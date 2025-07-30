@@ -2,13 +2,11 @@ import React, {useEffect, useState} from 'react';
 import {
   View,
   StyleSheet,
-  SafeAreaView,
   Platform,
   PermissionsAndroid,
   ActivityIndicator,
   Text,
   TouchableOpacity,
-  Alert,
   StatusBar,
 } from 'react-native';
 import Geolocation from 'react-native-geolocation-service';
@@ -18,24 +16,16 @@ import CustomCarousel from '../components/CustomCarousel';
 import {getAddressFromLocation} from '@logisticinfotech/react-native-geocoding-reversegeocoding';
 import {navigate} from '../utils/NavigationUtils';
 import {useBottomTabBarHeight} from '@react-navigation/bottom-tabs';
-import Animated, {
-  useSharedValue,
-  useAnimatedScrollHandler,
-  withTiming,
-} from 'react-native-reanimated';
+import Animated from 'react-native-reanimated';
 import {useTabBarVisibility} from '../components/TabBarVisibilityContext';
-import Constants from '../constants/Constants';
-
-// NEW IMPORTS FOR NAVIGATION PARAMS
 import {useRoute, RouteProp} from '@react-navigation/native';
 import MapAndListView from './MapAndListView';
+import {getLocation, getValue, storeLocation} from '../utils/keychainStorage';
+import {useHideTabBarOnScroll} from '../components/useHideTabBarOnScroll';
+import Constants from '../constants/Constants';
+import {SafeAreaView} from 'react-native-safe-area-context';
 
-// IMPORTANT: Define RootStackParamList (must match MapPicker.tsx and AppNavigator.tsx)
-/**
- * @type {RootStackParamList}
- * @description Defines the type mapping for navigation routes and their parameters within the application's root stack.
- * Ensures type safety for navigation operations.
- */
+// Type Definitions
 type RootStackParamList = {
   HomeScreen:
     | {
@@ -43,28 +33,9 @@ type RootStackParamList = {
         selectedCoords?: {latitude: number; longitude: number};
       }
     | undefined;
-  MapPicker: undefined;
-  Login: undefined;
-  Onboarding: undefined;
-  ServiceMenuScreen: undefined;
-  // ... add any other screens that are part of your main navigation stack
 };
 
-/**
- * @type {HomeScreenRouteProp}
- * @description Type definition for the route prop specific to the HomeScreen,
- * allowing access to parameters passed to this screen.
- */
 type HomeScreenRouteProp = RouteProp<RootStackParamList, 'HomeScreen'>;
-
-// Assuming these are in utils/keychainStorage.ts based on your context
-import {
-  getLocation,
-  getValue,
-  setValue,
-  storeLocation,
-} from '../utils/keychainStorage';
-import {useHideTabBarOnScroll} from '../components/useHideTabBarOnScroll';
 
 const HomeScreen = () => {
   const [currentCity, setCurrentCity] = useState('Fetching...');
@@ -72,14 +43,13 @@ const HomeScreen = () => {
     latitude: number;
     longitude: number;
   } | null>(null);
-
   const [locationLoading, setLocationLoading] = useState(true);
   const [locationError, setLocationError] = useState<string | null>(null);
   const [userName, setUserName] = useState('');
   const route = useRoute<HomeScreenRouteProp>();
   const tabBarHeight = useBottomTabBarHeight();
   const {translateY} = useTabBarVisibility();
-  const scrollY = useSharedValue(0);
+  const scrollHandler = useHideTabBarOnScroll(translateY);
 
   const hasLocationPermission = async (): Promise<boolean> => {
     if (Platform.OS === 'android') {
@@ -87,8 +57,7 @@ const HomeScreen = () => {
         PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
         {
           title: 'Location Permission',
-          message:
-            'This app needs access to your location to find nearby services.',
+          message: 'We need your location to show nearby salons.',
           buttonNeutral: 'Ask Me Later',
           buttonNegative: 'Cancel',
           buttonPositive: 'OK',
@@ -96,52 +65,33 @@ const HomeScreen = () => {
       );
       return granted === PermissionsAndroid.RESULTS.GRANTED;
     } else {
-      // For iOS, requestAuthorization handles permission prompt and status
       const status = await Geolocation.requestAuthorization('whenInUse');
       return status === 'granted';
     }
   };
 
-  const requestAndFetchAddress = async (): Promise<void> => {
-    setLocationLoading(true); // Start loading
-    setLocationError(null); // Clear any previous errors
+  const requestAndFetchAddress = async () => {
+    setLocationLoading(true);
+    setLocationError(null);
     setCurrentCity('Fetching...');
     try {
       const permissionGranted = await hasLocationPermission();
       if (!permissionGranted) {
-        console.warn('Permission not granted!');
         setLocationError(
-          'Location permission denied. Please enable location services in your device settings.',
+          'Location permission denied. Enable location services in settings.',
         );
         setLocationLoading(false);
         return;
       }
 
-      type GeocodeResult = {
-        city?: string;
-        locality?: string;
-        subAdminArea?: string;
-        adminArea?: string;
-        [key: string]: any;
-      };
-
-      type GeocodeResponse = {
-        result?: GeocodeResult;
-      };
-
       Geolocation.getCurrentPosition(
         async position => {
-          // Use position directly to get coords
-          const {latitude, longitude} = position.coords; // Extract coords
-
-          // Set coordinates in local state
+          const {latitude, longitude} = position.coords;
           setUserCoordinates({latitude, longitude});
 
           try {
             const response = await getAddressFromLocation(latitude, longitude);
-            const typedResponse = response as GeocodeResponse;
-            const result = typedResponse?.result;
-            // Prioritize different address components to find the most specific city/area name
+            const result = (response as any)?.result;
             const city =
               result?.city ||
               result?.locality ||
@@ -150,115 +100,61 @@ const HomeScreen = () => {
               'Unknown City';
 
             setCurrentCity(city);
-            // Store latitude, longitude, and address in keychain for persistence
             await storeLocation(latitude, longitude, city);
-            setLocationLoading(false); // End loading
           } catch (e) {
-            console.warn('Geocoding error:', e);
             setCurrentCity('Address Unavailable');
-            setLocationError('Could not get address for your location.');
+            setLocationError('Could not get address.');
+          } finally {
             setLocationLoading(false);
           }
         },
         error => {
-          console.warn('Location error:', error);
           setCurrentCity('Location Error');
-          setLocationError(`Failed to get location: ${error.message}`);
+          setLocationError(error.message);
           setLocationLoading(false);
         },
         {enableHighAccuracy: true, timeout: 15000, maximumAge: 10000},
       );
     } catch (err) {
-      console.warn('Permission error:', err);
-      setCurrentCity('Error Occurred');
       setLocationError('Error requesting location permission.');
       setLocationLoading(false);
     }
   };
 
-  const getUserData = async (): Promise<void> => {
+  const getUserData = async () => {
     const currentAdd = await getValue(Constants.CITY_ADDRESS);
     setCurrentCity(currentAdd);
     const name = await getValue(Constants.USER_NAME);
-    console.log('GET USER NAME :- ', name);
-    if (name) {
-      setUserName(name.charAt(0).toUpperCase());
-    } else {
-      setUserName('U'); // Default if no username
-    }
+    setUserName(name ? name.charAt(0).toUpperCase() : 'U');
   };
- 
 
-  const scrollHandler = useHideTabBarOnScroll(translateY);
- 
   useEffect(() => {
     (async () => {
-      setLocationLoading(true); // Start loading for initial fetch
-      setLocationError(null); // Clear errors
-
       const loc = await getLocation();
-
-      // Check if all necessary location data is present in Keychain
       if (loc?.address && loc?.latitude && loc?.longitude) {
         setCurrentCity(loc.address);
-        setUserCoordinates({latitude: loc.latitude, longitude: loc.longitude}); // Set coordinates from keychain
-        console.log('🏠 Loaded from Keychain:', loc);
-        setLocationLoading(false); // End loading
+        setUserCoordinates({latitude: loc.latitude, longitude: loc.longitude});
+        setLocationLoading(false);
       } else {
-        requestAndFetchAddress(); // Fallback to live GPS if not in keychain or incomplete
+        requestAndFetchAddress();
       }
     })();
-    getUserData(); // Fetch user data on initial mount
-  }, []); // Empty dependency array means this runs only once on mount
- 
+    getUserData();
+  }, []);
+
   useEffect(() => {
-    // Check if both selectedAddress AND selectedCoords parameters exist
     if (route.params?.selectedAddress && route.params?.selectedCoords) {
       const {selectedAddress, selectedCoords} = route.params;
-
-      // Only update if the new selection is genuinely different to avoid unnecessary state updates
-      if (
-        selectedAddress !== currentCity ||
-        selectedCoords.latitude !== userCoordinates?.latitude ||
-        selectedCoords.longitude !== userCoordinates?.longitude
-      ) {
-        setCurrentCity(selectedAddress);
-        setUserCoordinates(selectedCoords); // Update coordinates state from MapPicker
-
-        // Store the new selected location (address and coordinates) in keychain
-        storeLocation(
-          selectedCoords.latitude,
-          selectedCoords.longitude,
-          selectedAddress,
-        );
-
-        console.log(
-          '📍 Updated from MapPicker:',
-          selectedAddress,
-          selectedCoords,
-        );
-        // Optional: If you want to clear the param after using it to prevent re-triggering
-        // on subsequent focus, you'd typically do:
-        // import { useNavigation } from '@react-navigation/native';
-        // const navigation = useNavigation();
-        // navigation.setParams({ selectedAddress: undefined, selectedCoords: undefined });
-      }
+      setCurrentCity(selectedAddress);
+      setUserCoordinates(selectedCoords);
+      storeLocation(
+        selectedCoords.latitude,
+        selectedCoords.longitude,
+        selectedAddress,
+      );
     }
-  }, [
-    route.params?.selectedAddress,
-    route.params?.selectedCoords,
-    currentCity,
-    userCoordinates,
-  ]); // Dependencies: changes in route params or local state
+  }, [route.params]);
 
-  // =====================================
-  // CONDITIONAL RENDERING / LOADING/ERROR STATES
-  // =====================================
-
-  /**
-   * @renderCondition
-   * @description Displays a full-screen loading indicator when the initial location data is being fetched.
-   */
   if (locationLoading) {
     return (
       <SafeAreaView style={styles.centeredContainer}>
@@ -268,11 +164,6 @@ const HomeScreen = () => {
     );
   }
 
-  /**
-   * @renderCondition
-   * @description Displays a full-screen error message and a retry button
-   * if location fetching failed and no valid coordinates are available to display services.
-   */
   if (locationError && !userCoordinates) {
     return (
       <SafeAreaView style={styles.centeredContainer}>
@@ -286,23 +177,20 @@ const HomeScreen = () => {
     );
   }
 
-  // =====================================
-  // MAIN COMPONENT RENDER
-  // =====================================
   return (
-    <SafeAreaView style={styles.safeArea}>
+    <SafeAreaView style={styles.safeArea} edges={['top', 'bottom']}>
       <StatusBar backgroundColor="#fff" barStyle="dark-content" />
       <Animated.ScrollView
         onScroll={scrollHandler}
-        scrollEventThrottle={16} // Standard for smooth scroll events
+        scrollEventThrottle={16}
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.scrollContent}>
         <TopSearchBar
-          city={currentCity} // This will now reflect the dynamically updated city/address
+          city={currentCity}
           offerLabel="50% Offer"
           userInitial={userName}
           onPressAvatar={() => navigate('EditProfileScreen')}
-          onPressLocation={() => navigate('MapPicker')} // Navigates to MapPicker
+          onPressLocation={() => navigate('MapPicker')}
         />
 
         <CustomCarousel
@@ -333,31 +221,16 @@ const HomeScreen = () => {
             longitude={userCoordinates.longitude}
           />
         ) : (
-          // Fallback message if no location is available for MapAndListView
           <View style={styles.mapListMessageContainer}>
-            <Text style={styles.infoText}>
-              No location available to display nearby salons.
-            </Text>
+            <Text style={styles.infoText}>No location available.</Text>
             {locationError && (
               <Text style={styles.infoTextSub}>{locationError}</Text>
-            )}
-            {/* Show retry button only if there's an error and no coordinates */}
-            {!locationError && !locationLoading && (
-              <TouchableOpacity
-                onPress={requestAndFetchAddress}
-                style={styles.retryButton}>
-                <Text style={styles.retryButtonText}>
-                  Try Getting My Location
-                </Text>
-              </TouchableOpacity>
             )}
           </View>
         )}
 
         <BreakerText text="SALON BY PRODUCTS" />
-        {/* <PlaceDetailsScreen/> */}
 
-        {/* Spacer view to ensure content at the bottom isn't hidden by the tab bar */}
         <View style={{height: tabBarHeight + 20}} />
       </Animated.ScrollView>
     </SafeAreaView>
@@ -366,22 +239,17 @@ const HomeScreen = () => {
 
 export default HomeScreen;
 
-// =====================================
-// STYLES
-// =====================================
+// Styles
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
     backgroundColor: '#fff',
-    paddingTop: Platform.OS === 'android' ? 50 : 0, // Adjust as needed for Android status bar
-    paddingBottom: 20, // Provides space at the bottom of the safe area for content
   },
   scrollContent: {
     backgroundColor: '#fff',
-    paddingBottom: 20, // Ensure content isn't cut off by tab bar
+    paddingBottom: 20,
   },
   centeredContainer: {
-    // For full-screen loading/error
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
@@ -397,7 +265,7 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: 'bold',
     textAlign: 'center',
-    marginHorizontal: 20, // Add some padding
+    marginHorizontal: 20,
   },
   retryButton: {
     marginTop: 15,
@@ -411,25 +279,7 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     fontSize: 16,
   },
-  mapListLoadingContainer: {
-    // For loading within the MapAndListView section (currently unused, but good to have)
-    minHeight: 150, // Give it some height for visibility
-    justifyContent: 'center',
-    alignItems: 'center',
-    paddingVertical: 20,
-  },
-  mapListErrorContainer: {
-    // For error within the MapAndListView section (currently unused, but good to have)
-    minHeight: 150,
-    justifyContent: 'center',
-    alignItems: 'center',
-    paddingVertical: 20,
-    backgroundColor: '#ffe6e6', // Light red background
-    marginHorizontal: 5,
-    borderRadius: 8,
-  },
   mapListMessageContainer: {
-    // For general info messages within the MapAndListView section
     minHeight: 150,
     justifyContent: 'center',
     alignItems: 'center',

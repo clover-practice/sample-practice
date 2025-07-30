@@ -24,8 +24,12 @@ const Colors = {
   ERROR: '#dc3545',
 
   // Others
-  TRANSPARENT_BLACK: 'rgba(0,0,0,0.5)',
+  // TRANSPARENT_BLACK: 'rgba(0,0,0,0.5)',
   DEFAULT_BUTTON_COLOR: 'dodgerblue',
+  TRANSPARENT_BLACK: '#00000000', // fully transparent black
+  TRANSPARENT_BLACK_HALF: '#00000080', // 50% transparent black
+  TRANSPARENT: '#FFFFFF00', // ~80% opacity white
+  Full_TRANSPARENT: 'transparent',
 
   DANGER: '#DC3545',
   INFO: '#00CED1',
@@ -38,7 +42,7 @@ const Colors = {
 
   // ICON COLORS
   ICON_COLOR: '0e84ff',
-  
+  TERMS_AND_PRIVACY: '#C00054',
 };
 
 export default Colors;

@@ -68,6 +68,7 @@ const Strings = {
   //==================================== Storage the Key Id ====================================
   USER_NAME: 'user_name',
   IS_LOGIN: 'is_login',
+  KYC_DONE: 'kyc_done',
 
   LATITUDE: 'latitude',
   LONITUDE: 'longitude',

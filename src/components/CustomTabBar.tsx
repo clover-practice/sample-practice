@@ -1,10 +1,10 @@
-// components/CustomTabBar.tsx
 import React from 'react';
 import {View, TouchableOpacity, Text, StyleSheet, Platform} from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import Animated, {useAnimatedStyle} from 'react-native-reanimated';
 import {useTabBarVisibility} from './TabBarVisibilityContext';
 import {BottomTabBarProps} from '@react-navigation/bottom-tabs';
+import {useSafeAreaInsets} from 'react-native-safe-area-context';
 
 const ICONS: Record<string, {active: string; inactive: string}> = {
   Home: {active: 'home', inactive: 'home-outline'},
@@ -15,15 +15,30 @@ const ICONS: Record<string, {active: string; inactive: string}> = {
   Settings: {active: 'settings', inactive: 'settings-outline'},
 };
 
+const BASE_HEIGHT = 60; // base height for Android
+const IOS_HEIGHT = 70; // base height for iOS
+
 const CustomTabBar = ({state, descriptors, navigation}: BottomTabBarProps) => {
   const {translateY} = useTabBarVisibility();
+  const insets = useSafeAreaInsets();
 
   const animatedStyle = useAnimatedStyle(() => ({
     transform: [{translateY: translateY.value}],
   }));
 
+  const tabBarHeight =
+    (Platform.OS === 'ios' ? IOS_HEIGHT : BASE_HEIGHT) + insets.bottom;
+
   return (
-    <Animated.View style={[styles.tabContainer, animatedStyle]}>
+    <Animated.View
+      style={[
+        styles.tabContainer,
+        animatedStyle,
+        {
+          paddingBottom: insets.bottom,
+          height: tabBarHeight,
+        },
+      ]}>
       {state.routes.map((route, index) => {
         const {options} = descriptors[route.key];
         const isFocused = state.index === index;
@@ -56,6 +71,15 @@ const CustomTabBar = ({state, descriptors, navigation}: BottomTabBarProps) => {
               size={24}
               color={isFocused ? '#2874F0' : '#888'}
             />
+
+            {/* <View style={styles.iconWrapper}>
+              <Ionicons
+                name={iconName || 'ellipse'}
+                size={24}
+                color={isFocused ? '#2874F0' : '#888'}
+              />
+            </View> */}
+
             <Text
               style={[styles.tabLabel, isFocused && styles.tabLabelFocused]}>
               {route.name}
@@ -79,9 +103,7 @@ const styles = StyleSheet.create({
     bottom: 0,
     left: 0,
     right: 0,
-    paddingBottom: Platform.OS === 'android' ? 0 : 8,
-    paddingHorizontal: Platform.OS === 'ios' ? 16 : 0, // 👈 iOS-only horizontal padding
-    height: Platform.OS === 'android' ? 60 : 70,
+    paddingHorizontal: Platform.OS === 'ios' ? 16 : 10,
   },
   tabButton: {
     alignItems: 'center',
@@ -93,10 +115,8 @@ const styles = StyleSheet.create({
     position: 'absolute',
     top: 0,
     width: '100%',
-    height: Platform.OS === 'android' ? 2.5 : 2,
+    height: Platform.OS === 'android' ? 1.5 : 1.5,
     backgroundColor: '#2874F0',
-    borderTopLeftRadius: 4,
-    borderTopRightRadius: 4,
   },
   tabLabel: {
     fontSize: 10,

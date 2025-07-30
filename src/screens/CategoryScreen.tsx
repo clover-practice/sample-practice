@@ -27,6 +27,7 @@ import ExpandableServiceItem from './categorycomponent/ExpandableServiceItem';
 import Constants from '../constants/Constants';
 import {useCart} from '../contexts/CartContext';
 import {useHideTabBarOnScroll} from '../components/useHideTabBarOnScroll';
+import GlobalCartBanner from '../components/GlobalCartBanner';
 
 const LEFT_MENU = [
   {
@@ -152,154 +153,148 @@ const CategoryScreen = () => {
   );
 
   return (
-    <View style={styles.safeArea}>
-      <SafeAreaView style={styles.safeArea}>
-        <StatusBar
-          backgroundColor={Colors.STATUS_BAR_COLOR}
-          barStyle="dark-content"
-        />
-        <CustomHeader
-          title={selectedCategoryTitle}
-          showBack={true}
-          onBackPress={goBack}
-        />
-        <View style={styles.containerMain}>
-          <View style={styles.container}>
-            {/* ====================== Side bar(Left Menu)==================== */}
-            <View style={styles.sidebar}>
-              <FlatList
-                data={LEFT_MENU}
-                renderItem={renderLeftMenu}
-                keyExtractor={item => item.id}
-                showsVerticalScrollIndicator={false}
-                ItemSeparatorComponent={() => <View style={styles.separator} />}
-              />
-            </View>
+    <View style={styles.containerFirst}>
+      <CustomHeader
+        title={selectedCategoryTitle}
+        showBack={true}
+        onBackPress={goBack}
+      />
+      <View style={styles.containerMain}>
+        <View style={styles.container}>
+          {/* ====================== Side bar(Left Menu)==================== */}
+          <View style={styles.sidebar}>
+            <FlatList
+              data={LEFT_MENU}
+              renderItem={renderLeftMenu}
+              keyExtractor={item => item.id}
+              showsVerticalScrollIndicator={false}
+              ItemSeparatorComponent={() => <View style={styles.separator} />}
+            />
+          </View>
 
-            <View style={styles.verticalDivider} />
-            {/* ============================ Content ======================== */}
-            <View style={styles.content}>
-              <Animated.ScrollView
-                onScroll={scrollHandler}
-                scrollEventThrottle={16}
-                showsVerticalScrollIndicator={false}>
-                <View style={styles.card}>
-                  <View>
-                    <Text style={styles.cardLabel}>Bruno's</Text>
-                    <Text style={styles.itemLabelCard}>Gift Card</Text>
+          <View style={styles.verticalDivider} />
+          {/* ============================ Content ======================== */}
+          <View style={styles.content}>
+            <Animated.ScrollView
+              onScroll={scrollHandler}
+              scrollEventThrottle={16}
+              showsVerticalScrollIndicator={false}>
+              <View style={styles.card}>
+                <View>
+                  <Text style={styles.cardLabel}>Bruno's</Text>
+                  <Text style={styles.itemLabelCard}>Gift Card</Text>
+                </View>
+
+                <TouchableOpacity
+                  onPress={() => console.log('Clicked on Buy Now')}
+                  style={styles.buyNowButton}>
+                  <View style={styles.buyNowContent}>
+                    <Text style={styles.buyNowText}>Buy Now</Text>
+                    <Ionicons
+                      name="arrow-forward-outline"
+                      size={responsive.fontSize(16)}
+                      color="#fff"
+                      style={styles.buyNowIcon}
+                    />
                   </View>
-
-                  <TouchableOpacity
-                    onPress={() => console.log('Clicked on Buy Now')}
-                    style={styles.buyNowButton}>
-                    <View style={styles.buyNowContent}>
-                      <Text style={styles.buyNowText}>Buy Now</Text>
-                      <Ionicons
-                        name="arrow-forward-outline"
-                        size={responsive.fontSize(16)}
-                        color="#fff"
-                        style={styles.buyNowIcon}
-                      />
-                    </View>
-                  </TouchableOpacity>
-                </View>
-                <View style={styles.searchBar}>
-                  <Ionicons name="search" size={20} color="#999" />
-                  <TextInput
-                    style={styles.input}
-                    placeholder="Search for services"
-                    placeholderTextColor="#999"
-                  />
-                </View>
-
-                {/* ======================== Gender Button View Details ================================== */}
-                <View style={styles.buttonContainer}>
-                  <TouchableOpacity
-                    onPress={() => setSelectedGender('MAN')}
-                    style={[
-                      styles.buttonGender,
-                      selectedGender === 'MAN' && styles.activeBacck,
-                    ]}>
-                    <View style={styles.buyNowContentGender}>
-                      <Ionicons
-                        name="man-outline"
-                        size={responsive.fontSize(16)}
-                        color={selectedGender === 'MAN' ? 'white' : 'red'}
-                        style={styles.buyNowIcon}
-                      />
-                      <Text
-                        style={[
-                          styles.manWomenText,
-                          selectedGender === 'MAN' && styles.activeManWomenText,
-                        ]}>
-                        {Constants.MAN}
-                      </Text>
-                    </View>
-                  </TouchableOpacity>
-                  <TouchableOpacity
-                    onPress={() => setSelectedGender('WOMAN')}
-                    style={[
-                      styles.buttonGender,
-                      selectedGender === 'WOMAN' && styles.activeBacck,
-                    ]}>
-                    <View style={styles.buyNowContentGender}>
-                      <Ionicons
-                        name="woman-outline"
-                        size={responsive.fontSize(16)}
-                        color={selectedGender === 'WOMAN' ? 'white' : 'red'}
-                        style={styles.buyNowIcon}
-                      />
-                      <Text
-                        style={[
-                          styles.manWomenText,
-                          selectedGender === 'WOMAN' &&
-                            styles.activeManWomenText,
-                        ]}>
-                        {Constants.WOMAN}
-                      </Text>
-                    </View>
-                  </TouchableOpacity>
-                </View>
-
-                <ExpandableServiceItem
-                  title={'Haircut'}
-                  count={3}
-                  dummyItems={[
-                    {id: '1', title: 'Basic Haircut', price: '150'},
-                    {id: '2', title: 'Advanced Haircut', price: '250'},
-                    {id: '3', title: 'Premium Haircut', price: '400'},
-                  ]}
-                  onAddToCart={() => setShowCartBanner(true)}
+                </TouchableOpacity>
+              </View>
+              <View style={styles.searchBar}>
+                <Ionicons name="search" size={20} color="#999" />
+                <TextInput
+                  style={styles.input}
+                  placeholder="Search for services"
+                  placeholderTextColor="#999"
                 />
-                <ExpandableServiceItem
-                  title="Wash OR Dry"
-                  count={4}
-                  dummyItems={[
-                    {id: '1', title: 'Hair Wash', price: '200'},
-                    {id: '2', title: 'Hair Wash', price: '100'},
-                    {id: '3', title: 'Hair Wash Regular', price: '250'},
-                    {id: '4', title: 'Hair Wash  Premium', price: '250'},
-                  ]}
-                  onAddToCart={() => setShowCartBanner(true)}
-                />
-                <ExpandableServiceItem
-                  title="Styling"
-                  count={5}
-                  dummyItems={[
-                    {id: '1', title: 'Blow Dry', price: '350'},
-                    {id: '2', title: 'Ironing', price: '750'},
-                    {id: '3', title: 'Tongs', price: '250'},
-                    {id: '4', title: 'Hair Do', price: '1,250'},
-                    {id: '5', title: 'Hair Styling', price: '150'},
-                  ]}
-                  onAddToCart={() => setShowCartBanner(true)} // ✅ Correct
-                />
-                <View style={{marginBottom: 100}} />
-              </Animated.ScrollView>
-            </View>
+              </View>
+
+              {/* ======================== Gender Button View Details ================================== */}
+              <View style={styles.buttonContainer}>
+                <TouchableOpacity
+                  onPress={() => setSelectedGender('MAN')}
+                  style={[
+                    styles.buttonGender,
+                    selectedGender === 'MAN' && styles.activeBacck,
+                  ]}>
+                  <View style={styles.buyNowContentGender}>
+                    <Ionicons
+                      name="man-outline"
+                      size={responsive.fontSize(16)}
+                      color={selectedGender === 'MAN' ? 'white' : 'red'}
+                      style={styles.buyNowIcon}
+                    />
+                    <Text
+                      style={[
+                        styles.manWomenText,
+                        selectedGender === 'MAN' && styles.activeManWomenText,
+                      ]}>
+                      {Constants.MAN}
+                    </Text>
+                  </View>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  onPress={() => setSelectedGender('WOMAN')}
+                  style={[
+                    styles.buttonGender,
+                    selectedGender === 'WOMAN' && styles.activeBacck,
+                  ]}>
+                  <View style={styles.buyNowContentGender}>
+                    <Ionicons
+                      name="woman-outline"
+                      size={responsive.fontSize(16)}
+                      color={selectedGender === 'WOMAN' ? 'white' : 'red'}
+                      style={styles.buyNowIcon}
+                    />
+                    <Text
+                      style={[
+                        styles.manWomenText,
+                        selectedGender === 'WOMAN' && styles.activeManWomenText,
+                      ]}>
+                      {Constants.WOMAN}
+                    </Text>
+                  </View>
+                </TouchableOpacity>
+              </View>
+
+              <ExpandableServiceItem
+                title={'Haircut'}
+                count={3}
+                dummyItems={[
+                  {id: '1', title: 'Basic Haircut', price: '150'},
+                  {id: '2', title: 'Advanced Haircut', price: '250'},
+                  {id: '3', title: 'Premium Haircut', price: '400'},
+                ]}
+                onAddToCart={() => setShowCartBanner(true)}
+              />
+              <ExpandableServiceItem
+                title="Wash OR Dry"
+                count={4}
+                dummyItems={[
+                  {id: '1', title: 'Hair Wash', price: '200'},
+                  {id: '2', title: 'Hair Wash', price: '100'},
+                  {id: '3', title: 'Hair Wash Regular', price: '250'},
+                  {id: '4', title: 'Hair Wash  Premium', price: '250'},
+                ]}
+                onAddToCart={() => setShowCartBanner(true)}
+              />
+              <ExpandableServiceItem
+                title="Styling"
+                count={5}
+                dummyItems={[
+                  {id: '1', title: 'Blow Dry', price: '350'},
+                  {id: '2', title: 'Ironing', price: '750'},
+                  {id: '3', title: 'Tongs', price: '250'},
+                  {id: '4', title: 'Hair Do', price: '1,250'},
+                  {id: '5', title: 'Hair Styling', price: '150'},
+                ]}
+                onAddToCart={() => setShowCartBanner(true)} // ✅ Correct
+              />
+              <View style={{marginBottom: 100}} />
+            </Animated.ScrollView>
           </View>
         </View>
-      </SafeAreaView>
+      </View>
+
       {/* ==========================Show cart when add the services================================ */}
 
       {showCartBanner && items.length > 0 && (
@@ -328,6 +323,8 @@ const CategoryScreen = () => {
           </TouchableOpacity>
         </View>
       )}
+
+      {/* {showCartBanner && items.length > 0 && <GlobalCartBanner />} */}
     </View>
   );
 };
@@ -335,12 +332,19 @@ const CategoryScreen = () => {
 export default CategoryScreen;
 
 const styles = StyleSheet.create({
+  containerFirst: {
+    flex: 1,
+    justifyContent: 'space-between',
+    backgroundColor: Colors.BACKGROUND,
+  },
   containerMain: {
     flex: 1,
+    marginTop: 4,
+    paddingBottom: 30,
   },
   safeArea: {
     flex: 1,
-    backgroundColor: Colors.BACKGROUND,
+    backgroundColor: '#fff',
   },
   card: {
     backgroundColor: 'black',
@@ -373,13 +377,13 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
   },
   sidebar: {
-    width: 100,
+    width: 80,
     backgroundColor: '#fff',
-    paddingBottom: responsive.padding(20),
+    paddingBottom: responsive.padding(80),
   },
   menuIcon: {
-    width: 60,
-    height: 60,
+    width: 50,
+    height: 50,
     borderRadius: 100,
     resizeMode: 'cover',
     marginBottom: 6,
@@ -390,7 +394,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
   },
   menuItem: {
-    paddingVertical: 10,
+    paddingVertical: 2,
     alignItems: 'center',
     justifyContent: 'center',
   },
