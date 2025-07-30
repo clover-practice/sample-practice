@@ -1,5 +1,12 @@
 import React from 'react';
-import {View, Text, TouchableOpacity, StyleSheet, Platform} from 'react-native';
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  StyleSheet,
+  StatusBar,
+  Platform,
+} from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import {SafeAreaView} from 'react-native-safe-area-context';
@@ -13,6 +20,8 @@ interface Props {
   onSharePress?: () => void;
   rightIconName?: string;
   iconLibrary?: 'Ionicons' | 'MaterialIcons';
+  backgroundColor?: string;
+  statusBarStyle?: 'light-content' | 'dark-content';
 }
 
 const CustomHeader: React.FC<Props> = ({
@@ -23,6 +32,8 @@ const CustomHeader: React.FC<Props> = ({
   onSharePress,
   rightIconName = 'share-social-outline',
   iconLibrary = 'Ionicons',
+  backgroundColor = '#fff',
+  statusBarStyle = 'dark-content',
 }) => {
   const renderRightIcon = () => {
     if (!showShare) return <View style={styles.placeholder} />;
@@ -42,8 +53,13 @@ const CustomHeader: React.FC<Props> = ({
   };
 
   return (
-    <SafeAreaView edges={['top']} style={styles.safeArea}>
-      <View style={styles.container}>
+    <SafeAreaView edges={['top']} style={[styles.safeArea, {backgroundColor}]}>
+      <StatusBar
+        translucent={false}
+        backgroundColor={backgroundColor}
+        barStyle={statusBarStyle}
+      />
+      <View style={[styles.container, {backgroundColor}]}>
         {showBack ? (
           <TouchableOpacity onPress={onBackPress}>
             <Ionicons
@@ -72,11 +88,10 @@ const styles = StyleSheet.create({
   },
   container: {
     flexDirection: 'row',
-    paddingVertical: responsive.padding(6),
-    paddingHorizontal: responsive.padding(6),
+    paddingVertical: responsive.padding(14),
+    paddingHorizontal: responsive.padding(8),
     alignItems: 'center',
     justifyContent: 'space-between',
-    backgroundColor: '#fff',
   },
   title: {
     fontSize: responsive.fontSize(18),

@@ -13,8 +13,8 @@ import {
 import {useRoute, RouteProp} from '@react-navigation/native';
 import CustomHeader from '../components/CustomHeader';
 import OtpInput from '../components/OtpInput';
-import {goBack, navigate} from '../utils/NavigationUtils';
-import {setValue} from '../utils/keychainStorage';
+import {goBack, navigate, replace} from '../utils/NavigationUtils';
+import {getValue, setValue} from '../utils/keychainStorage';
 import Constants from '../constants/Constants';
 
 type RootStackParamList = {
@@ -39,11 +39,12 @@ const OtpScreen = () => {
   const handleSubmitOtp = async () => {
     setHasSubmitted(true); // prevent double-submit
     console.log('🔐 Submitting OTP:', otp);
-
-    await setValue(Constants.IS_LOGIN, true);
-    await setValue(Constants.USER_NAME, mobile);
-
-    navigate('MainApp');
+    const kycDone = await getValue(Constants.KYC_DONE);
+    if (kycDone === true) {
+      navigate('MainApp');
+    } else {
+      navigate('RegistrationScreen');
+    }
   };
 
   return (

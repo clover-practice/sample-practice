@@ -9,6 +9,8 @@ import {
   TouchableWithoutFeedback,
   Keyboard,
   SafeAreaView,
+  Image,
+  Dimensions,
 } from 'react-native';
 import {navigate} from '../utils/NavigationUtils';
 import MobileNumberInput from '../components/NumberInput';
@@ -19,7 +21,10 @@ import Geolocation from 'react-native-geolocation-service';
 import axios from 'axios';
 import {request, PERMISSIONS} from 'react-native-permissions';
 import {setValue, storeLocation} from '../utils/keychainStorage';
-
+import TermsPrivacyText from '../components/TermsPrivacyText';
+import colors from '../constants/colors';
+import CustomLoader from '../components/spinner/CustomLoader';
+const {width} = Dimensions.get('window');
 const hasLocationPermission = async (): Promise<boolean> => {
   if (Platform.OS === 'android') {
     const status = await request(PERMISSIONS.ANDROID.ACCESS_FINE_LOCATION);
@@ -86,22 +91,42 @@ const LoginScreen = () => {
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         keyboardVerticalOffset={Platform.OS === 'ios' ? 100 : 0}>
         <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-          <ScrollView
-            contentContainerStyle={styles.scrollContent}
-            keyboardShouldPersistTaps="handled">
-            <Text style={styles.header}>LoginScreen</Text>
+          <View style={styles.innerContainer}>
+            <ScrollView
+              contentContainerStyle={styles.scrollContent}
+              keyboardShouldPersistTaps="handled">
+              <Image
+                source={require('../assets/images/app_logo.png')}
+                style={styles.logo}
+                resizeMode="contain"
+              />
 
-            <MobileNumberInput value={mobile} onChange={setMobile} />
+              <Text style={styles.header}>Login</Text>
 
-            <CustomButton
-              title={Constants.CONTINUE}
-              onPress={handleLogin}
-              disabled={!isMobileValid}
-              backgroundColor={isMobileValid ? Colors.PRIMARY : 'transparent'}
-              textColor={isMobileValid ? Colors.WHITE : Colors.GRAY_DARK}
-              style={styles.button}
+              <MobileNumberInput value={mobile} onChange={setMobile} />
+
+              <CustomButton
+                title={Constants.CONTINUE}
+                onPress={handleLogin}
+                disabled={!isMobileValid}
+                backgroundColor={isMobileValid ? Colors.PRIMARY : 'transparent'}
+                textColor={isMobileValid ? Colors.WHITE : Colors.GRAY_DARK}
+                style={styles.button}
+              />
+            </ScrollView>
+
+            {/* Footer (Terms & Privacy) */}
+            <TermsPrivacyText
+              prefixText="By continuing, you agree to our"
+              termsLabel="Terms & Conditions"
+              privacyLabel="Privacy Policy"
+              textColor={colors.BLACK}
+              linkColor={colors.TERMS_AND_PRIVACY}
+              onPressTerms={() => console.log('Terms Pressed')}
+              onPressPrivacy={() => console.log('Privacy Pressed')}
+              center
             />
-          </ScrollView>
+          </View>
         </TouchableWithoutFeedback>
       </KeyboardAvoidingView>
     </SafeAreaView>
@@ -118,15 +143,26 @@ const styles = StyleSheet.create({
   keyboardAvoidingView: {
     flex: 1,
   },
+  innerContainer: {
+    flex: 1,
+    justifyContent: 'space-between',
+  },
   scrollContent: {
     flexGrow: 1,
     justifyContent: 'center',
     padding: 20,
   },
+  logo: {
+    width: width * 0.6,
+    height: 80,
+    alignSelf: 'center',
+    marginVertical: 30,
+  },
   header: {
     fontSize: 24,
     marginBottom: 20,
     textAlign: 'center',
+    fontWeight: 'bold',
   },
   city: {
     fontSize: 16,

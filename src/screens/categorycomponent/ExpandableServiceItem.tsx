@@ -4,8 +4,6 @@ import Ionicons from 'react-native-vector-icons/Ionicons';
 import responsive from '../../utils/responsive';
 import colors from '../../constants/colors';
 import {useCart} from '../../contexts/CartContext';
-import Colors from '../../constants/colors';
-import Constants from '../../constants/Constants';
 
 const ExpandableServiceItem = ({
   title,
@@ -27,7 +25,6 @@ const ExpandableServiceItem = ({
 }) => {
   const [expanded, setExpanded] = useState(false);
   const [addedItems, setAddedItems] = useState<{[key: string]: boolean}>({});
-
   const {addItem} = useCart();
 
   const toggleExpand = () => {
@@ -45,34 +42,36 @@ const ExpandableServiceItem = ({
           color={colors.ICON_COLOR}
         />
       </TouchableOpacity>
-      {/* ======================================== SINGLE ROW DESIGH ======================================== */}
-      {/* Expanded Items */}
+
+      {/* Expanded List */}
       {expanded &&
-        dummyItems.slice(0, count).map((item, index, array) => (
+        dummyItems.slice(0, count).map((item, index) => (
           <View
             key={item.id}
             style={[
               styles.card,
               index !== dummyItems.length - 1 && styles.cardWithDivider,
             ]}>
-            {/* Icon */}
+            {/* Left Column (icon -> title -> price) */}
             <View style={styles.cardLeft}>
-              <View style={styles.iconContainer}>
-                <Ionicons
-                  name="woman-outline"
-                  size={responsive.fontSize(24)}
-                  color={colors.BLACK}
-                />
-              </View>
+              <Ionicons
+                name="woman-outline"
+                size={responsive.fontSize(24)}
+                color={colors.BLACK}
+                style={styles.icon}
+              />
 
-              <Text style={styles.title}>{item.title}</Text>
-              {/* Price + Customize */}
-              <View style={styles.rowBetween}>
-                <Text style={styles.price}>From ₹{item.price} + GST</Text>
-              </View>
+              <Text style={styles.title} numberOfLines={2} ellipsizeMode="tail">
+                {item.title}
+              </Text>
+
+              <Text style={styles.price} numberOfLines={2} ellipsizeMode="tail">
+                From ₹{` `}
+                {item.price} + GST
+              </Text>
             </View>
 
-            {/* Content Button Add to cart Button*/}
+            {/* Right Column (button + customize) */}
             <View style={styles.content}>
               <TouchableOpacity
                 style={styles.addButton}
@@ -82,7 +81,6 @@ const ExpandableServiceItem = ({
                   onAddToCart?.(); // callback to show cart banner
                 }}>
                 <Text style={styles.addButtonText}>
-                  {' '}
                   {addedItems[item.id] ? 'Added' : 'ADD'}
                 </Text>
               </TouchableOpacity>
@@ -95,82 +93,73 @@ const ExpandableServiceItem = ({
 };
 
 export default ExpandableServiceItem;
-
 const styles = StyleSheet.create({
+  sectionGroup: {
+    marginBottom: responsive.margin(5),
+    backgroundColor: '#fff',
+    padding: 8,
+    borderRadius: 8,
+    shadowColor: '#000',
+    shadowOffset: {width: 0, height: 1},
+    shadowOpacity: 0.1,
+    shadowRadius: 3,
+    elevation: 2,
+  },
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingVertical: 8,
+    paddingVertical: 10,
   },
   headerText: {
     fontSize: responsive.fontSize(14),
     fontWeight: '600',
     color: '#000',
   },
-  sectionGroup: {
-    marginBottom: responsive.margin(5),
-    backgroundColor: '#fff',
-    padding: 5,
-    // Add shadow (iOS)
-    shadowColor: '#000',
-    shadowOffset: {width: 0, height: 0.3},
-    shadowOpacity: 0.2,
-    shadowRadius: 1,
-    // Elevation (Android)
-    elevation: 1,
-  },
   card: {
-    marginTop: 12,
-    backgroundColor: '#fff',
-    padding: 12,
-    shadowColor: '#000',
-    flex: 1,
     flexDirection: 'row',
-    justifyContent: 'space-evenly',
-  },
-  cardLeft: {
-    backgroundColor: '#fff',
-    padding: 12,
-    flexDirection: 'column',
-    shadowColor: '#000',
+    justifyContent: 'space-between',
+    paddingVertical: 10,
+    paddingHorizontal: 8,
   },
   cardWithDivider: {
     borderBottomColor: '#ccc',
     borderBottomWidth: 0.5,
-    marginBottom: 10,
     paddingBottom: 10,
   },
-  iconContainer: {
-    alignItems: 'flex-start',
-    marginBottom: 8,
-  },
-  content: {
-    flex: 1,
+  cardLeft: {
+    flex: 3,
     flexDirection: 'column',
-    justifyContent: 'center',
-    alignItems: 'flex-end',
+    justifyContent: 'flex-start',
+    gap: 6,
   },
-  rowBetween: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 6,
+  icon: {
+    marginBottom: 4,
   },
   title: {
     fontSize: responsive.fontSize(13),
     fontWeight: '600',
     color: '#222',
+    flexShrink: 1,
   },
   price: {
     fontSize: responsive.fontSize(12),
     color: '#444',
+    flexShrink: 1,
+  },
+  content: {
+    flex: 1,
+    alignItems: 'flex-end',
+    justifyContent: 'center',
+    alignSelf: 'center', // ✅ Vertically center the whole right column
+    minWidth: 80,
   },
   addButton: {
     backgroundColor: colors.PRIMARY,
-    paddingHorizontal: 10,
-    paddingVertical: 4,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
     borderRadius: 20,
+    marginBottom: 4,
   },
   addButtonText: {
     color: '#fff',
@@ -180,6 +169,5 @@ const styles = StyleSheet.create({
   customizeText: {
     fontSize: responsive.fontSize(11),
     color: '#666',
-    marginTop: 5,
   },
 });

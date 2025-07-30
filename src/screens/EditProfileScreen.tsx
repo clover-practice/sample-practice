@@ -12,7 +12,7 @@ import {
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import responsive from '../utils/responsive';
-import {goBack, navigate} from '../utils/NavigationUtils';
+import {goBack, navigate, resetAndNavigate} from '../utils/NavigationUtils';
 import Colors from '../constants/colors';
 import CustomHeader from '../components/CustomHeader';
 import LinearGradient from 'react-native-linear-gradient';
@@ -22,12 +22,7 @@ import {clearAll, getValue, setValue} from '../utils/keychainStorage';
 
 const EditProfileScreen = () => {
   return (
-    <SafeAreaView style={styles.safeArea}>
-      <StatusBar
-        backgroundColor={Colors.STATUS_BAR_COLOR}
-        barStyle="dark-content"
-      />
-
+    <View style={styles.safeArea}>
       <CustomHeader
         title="My Account"
         showBack={true}
@@ -129,12 +124,12 @@ const EditProfileScreen = () => {
             rightIcon={<Ionicons name="log-out" size={20} color="white" />}
             onPress={async () => {
               await clearAll();
-              navigate('Login');
+              resetAndNavigate('Login');
             }}
           />
         </View>
       </View>
-    </SafeAreaView>
+    </View>
   );
 };
 export default EditProfileScreen;
@@ -158,11 +153,12 @@ const Section: React.FC<{
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: Colors.BACKGROUND,
+    backgroundColor: '#fff',
   },
   container: {
     flex: 1,
     justifyContent: 'space-between',
+    backgroundColor: Colors.BACKGROUND,
   },
   scrollContainer: {
     padding: responsive.padding(Constants.SCREEN_PADDING),
@@ -244,7 +240,6 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
     padding: responsive.padding(12),
     borderRadius: responsive.borderRadius(10),
-    marginBottom: responsive.margin(10),
   },
   sectionText: {
     flex: 1,
@@ -259,12 +254,13 @@ const styles = StyleSheet.create({
   },
 
   logoutButton: {
-    paddingVertical: responsive.padding(50),
     backgroundColor: '#fff',
     alignItems: 'center',
     justifyContent: 'center',
     borderTopColor: '#eee',
     borderTopWidth: 1,
+    paddingTop: responsive.padding(10),
+    paddingBottom: responsive.padding(60),
   },
 
   logoutBtnStyle: {
