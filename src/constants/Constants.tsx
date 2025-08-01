@@ -7,11 +7,23 @@ const Strings = {
   // GOMAPS_API_KEY:'AlzaSyHbXxV_iKjbmuS9F2kTeHuMdpp6j0UGYOe', //(Anil Account)
   //GOMAPS_API_KEY: 'AlzaSy6joRYE14YzhEOOje7VQoXFaVwWfWpYb-A', //(Rupesh Account)
   // GOMAPS_API_KEY: 'AlzaSyeqlZxnju2ak-RqPEideRLyfF0u7H1vd7m', // Yogesh
-  GOMAPS_API_KEY: 'AlzaSyMsAAIkQAFseZFagZUo2ci37yRTmfc0myZ', // Sagar Sadamate
+  GOMAPS_API_KEY: 'AlzaSytlHM80EloC-kT7_5x0vAGr8hucBJ6fFoj', // Sagar Sadamate
   NEARBY_PLACES_DETAILS_API_URL:
     'https://maps.gomaps.pro/maps/api/place/details/json',
   NEARBY_PLACES_API_URL:
     'https://maps.gomaps.pro/maps/api/place/nearbysearch/json',
+
+  PLACE_IMAGE_URL:
+    'https://maps.gomaps.pro/maps/api/place/details/json?place_id=',
+
+  // ============== Production server(Live Api key )=================
+  // GOMAPS_API_KEY: 'AIzaSyDW6_m0eqVj1J5nl4wSUnFA_SfZOQOEtl0', //  Brunos
+  // NEARBY_PLACES_DETAILS_API_URL:
+  //   'https://maps.googleapis.com/maps/api/place/details/json',
+
+  // NEARBY_PLACES_API_URL:
+  //   'https://maps.googleapis.com/maps/api/place/nearbysearch/json',
+
   NAME_PLACE: 'college',
   REDIUS: '9000',
 
