@@ -19,6 +19,8 @@ import HeaderImageCarousel from '../components/HeaderImageCarouselDetails';
 import CustomHeader from '../components/CustomHeader';
 import {goBack} from '../utils/NavigationUtils';
 import Strings from '../constants/Constants';
+import CircularArcLoader from '../components/spinner/CircularLoaderView';
+import TailSpinnerLoader from '../components/spinner/ TailSpinnerLoader';
 
 const {width} = Dimensions.get('window');
 
@@ -121,6 +123,7 @@ const HEADER_IMAGES = [
 
 export default function SalonDetailScreen() {
   const [activeTab, setActiveTab] = useState('Services');
+  const [loading, setLoading] = useState(false);
   const route = useRoute<SalonDetailScreenRouteProp>();
   const {
     id,
@@ -180,7 +183,7 @@ export default function SalonDetailScreen() {
         setLoadingDetails(false);
         return;
       }
-
+      setLoading(true);
       setLoadingDetails(true);
       setDetailsError(null);
       setReviews([]);
@@ -191,11 +194,17 @@ export default function SalonDetailScreen() {
       setFetchedPhotos([]); // Reset photos
 
       try {
-        const apiUrl = `https://maps.gomaps.pro/maps/api/place/details/json?place_id=${id}&key=${Strings.GOMAPS_API_KEY}`;
+        const apiUrl = `${Strings.PLACE_IMAGE_URL}${id}&key=${Strings.GOMAPS_API_KEY}`;
+
         console.log('Fetching place details:', apiUrl);
 
         const response = await fetch(apiUrl);
         const data = await response.json();
+        setLoading(false);
+        console.log(
+          'API Response (pretty JSON): All Places ',
+          JSON.stringify(data, null, 2),
+        );
 
         if (data.status === 'OK' && data.result) {
           // Process Reviews
@@ -261,6 +270,7 @@ export default function SalonDetailScreen() {
           setDisplayTodayHours('Hours not available');
         }
       } catch (error: any) {
+        setLoading(false);
         console.error('Error fetching place details:', error);
         setDetailsError(
           `Failed to load details: ${error.message || 'Unknown error'}`,

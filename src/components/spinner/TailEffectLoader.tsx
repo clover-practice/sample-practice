@@ -1,12 +1,13 @@
 // components/TailEffectLoader.tsx
 import React, {useEffect, useRef} from 'react';
 import {View, Modal, Animated, StyleSheet, Easing} from 'react-native';
+import Colors from '../../constants/colors';
 
 const DOT_COUNT = 12;
 const BASE_SIZE = 6; // smallest dot size
 const MAX_SIZE = 14; // leading dot size
 const RADIUS = 28;
-const COLOR = '#000'; // black
+const COLOR = Colors.PRIMARY; // black
 
 interface Props {
   visible: boolean;

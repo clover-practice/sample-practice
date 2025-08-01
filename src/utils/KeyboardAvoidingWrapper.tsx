@@ -24,8 +24,9 @@ const KeyboardAvoidingWrapper: React.FC<Props> = ({
   scrollEnabled = true,
   keyboardVerticalOffset = 64,
 }) => {
-  const topPadding =
-    Platform.OS === 'android' ? (StatusBar.currentHeight ?? 0) + 0 : 50;
+  // const topPadding =
+  //   Platform.OS === 'android' ? (StatusBar.currentHeight ?? 0) + 0 : 50;
+  const topPadding = Platform.OS === 'ios' ? 5 : 5;
 
   return (
     <SafeAreaView style={{flex: 1, backgroundColor: '#f9fafb'}}>
