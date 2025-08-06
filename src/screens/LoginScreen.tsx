@@ -75,8 +75,9 @@ const LoginScreen = () => {
   //   fetchAndStoreLocation();
   // }, []);
 
-  const handleLogin = () => {
+  const handleLogin = async () => {
     navigate('OtpScreen', {mobile});
+    await setValue(Constants.MOBILE_NUMBER, mobile);
   };
 
   return (

@@ -15,7 +15,7 @@ import {
 import CustomHeader from '../components/CustomHeader';
 import {goBack, navigate} from '../utils/NavigationUtils';
 import colors from '../constants/colors';
-import {setValue} from '../utils/keychainStorage';
+import {setValue, getValue} from '../utils/keychainStorage';
 import Constants from '../constants/Constants';
 import AppTextInput from '../components/AppTextInput';
 
@@ -27,7 +27,15 @@ const RegistrationScreen = () => {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
-  useEffect(() => {}, []);
+  useEffect(() => {
+    const fetchMobile = async () => {
+      const Mobile = await getValue(Constants.MOBILE_NUMBER);
+      console.log('Fetched Mobile:', Mobile);
+      setPhone(Mobile); // Set the fetched mobile number
+      // You can use Mobile here, e.g., setPhone(Mobile)
+    };
+    fetchMobile();
+  }, []);
 
   const handleKyc = async () => {
     console.log('Name:', name);
@@ -37,6 +45,7 @@ const RegistrationScreen = () => {
     await setValue(Constants.KYC_DONE, true);
     await setValue(Constants.IS_LOGIN, true);
     await setValue(Constants.USER_NAME, name);
+    await setValue(Constants.EMAIL, email);
 
     navigate('MainApp');
   };
@@ -78,7 +87,7 @@ const RegistrationScreen = () => {
             keyboardType="phone-pad"
             label="Phone Number"
             value={phone}
-            onChangeText={setPhone}
+            // onChangeText={setPhone}
           />
 
           {/* Email */}
