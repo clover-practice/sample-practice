@@ -92,6 +92,8 @@ const Strings = {
   SCREEN_PADDING: 6,
   BOTTOM_PADDING: 30,
 
+  MOBILE_NUMBER:'mobile_number',
+
   // https://www.google.com/search?q=how+to+handle+the+push+notification+in+react+native&oq=how+to+handle+the+push+notification+in+react+native+&gs_lcrp=EgZjaHJvbWUyBggAEEUYOTIICAEQABgWGB4yCAgCEAAYFhgeMggIAxAAGBYYHjIICAQQABgWGB4yCAgFEAAYFhgeMggIBhAAGBYYHjIICAcQABgWGB4yCAgIEAAYFhgeMggICRAAGBYYHtIBCTI2MjUyajBqN6gCALACAA&sourceid=chrome&ie=UTF-8
   //https://notifee.app/react-native/docs/android/appearance
   //https://rnfirebase.io/messaging/server-integration#send-messages-to-topics
