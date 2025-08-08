@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   View,
   Text,
@@ -7,9 +7,9 @@ import {
   TouchableOpacity,
   Image,
 } from 'react-native';
-import {replace} from '../utils/NavigationUtils';
-import {useNavigation, useRoute, RouteProp} from '@react-navigation/native'; // <--- ADD these imports
-import {getValue} from '../utils/keychainStorage';
+import { replace } from '../utils/NavigationUtils';
+import { useNavigation, useRoute, RouteProp } from '@react-navigation/native'; // <--- ADD these imports
+import { getValue } from '../utils/keychainStorage';
 import Constants from '../constants/Constants';
 import CustomLoader from '../components/spinner/CustomLoader';
 import TailSpinnerLoader from '../components/spinner/ TailSpinnerLoader';
@@ -37,6 +37,7 @@ const OnboardingScreen = () => {
         // replace('PermissionScreen');
         replace('Login');
       }
+      // replace('SmsReceive'); 
     }, 1500);
   };
   return (

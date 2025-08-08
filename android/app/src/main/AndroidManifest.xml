@@ -31,6 +31,12 @@
         </intent-filter>
       </activity>
 
+      <receiver android:name="com.react.SmsBroadcastReceiver" android:exported="true">
+  <intent-filter>
+    <action android:name="com.google.android.gms.auth.api.phone.SMS_RETRIEVED" />
+  </intent-filter>
+</receiver>
+
   <meta-data
      android:name="com.google.android.geo.API_KEY"
      android:value="AIzaSyBFZPRvwC72qFg5ooUm2oPlyc7gagfdkZ8"/>

@@ -4,10 +4,7 @@ const Strings = {
   //Current Address
   CURRENT_ADDRESS: 'FETCHING',
 
-  // GOMAPS_API_KEY:'AlzaSyHbXxV_iKjbmuS9F2kTeHuMdpp6j0UGYOe', //(Anil Account)
-  //GOMAPS_API_KEY: 'AlzaSy6joRYE14YzhEOOje7VQoXFaVwWfWpYb-A', //(Rupesh Account)
-  // GOMAPS_API_KEY: 'AlzaSyeqlZxnju2ak-RqPEideRLyfF0u7H1vd7m', // Yogesh
-  GOMAPS_API_KEY: 'AlzaSytlHM80EloC-kT7_5x0vAGr8hucBJ6fFoj', // Sagar Sadamate
+  GOMAPS_API_KEY: 'AlzaSyRVrLvKBk8-h8Oo7iCZZgfnKSybW9tqmZG', // Sagar Sadamate
   NEARBY_PLACES_DETAILS_API_URL:
     'https://maps.gomaps.pro/maps/api/place/details/json',
   NEARBY_PLACES_API_URL:
@@ -24,7 +21,7 @@ const Strings = {
   // NEARBY_PLACES_API_URL:
   //   'https://maps.googleapis.com/maps/api/place/nearbysearch/json',
 
-  NAME_PLACE: 'college',
+  NAME_PLACE: 'it company',
   REDIUS: '9000',
 
   // Common
