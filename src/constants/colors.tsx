@@ -18,6 +18,7 @@ const Colors = {
   GRAY: '#CCCCCC',
   GRAY_DARK: '#333333',
   STATUS_BAR: '#FFFFFF',
+  BLUE: 'blue',
 
   // Status
   SUCCESS: '#28a745',
