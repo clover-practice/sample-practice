@@ -48,7 +48,7 @@ const OtpScreen = () => {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
+    
       <View style={styles.container}>
         <CustomHeader
           title="Login with OTP"
@@ -75,7 +75,7 @@ const OtpScreen = () => {
           </KeyboardAvoidingView>
         </TouchableWithoutFeedback>
       </View>
-    </SafeAreaView>
+   
   );
 };
 
@@ -100,3 +100,4 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
 });
+

@@ -1,4 +1,4 @@
-import React, {useState, useEffect} from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import {
   View,
   Text,
@@ -13,16 +13,14 @@ import {
   Linking,
   Platform,
 } from 'react-native';
-import {useRoute, RouteProp} from '@react-navigation/native';
+import { useRoute, RouteProp } from '@react-navigation/native';
 
 import HeaderImageCarousel from '../components/HeaderImageCarouselDetails';
 import CustomHeader from '../components/CustomHeader';
-import {goBack} from '../utils/NavigationUtils';
+import { goBack } from '../utils/NavigationUtils';
 import Strings from '../constants/Constants';
-import CircularArcLoader from '../components/spinner/CircularLoaderView';
-import TailSpinnerLoader from '../components/spinner/ TailSpinnerLoader';
 
-const {width} = Dimensions.get('window');
+const { width } = Dimensions.get('window');
 
 // Define the Review interface based on Google Places API response structure
 interface Review {
@@ -47,7 +45,7 @@ interface PlaceItem {
   title: string;
   description: string;
   address: string;
-  coordinate: {latitude: number; longitude: number};
+  coordinate: { latitude: number; longitude: number };
   rating: number | null;
   isOpen: boolean | null;
   iconUrl: string | null;
@@ -122,7 +120,6 @@ const HEADER_IMAGES = [
 ];
 
 export default function SalonDetailScreen() {
-  const [activeTab, setActiveTab] = useState('Services');
   const [loading, setLoading] = useState(false);
   const route = useRoute<SalonDetailScreenRouteProp>();
   const {
@@ -130,9 +127,7 @@ export default function SalonDetailScreen() {
     title,
     address,
     description,
-    rating,
     isOpen,
-    iconUrl,
     distanceKm,
     openingHoursText,
     coordinate,
@@ -175,7 +170,99 @@ export default function SalonDetailScreen() {
   // New state for fetched photos
   const [fetchedPhotos, setFetchedPhotos] = useState<Photo[]>([]);
 
-  // Effect to fetch place details (including reviews, amenities, and full hours)
+  // State to manage the active tab visually based on scroll position
+  const [activeTab, setActiveTab] = useState('Services');
+  const [isTabSticky, setIsTabSticky] = useState(false);
+  const [tabBarY, setTabBarY] = useState(0);
+  const [headerHeight, setHeaderHeight] = useState(0);
+  const [headerIsVisible, setHeaderIsVisible] = useState(false);
+
+  // Refs for ScrollView and each section
+  const scrollViewRef = useRef<ScrollView>(null);
+  const headerRef = useRef<View>(null);
+  const tabContainerRef = useRef<View>(null);
+  const servicesRef = useRef<View>(null);
+  const photosRef = useRef<View>(null);
+  const aboutRef = useRef<View>(null);
+  const reviewsRef = useRef<View>(null);
+  const sectionRefs = { Services: servicesRef, Photos: photosRef, About: aboutRef, Reviews: reviewsRef };
+  const sectionYPositions = useRef<{ Reviews?: number; About?: number; Photos?: number }>({});
+
+  // Function to scroll to a specific section
+  const scrollToSection = useCallback((tabName: string) => {
+    const ref = sectionRefs[tabName as keyof typeof sectionRefs];
+    if (ref && ref.current && scrollViewRef.current) {
+      ref.current.measureLayout(
+        scrollViewRef.current as any,
+        (x, y, width, height) => {
+          const offset = headerHeight;
+          scrollViewRef.current?.scrollTo({ y: y - offset, animated: true });
+        },
+      );
+    }
+  }, [headerHeight]);
+
+  // Function to determine the active tab and handle sticky header
+  const handleScroll = useCallback((event: any) => {
+    const scrollY = event.nativeEvent.contentOffset.y;
+    const newIsTabSticky = scrollY >= tabBarY - headerHeight;
+    setIsTabSticky(newIsTabSticky);
+    setHeaderIsVisible(newIsTabSticky);
+
+    let newActiveTab = activeTab;
+    const offset = headerHeight + 20;
+
+    if (sectionYPositions.current.Reviews && scrollY >= sectionYPositions.current.Reviews - offset) {
+      newActiveTab = 'Reviews';
+    } else if (sectionYPositions.current.About && scrollY >= sectionYPositions.current.About - offset) {
+      newActiveTab = 'About';
+    } else if (sectionYPositions.current.Photos && scrollY >= sectionYPositions.current.Photos - offset) {
+      newActiveTab = 'Photos';
+    } else {
+      newActiveTab = 'Services';
+    }
+
+    if (newActiveTab !== activeTab) {
+      setActiveTab(newActiveTab);
+    }
+  }, [activeTab, tabBarY, headerHeight]);
+
+  // Measure all section positions on layout change
+  const onLayout = useCallback(() => {
+    if (headerRef.current) {
+      headerRef.current.measure((x, y, width, height) => {
+        setHeaderHeight(height);
+      });
+    }
+
+    if (tabContainerRef.current) {
+      tabContainerRef.current.measure((x, y, width, height, pageX, pageY) => {
+        setTabBarY(pageY);
+      });
+    }
+
+    const measureSections = () => {
+      const positions: { [key: string]: number } = {};
+      const sectionKeys = Object.keys(sectionRefs);
+      let loadedCount = 0;
+
+      sectionKeys.forEach(key => {
+        sectionRefs[key as keyof typeof sectionRefs].current?.measureLayout(
+          scrollViewRef.current as any,
+          (x, y, width, height) => {
+            positions[key] = y;
+            loadedCount++;
+            if (loadedCount === sectionKeys.length) {
+              sectionYPositions.current = positions;
+            }
+          },
+        );
+      });
+    };
+
+    setTimeout(measureSections, 100);
+  }, []);
+
   useEffect(() => {
     const fetchPlaceDetails = async () => {
       if (!id) {
@@ -190,32 +277,24 @@ export default function SalonDetailScreen() {
       setAmenities([]);
       setFetchedFullOpeningHours(null);
       setDisplayTodayHours(null);
-      setPhoneNumber(null); // Reset phone number
-      setFetchedPhotos([]); // Reset photos
+      setPhoneNumber(null);
+      setFetchedPhotos([]);
 
       try {
         const apiUrl = `${Strings.PLACE_IMAGE_URL}${id}&key=${Strings.GOMAPS_API_KEY}`;
-
-        console.log('Fetching place details:', apiUrl);
-
         const response = await fetch(apiUrl);
         const data = await response.json();
         setLoading(false);
-        console.log(
-          'API Response (pretty JSON): All Places ',
-          JSON.stringify(data, null, 2),
-        );
 
         if (data.status === 'OK' && data.result) {
-          // Process Reviews
           if (data.result.reviews) {
             setReviews(data.result.reviews);
           }
 
-          // Process Amenities
           const fetchedAmenities: string[] = [];
           const result = data.result;
-
+          console.log("RESPONSE DATA",JSON.stringify(result))
+ 
           if (result.wheelchair_accessible_entrance)
             fetchedAmenities.push('Wheelchair Accessible Entrance');
           if (result.restroom) fetchedAmenities.push('Restroom Available');
@@ -229,16 +308,12 @@ export default function SalonDetailScreen() {
 
           setAmenities(fetchedAmenities);
 
-          // Process Full Opening Hours (weekday_text)
           if (data.result.opening_hours?.weekday_text) {
             const fullHours = data.result.opening_hours.weekday_text;
             setFetchedFullOpeningHours(fullHours);
-
-            // Calculate and set today's hours for main display
-            const currentDayIndex = (new Date().getDay() + 6) % 7; // Adjust for Monday=0, Sunday=6
+            const currentDayIndex = (new Date().getDay() + 6) % 7;
             const todayEntry = fullHours[currentDayIndex];
             if (todayEntry) {
-              // Extract just the time part (e.g., "10:00 am – 9:00 pm" from "Monday: 10:00 am – 9:00 pm")
               const extractedTime = todayEntry.split(': ').slice(1).join(': ');
               setDisplayTodayHours(extractedTime);
             } else {
@@ -249,14 +324,12 @@ export default function SalonDetailScreen() {
             setDisplayTodayHours('Hours not available');
           }
 
-          // Process Phone Number
           if (result.international_phone_number) {
             setPhoneNumber(result.international_phone_number);
           } else if (result.formatted_phone_number) {
             setPhoneNumber(result.formatted_phone_number);
           }
 
-          // Process Photos
           if (data.result.photos) {
             setFetchedPhotos(data.result.photos);
           }
@@ -280,25 +353,21 @@ export default function SalonDetailScreen() {
         setLoadingDetails(false);
       }
     };
-
     fetchPlaceDetails();
   }, [id]);
 
   const currentDayIndexForModal = (new Date().getDay() + 6) % 7;
 
-  // Function to handle making a call
   const handleCall = () => {
     if (phoneNumber) {
-      // Use 'tel:' scheme for phone calls
       const url = `tel:${phoneNumber}`;
       Linking.canOpenURL(url)
         .then(supported => {
           if (supported) {
             Linking.openURL(url);
           } else {
-            // Fallback for simulators or devices that don't support direct calls
             setCallNotSupportedMessage(
-              `Phone call not supported on this device or simulator. Number: ${phoneNumber}`,
+              `Phone call not supported on this device. Number: ${phoneNumber}`,
             );
             setIsCallNotSupportedModalVisible(true);
           }
@@ -306,9 +375,7 @@ export default function SalonDetailScreen() {
         .catch(err => {
           console.error('An error occurred while trying to make a call', err);
           setCallNotSupportedMessage(
-            `An error occurred while trying to make a call: ${
-              err.message || 'Unknown error'
-            }`,
+            `An error occurred: ${err.message || 'Unknown error'}`,
           );
           setIsCallNotSupportedModalVisible(true);
         });
@@ -318,7 +385,6 @@ export default function SalonDetailScreen() {
     }
   };
 
-  // Function to handle getting directions
   const handleGetDirections = () => {
     if (coordinate && coordinate.latitude && coordinate.longitude) {
       const lat = coordinate.latitude;
@@ -330,30 +396,28 @@ export default function SalonDetailScreen() {
         android: `geo:${lat},${lng}?q=${lat},${lng}(${encodeURIComponent(
           title || 'Place',
         )})`,
-        default: `https://www.google.com/maps/search/?api=1&query=${lat},${lng}`,
       });
 
-      Linking.canOpenURL(url)
-        .then(supported => {
-          if (supported) {
-            Linking.openURL(url);
-          } else {
+      if (url) {
+        Linking.canOpenURL(url)
+          .then(supported => {
+            if (supported) {
+              Linking.openURL(url);
+            } else {
+              setMapNotSupportedMessage(
+                'Map application not found or supported on this device.',
+              );
+              setIsMapNotSupportedModalVisible(true);
+            }
+          })
+          .catch(err => {
+            console.error('An error occurred while trying to open map', err);
             setMapNotSupportedMessage(
-              'Map application not found or supported on this device.',
+              `An error occurred: ${err.message || 'Unknown error'}`,
             );
             setIsMapNotSupportedModalVisible(true);
-            console.log("Don't know how to open URI: " + url);
-          }
-        })
-        .catch(err => {
-          console.error('An error occurred while trying to open map', err);
-          setMapNotSupportedMessage(
-            `An error occurred while trying to open map: ${
-              err.message || 'Unknown error'
-            }`,
-          );
-          setIsMapNotSupportedModalVisible(true);
-        });
+          });
+      }
     } else {
       setMapNotSupportedMessage(
         'Location coordinates not available for this salon.',
@@ -362,368 +426,388 @@ export default function SalonDetailScreen() {
     }
   };
 
-  const renderTabContent = () => {
-    switch (activeTab) {
-      case 'Services':
-        return (
-          <View style={styles.gridContainer}>
-            {SERVICES.map((item, index) => (
-              <View
-                key={index}
-                style={[
-                  styles.gridItem,
-                  (index + 1) % 4 !== 0 && styles.marginRight, // Add marginRight unless it's the 4th item
-                ]}>
-                <Image source={item.image} style={styles.gridImage} />
-                <Text style={styles.gridText}>{item.title}</Text>
-              </View>
-            ))}
+  const renderServicesSection = () => (
+    <View ref={servicesRef} style={styles.sectionContainer}>
+      <Text style={styles.sectionTitle}>Services</Text>
+      <View style={styles.gridContainer}>
+        {SERVICES.map((item, index) => (
+          <View
+            key={index}
+            style={[
+              styles.gridItem,
+              (index + 1) % 4 !== 0 && styles.marginRight,
+            ]}>
+            <Image source={item.image} style={styles.gridImage} />
+            <Text style={styles.gridText}>{item.title}</Text>
           </View>
-        );
-      case 'Photos':
-        if (loadingDetails) {
-          return (
-            <View style={styles.photoStatusContainer}>
-              <ActivityIndicator size="large" color="#0000ff" />
-              <Text style={styles.photoStatusText}>Loading photos...</Text>
-            </View>
-          );
-        }
-        if (detailsError) {
-          return (
-            <View style={styles.photoStatusContainer}>
-              <Text style={styles.statusErrorText}>Error: {detailsError}</Text>
-            </View>
-          );
-        }
-        if (fetchedPhotos.length === 0) {
-          return (
-            <View style={styles.photoStatusContainer}>
-              <Text style={styles.photoStatusText}>
-                No photos available for this salon.
-              </Text>
-            </View>
-          );
-        }
-        return (
-          <View style={styles.fetchedPhotoContainer}>
-            {fetchedPhotos.map((photo, index) => (
-              <Image
-                key={index}
-                source={{
-                  uri: `https://maps.gomaps.pro/maps/api/place/photo?maxwidth=400&photoreference=${photo.photo_reference}&key=${Strings.GOMAPS_API_KEY}`,
-                }}
-                style={[
-                  styles.fetchedPhotoItem,
-                  (index + 1) % 4 !== 0 && styles.marginRight, // Add marginRight unless it's the 4th item
-                ]}
-              />
-            ))}
-          </View>
-        );
-      case 'About':
-        return (
-          <View style={styles.aboutContainer}>
-            <Text style={styles.aboutHeading}>About</Text>
-            {loadingDetails ? (
-              <ActivityIndicator
-                size="small"
-                color="#0000ff"
-                style={{marginVertical: 10}}
-              />
-            ) : detailsError ? (
-              <Text style={styles.statusErrorText}>
-                Could not load about details: {detailsError}
-              </Text>
-            ) : (
-              <Text style={styles.aboutText}>
-                {description ||
-                  'No detailed description available for this salon.'}
-              </Text>
-            )}
+        ))}
+      </View>
+    </View>
+  );
 
-            <Text style={styles.aboutHeading}>Amenities</Text>
-            {loadingDetails ? (
-              <ActivityIndicator
-                size="small"
-                color="#0000ff"
-                style={{marginVertical: 10}}
-              />
-            ) : detailsError ? (
-              <Text style={styles.statusErrorText}>
-                Could not load amenities: {detailsError}
+  const renderPhotosSection = () => (
+    <View ref={photosRef} style={styles.sectionContainer}>
+      <Text style={styles.sectionTitle}>Photos</Text>
+      {loadingDetails ? (
+        <View style={styles.photoStatusContainer}>
+          <ActivityIndicator size="large" color="#0000ff" />
+          <Text style={styles.photoStatusText}>Loading photos...</Text>
+        </View>
+      ) : detailsError ? (
+        <View style={styles.photoStatusContainer}>
+          <Text style={styles.statusErrorText}>Error: {detailsError}</Text>
+        </View>
+      ) : fetchedPhotos.length === 0 ? (
+        <View style={styles.photoStatusContainer}>
+          <Text style={styles.photoStatusText}>
+            No photos available for this salon.
+          </Text>
+        </View>
+      ) : (
+        <View style={styles.fetchedPhotoContainer}>
+          {fetchedPhotos.map((photo, index) => (
+            <Image
+              key={index}
+              source={{
+                uri: `https://maps.gomaps.pro/maps/api/place/photo?maxwidth=400&photoreference=${photo.photo_reference}&key=${Strings.GOMAPS_API_KEY}`,
+              }}
+              style={[
+                styles.fetchedPhotoItem,
+                (index + 1) % 4 !== 0 && styles.marginRight,
+              ]}
+            />
+          ))}
+        </View>
+      )}
+    </View>
+  );
+
+  const renderAboutSection = () => (
+    <View ref={aboutRef} style={styles.sectionContainer}>
+      <Text style={styles.sectionTitle}>About</Text>
+      <View >
+        {loadingDetails ? (
+          <ActivityIndicator
+            size="small"
+            color="#0000ff"
+            style={{ marginVertical: 10 }}
+          />
+        ) : detailsError ? (
+          <Text style={styles.statusErrorText}>
+            Could not load about details: {detailsError}
+          </Text>
+        ) : (
+          <Text style={styles.aboutText}>
+            {description ||
+              'No detailed description available for this salon.'}
+          </Text>
+        )}
+
+        <Text style={styles.aboutHeading}>Amenities</Text>
+        {loadingDetails ? (
+          <ActivityIndicator
+            size="small"
+            color="#0000ff"
+            style={{ marginVertical: 10 }}
+          />
+        ) : detailsError ? (
+          <Text style={styles.statusErrorText}>
+            Could not load amenities: {detailsError}
+          </Text>
+        ) : amenities.length > 0 ? (
+          <View style={styles.amenitiesList}>
+            {amenities.map((amenity, idx) => (
+              <Text key={idx} style={styles.amenityItem}>
+                • {amenity}
               </Text>
-            ) : amenities.length > 0 ? (
-              <View style={styles.amenitiesList}>
-                {amenities.map((amenity, idx) => (
-                  <Text key={idx} style={styles.amenityItem}>
-                    • {amenity}
-                  </Text>
-                ))}
-              </View>
-            ) : (
-              <Text style={styles.aboutText}>
-                No specific amenities listed for this salon.
-              </Text>
-            )}
-          </View>
-        );
-      case 'Reviews':
-        if (loadingDetails) {
-          return (
-            <View style={styles.reviewStatusContainer}>
-              <ActivityIndicator size="large" color="#0000ff" />
-              <Text style={styles.reviewStatusText}>Loading reviews...</Text>
-            </View>
-          );
-        }
-        if (detailsError) {
-          return (
-            <View style={styles.reviewStatusContainer}>
-              <Text style={styles.statusErrorText}>Error: {detailsError}</Text>
-            </View>
-          );
-        }
-        if (reviews.length === 0) {
-          return (
-            <View style={styles.reviewStatusContainer}>
-              <Text style={styles.reviewStatusText}>
-                No reviews available yet for this salon.
-              </Text>
-            </View>
-          );
-        }
-        return (
-          <View style={styles.reviewsListContainer}>
-            {reviews.map((review, index) => (
-              <View key={index} style={styles.reviewCard}>
-                <View style={styles.reviewHeader}>
-                  {review.profile_photo_url && (
-                    <Image
-                      source={{uri: review.profile_photo_url}}
-                      style={styles.reviewerImage}
-                    />
-                  )}
-                  <View style={styles.reviewerInfo}>
-                    <Text style={styles.reviewerName}>
-                      {review.author_name}
-                    </Text>
-                    <Text style={styles.reviewRating}>
-                      {'⭐'.repeat(review.rating)} {review.rating}
-                    </Text>
-                  </View>
-                </View>
-                <Text style={styles.reviewText}>{review.text}</Text>
-                <Text style={styles.reviewTime}>
-                  {review.relative_time_description}
-                </Text>
-              </View>
             ))}
           </View>
-        );
-      default:
-        return null;
-    }
-  };
+        ) : (
+          <Text style={styles.aboutText}>
+            No specific amenities listed for this salon.
+          </Text>
+        )}
+      </View>
+    </View>
+  );
+
+  const renderReviewsSection = () => (
+    <View ref={reviewsRef} style={styles.sectionContainer}>
+      <Text style={styles.sectionTitle}>Reviews</Text>
+      {loadingDetails ? (
+        <View style={styles.reviewStatusContainer}>
+          <ActivityIndicator size="large" color="#0000ff" />
+          <Text style={styles.reviewStatusText}>Loading reviews...</Text>
+        </View>
+      ) : detailsError ? (
+        <View style={styles.reviewStatusContainer}>
+          <Text style={styles.statusErrorText}>Error: {detailsError}</Text>
+        </View>
+      ) : reviews.length === 0 ? (
+        <View style={styles.reviewStatusContainer}>
+          <Text style={styles.reviewStatusText}>
+            No reviews available yet for this salon.
+          </Text>
+        </View>
+      ) : (
+        <View style={styles.reviewsListContainer}>
+          {reviews.map((review, index) => (
+            <View key={index} style={styles.reviewCard}>
+              <View style={styles.reviewHeader}>
+                {review.profile_photo_url && (
+                  <Image
+                    source={{ uri: review.profile_photo_url }}
+                    style={styles.reviewerImage}
+                  />
+                )}
+                <View style={styles.reviewerInfo}>
+                  <Text style={styles.reviewerName}>
+                    {review.author_name}
+                  </Text>
+                  <Text style={styles.reviewRating}>
+                    {'⭐'.repeat(review.rating)} {review.rating}
+                  </Text>
+                </View>
+              </View>
+              <Text style={styles.reviewText}>{review.text}</Text>
+              <Text style={styles.reviewTime}>
+                {review.relative_time_description}
+              </Text>
+            </View>
+          ))}
+        </View>
+      )}
+    </View>
+  );
 
   return (
-    <SafeAreaView style={styles.safeArea}>
-      <View style={styles.container}>
-        <ScrollView contentContainerStyle={{paddingBottom: 100}}>
+
+    <View style={styles.container}>
+      {headerIsVisible && (
+        <View
+          ref={headerRef}
+          onLayout={event => {
+            const { height } = event.nativeEvent.layout;
+            setHeaderHeight(height);
+          }}
+          style={styles.headerWrapper}>
           <CustomHeader
             title={title || 'Salon Details'}
             showBack={true}
             onBackPress={goBack}
           />
+        </View>
+      )}
 
-          <HeaderImageCarousel images={HEADER_IMAGES} duration={5000} />
+      <ScrollView
+        ref={scrollViewRef}
+        onScroll={handleScroll}
+        scrollEventThrottle={16}
+        onLayout={onLayout}
+        contentContainerStyle={{ paddingBottom: 50 }}>
 
-          <View style={styles.infoContainer}>
-            <Text style={styles.salonName}>{title}</Text>
-            <Text style={styles.address}>{address}</Text>
-            <Text style={styles.subText}>Unisex · ₹₹</Text>
-            <View style={styles.rowBetween}>
-              <Text style={styles.openText}>
-                {isOpen ? '🟢 Open now' : '🔴 Closed'}
+        <HeaderImageCarousel images={HEADER_IMAGES} duration={5000} />
+
+        <View style={styles.infoContainer}>
+          <Text style={styles.salonName}>{title}</Text>
+          <Text style={styles.address}>{address}</Text>
+          <Text style={styles.subText}>Unisex · ₹₹</Text>
+          <View style={styles.rowBetween}>
+            <Text style={styles.openText}>
+              {isOpen ? '🟢 Open now' : '🔴 Closed'}
+            </Text>
+            <TouchableOpacity
+              onPress={() => setIsHoursModalVisible(true)}
+              style={styles.hoursDropdownContainer}
+              disabled={
+                !fetchedFullOpeningHours ||
+                fetchedFullOpeningHours.length === 0
+              }>
+              <Text style={styles.timeText}>
+                {displayTodayHours || 'Hours not available'}
               </Text>
-              <TouchableOpacity
-                onPress={() => setIsHoursModalVisible(true)}
-                style={styles.hoursDropdownContainer}
-                disabled={
-                  !fetchedFullOpeningHours ||
-                  fetchedFullOpeningHours.length === 0
-                }>
-                <Text style={styles.timeText}>
-                  {displayTodayHours || 'Hours not available'}
-                </Text>
-                {fetchedFullOpeningHours &&
-                  fetchedFullOpeningHours.length > 0 && (
-                    <Text style={styles.dropdownIcon}>▼</Text>
-                  )}
-              </TouchableOpacity>
-            </View>
-            <View style={styles.buttonRow}>
-              <TouchableOpacity
-                style={styles.secondaryButton}
-                onPress={handleGetDirections}
-                disabled={!coordinate || loadingDetails}>
-                <Text>📍 Get Directions ({distanceKm} Km)</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={styles.secondaryButton}
-                onPress={handleCall}
-                disabled={!phoneNumber || loadingDetails}>
-                <Text>📞 Contact</Text>
-              </TouchableOpacity>
-            </View>
-            <View style={styles.offerCard}>
-              <Text style={styles.offerTitle}>🎉 Get 40% OFF</Text>
-              <Text>25% Discount + 15% Cashback</Text>
-            </View>
+              {fetchedFullOpeningHours &&
+                fetchedFullOpeningHours.length > 0 && (
+                  <Text style={styles.dropdownIcon}>▼</Text>
+                )}
+            </TouchableOpacity>
           </View>
-
-          <View style={styles.tabContainer}>
-            {TABS.map(tab => (
-              <TouchableOpacity key={tab} onPress={() => setActiveTab(tab)}>
-                <Text
-                  style={[
-                    styles.tabText,
-                    activeTab === tab && styles.activeTabText,
-                  ]}>
-                  {tab}
-                </Text>
-              </TouchableOpacity>
-            ))}
+          <View style={styles.buttonRow}>
+            <TouchableOpacity
+              style={styles.secondaryButton}
+              onPress={handleGetDirections}
+              disabled={!coordinate || loadingDetails}>
+              <Text>📍 Get Directions ({distanceKm} Km)</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.secondaryButton}
+              onPress={handleCall}
+              disabled={!phoneNumber || loadingDetails}>
+              <Text>📞 Contact</Text>
+            </TouchableOpacity>
           </View>
-
-          {renderTabContent()}
-        </ScrollView>
-
-        {/* Sticky Bottom Buttons */}
-        <View style={styles.bottomButtonsContainer}>
-          <TouchableOpacity style={styles.outlineButton}>
-            <Text style={styles.outlineText}>Book services</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.filledButton}>
-            <Text style={styles.filledText}>Pay bill</Text>
-          </TouchableOpacity>
+          <View style={styles.offerCard}>
+            <Text style={styles.offerTitle}>🎉 Get 40% OFF</Text>
+            <Text>25% Discount + 15% Cashback</Text>
+          </View>
         </View>
 
-        {/* Hours Modal - New Design */}
-        <Modal
-          animationType="fade"
-          transparent={true}
-          visible={isHoursModalVisible}
-          onRequestClose={() => setIsHoursModalVisible(false)}>
-          <TouchableOpacity
-            style={styles.centeredView}
-            activeOpacity={1}
-            onPressOut={() => setIsHoursModalVisible(false)}>
-            <View style={styles.modalView}>
-              <View style={styles.modalHeader}>
-                <Text style={styles.modalHeaderTitle}>Timings</Text>
-                <Text style={styles.modalHeaderSubtitle}>
-                  All Timings Are In IST
-                </Text>
-              </View>
-
-              {fetchedFullOpeningHours && fetchedFullOpeningHours.length > 0 ? (
-                fetchedFullOpeningHours.map((dayHour, index) => {
-                  const parts = dayHour.split(': ');
-                  const day = parts[0];
-                  const time = parts.slice(1).join(': ');
-
-                  return (
-                    <View key={index} style={[styles.modalTimingRow]}>
-                      <Text
-                        style={[
-                          styles.modalTextDay,
-                          index === currentDayIndexForModal &&
-                            styles.highlightedDayText,
-                        ]}>
-                        {day}
-                      </Text>
-                      <Text
-                        style={[
-                          styles.modalTextTime,
-                          index === currentDayIndexForModal &&
-                            styles.highlightedDayText,
-                        ]}>
-                        {time}
-                      </Text>
-                    </View>
-                  );
-                })
-              ) : (
-                <Text style={styles.modalTextDay}>
-                  No detailed operating hours available.
-                </Text>
-              )}
-            </View>
-          </TouchableOpacity>
-        </Modal>
-
-        {/* Call Not Supported Modal */}
-        <Modal
-          animationType="fade"
-          transparent={true}
-          visible={isCallNotSupportedModalVisible}
-          onRequestClose={() => setIsCallNotSupportedModalVisible(false)}>
-          <TouchableOpacity
-            style={styles.centeredView}
-            activeOpacity={1}
-            onPressOut={() => setIsCallNotSupportedModalVisible(false)}>
-            <View style={styles.modalView}>
-              <View style={styles.modalHeader}>
-                <Text style={styles.modalHeaderTitle}>Call Not Supported</Text>
-              </View>
+        <View ref={tabContainerRef} style={styles.tabContainer}>
+          {TABS.map(tab => (
+            <TouchableOpacity
+              key={tab}
+              onPress={() => scrollToSection(tab)}>
               <Text
                 style={[
-                  styles.modalTextDay,
-                  {padding: 20, textAlign: 'center'},
+                  styles.tabText,
+                  activeTab === tab && styles.activeTabText,
                 ]}>
-                {callNotSupportedMessage}
+                {tab}
               </Text>
-              <TouchableOpacity
-                style={styles.modalCloseButton}
-                onPress={() => setIsCallNotSupportedModalVisible(false)}>
-                <Text style={styles.modalCloseButtonText}>OK</Text>
-              </TouchableOpacity>
-            </View>
-          </TouchableOpacity>
-        </Modal>
+            </TouchableOpacity>
+          ))}
+        </View>
 
-        {/* Map Not Supported Modal - ADDED */}
-        <Modal
-          animationType="fade"
-          transparent={true}
-          visible={isMapNotSupportedModalVisible}
-          onRequestClose={() => setIsMapNotSupportedModalVisible(false)}>
-          <TouchableOpacity
-            style={styles.centeredView}
-            activeOpacity={1}
-            onPressOut={() => setIsMapNotSupportedModalVisible(false)}>
-            <View style={styles.modalView}>
-              <View style={styles.modalHeader}>
-                <Text style={styles.modalHeaderTitle}>Map Not Supported</Text>
-              </View>
+        {renderServicesSection()}
+        {renderPhotosSection()}
+        {renderAboutSection()}
+        {renderReviewsSection()}
+
+      </ScrollView>
+
+      {isTabSticky && (
+        <View style={[styles.stickyTabContainer, { top: headerHeight }]}>
+          {TABS.map(tab => (
+            <TouchableOpacity
+              key={tab}
+              onPress={() => scrollToSection(tab)}>
               <Text
                 style={[
-                  styles.modalTextDay,
-                  {padding: 20, textAlign: 'center'},
+                  styles.tabText,
+                  activeTab === tab && styles.activeTabText,
                 ]}>
-                {mapNotSupportedMessage}
+                {tab}
               </Text>
-              <TouchableOpacity
-                style={styles.modalCloseButton}
-                onPress={() => setIsMapNotSupportedModalVisible(false)}>
-                <Text style={styles.modalCloseButtonText}>OK</Text>
-              </TouchableOpacity>
-            </View>
-          </TouchableOpacity>
-        </Modal>
+            </TouchableOpacity>
+          ))}
+        </View>
+      )}
+
+      {/* Sticky Bottom Buttons */}
+      <View style={styles.bottomButtonsContainer}>
+        <TouchableOpacity style={styles.outlineButton}>
+          <Text style={styles.outlineText}>Book services</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.filledButton}>
+          <Text style={styles.filledText}>Pay bill</Text>
+        </TouchableOpacity>
       </View>
-    </SafeAreaView>
+
+      {/* --- All Modals --- */}
+      {/* Hours Modal */}
+      <Modal
+        animationType="fade"
+        transparent={true}
+        visible={isHoursModalVisible}
+        onRequestClose={() => {
+          setIsHoursModalVisible(!isHoursModalVisible);
+        }}>
+        <View style={styles.centeredView}>
+          <View style={styles.modalView}>
+            <View style={styles.modalHeader}>
+              <Text style={styles.modalHeaderTitle}>Opening Hours</Text>
+              <Text style={styles.modalHeaderSubtitle}>
+                {title || 'Salon Details'}
+              </Text>
+            </View>
+            {fetchedFullOpeningHours?.map((dayText, index) => (
+              <View
+                key={index}
+                style={[
+                  styles.modalTimingRow,
+                  index === currentDayIndexForModal &&
+                  styles.highlightedDayRow,
+                ]}>
+                <Text
+                  style={[
+                    styles.modalTextDay,
+                    index === currentDayIndexForModal &&
+                    styles.highlightedDayText,
+                  ]}>
+                  {dayText.split(':')[0]}
+                </Text>
+                <Text
+                  style={[
+                    styles.modalTextTime,
+                    index === currentDayIndexForModal &&
+                    styles.highlightedDayText,
+                  ]}>
+                  {dayText.split(': ').slice(1).join(': ') || 'Closed'}
+                </Text>
+              </View>
+            ))}
+            <TouchableOpacity
+              style={styles.modalCloseButton}
+              onPress={() => setIsHoursModalVisible(!isHoursModalVisible)}>
+              <Text style={styles.modalCloseButtonText}>Close</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
+
+      {/* Call Not Supported Modal */}
+      <Modal
+        animationType="fade"
+        transparent={true}
+        visible={isCallNotSupportedModalVisible}
+        onRequestClose={() => {
+          setIsCallNotSupportedModalVisible(!isCallNotSupportedModalVisible);
+        }}>
+        <View style={styles.centeredView}>
+          <View style={styles.modalView}>
+            <Text style={styles.statusErrorText}>
+              {callNotSupportedMessage}
+            </Text>
+            <TouchableOpacity
+              style={styles.modalCloseButton}
+              onPress={() =>
+                setIsCallNotSupportedModalVisible(
+                  !isCallNotSupportedModalVisible,
+                )
+              }>
+              <Text style={styles.modalCloseButtonText}>OK</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
+
+      {/* Map Not Supported Modal */}
+      <Modal
+        animationType="fade"
+        transparent={true}
+        visible={isMapNotSupportedModalVisible}
+        onRequestClose={() => {
+          setIsMapNotSupportedModalVisible(!isMapNotSupportedModalVisible);
+        }}>
+        <View style={styles.centeredView}>
+          <View style={styles.modalView}>
+            <Text style={styles.statusErrorText}>
+              {mapNotSupportedMessage}
+            </Text>
+            <TouchableOpacity
+              style={styles.modalCloseButton}
+              onPress={() =>
+                setIsMapNotSupportedModalVisible(
+                  !isMapNotSupportedModalVisible,
+                )
+              }>
+              <Text style={styles.modalCloseButtonText}>OK</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
+    </View>
+
   );
 }
 
@@ -735,9 +819,12 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
-  headerImage: {
-    width: '100%',
-    height: 200,
+  headerWrapper: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    zIndex: 2, // Ensure the header is always on top
   },
   infoContainer: {
     padding: 16,
@@ -784,9 +871,11 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
   secondaryButton: {
-    padding: 8,
+    flex: 1,
+    padding: 10,
     backgroundColor: '#f0f0f0',
     borderRadius: 8,
+    alignItems: 'center',
   },
   offerCard: {
     backgroundColor: '#e9f4ff',
@@ -803,6 +892,20 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: '#ddd',
     paddingVertical: 10,
+    backgroundColor: '#fff',
+    zIndex: 1,
+  },
+  stickyTabContainer: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    paddingVertical: 10,
+    backgroundColor: '#fff',
+    borderBottomWidth: 1,
+    borderBottomColor: '#ddd',
+    zIndex: 100,
   },
   tabText: {
     fontSize: 16,
@@ -815,59 +918,39 @@ const styles = StyleSheet.create({
     borderBottomColor: '#000',
     paddingBottom: 4,
   },
+  sectionContainer: {
+    paddingTop: 16,
+    paddingHorizontal: 16,
+    borderTopWidth: 1,
+    borderTopColor: '#ddd',
+    marginTop: 10,
+  },
+  sectionTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginBottom: 10,
+  },
   gridContainer: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    paddingHorizontal: 10, // Keep padding to control overall grid offset
+    justifyContent: 'space-between',
+    paddingHorizontal: 10,
     marginTop: 10,
   },
   gridItem: {
-    width: (width - 20 - 3 * 8) / 4, // Calculate width for 4 images in a row with 10px horizontal padding and 8px gap
+    width: '23%',
     alignItems: 'center',
-    marginBottom: 10, // Vertical spacing between rows
+    marginBottom: 10,
   },
   gridImage: {
-    width: 60, // Original size as requested
-    height: 60, // Original size as requested
+    width: 60,
+    height: 60,
     borderRadius: 10,
   },
   gridText: {
     fontSize: 12,
     textAlign: 'center',
     marginTop: 4,
-  },
-  photoContainer: {
-    flexDirection: 'row',
-    padding: 10,
-    gap: 10,
-  },
-  photoItem: {
-    alignItems: 'center',
-  },
-  photoImage: {
-    width: 60,
-    height: 60,
-    borderRadius: 10,
-  },
-  photoText: {
-    marginTop: 4,
-  },
-  // New styles for fetched photos
-  fetchedPhotoContainer: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    paddingHorizontal: 10, // Add padding on the sides
-    paddingVertical: 10,
-  },
-  fetchedPhotoItem: {
-    width: (width - 20 - 3 * 8) / 4, // Calculate width for 4 images in a row with 10px horizontal padding and 8px gap
-    height: (width - 20 - 3 * 8) / 4, // Make it square, matching the width
-    borderRadius: 8,
-    resizeMode: 'cover',
-    marginBottom: 10, // Vertical spacing between rows
-  },
-  marginRight: {
-    marginRight: 8, // Gap between items
   },
   photoStatusContainer: {
     flex: 1,
@@ -882,8 +965,22 @@ const styles = StyleSheet.create({
     color: '#555',
     textAlign: 'center',
   },
-  aboutContainer: {
-    padding: 16,
+  fetchedPhotoContainer: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'space-between',
+    paddingHorizontal: 10,
+    paddingVertical: 10,
+  },
+  fetchedPhotoItem: {
+    width: '23%',
+    height: (width - 20 - 3 * 8) / 4,
+    borderRadius: 8,
+    resizeMode: 'cover',
+    marginBottom: 10,
+  },
+  marginRight: {
+    marginRight: 8,
   },
   aboutHeading: {
     fontWeight: 'bold',
@@ -911,8 +1008,9 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     backgroundColor: '#fff',
     justifyContent: 'space-around',
-    padding: 12,
+    paddingHorizontal: 22,
     borderTopWidth: 1,
+    paddingVertical: 10,
     borderTopColor: '#ddd',
   },
   outlineButton: {
@@ -940,7 +1038,6 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontWeight: 'bold',
   },
-  // Styles for reviews
   reviewsListContainer: {
     padding: 16,
   },
@@ -950,9 +1047,9 @@ const styles = StyleSheet.create({
     padding: 12,
     marginBottom: 10,
     shadowColor: '#000',
-    shadowOffset: {width: 0, height: 1},
+    shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.2,
-    shadowRadius: 1.41,
+    shadowRadius: 1,
     elevation: 2,
   },
   reviewHeader: {
@@ -971,20 +1068,20 @@ const styles = StyleSheet.create({
   },
   reviewerName: {
     fontWeight: 'bold',
-    fontSize: 14,
+    fontSize: 16,
   },
   reviewRating: {
-    fontSize: 12,
-    color: '#FFD700',
+    fontSize: 14,
+    color: '#888',
   },
   reviewText: {
-    fontSize: 13,
+    fontSize: 14,
     color: '#333',
-    marginBottom: 5,
   },
   reviewTime: {
-    fontSize: 11,
-    color: '#777',
+    fontSize: 12,
+    color: '#888',
+    marginTop: 8,
     textAlign: 'right',
   },
   reviewStatusContainer: {
@@ -1006,19 +1103,19 @@ const styles = StyleSheet.create({
     color: 'red',
     textAlign: 'center',
   },
-  // Styles for the Modal
+  // Modal Styles
   centeredView: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: 'rgba(0,0,0,0.5)',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
   },
   modalView: {
-    margin: 20,
+    width: '80%',
     backgroundColor: 'white',
-    borderRadius: 10,
+    borderRadius: 20,
+    padding: 20,
     alignItems: 'center',
-    overflow: 'hidden',
     shadowColor: '#000',
     shadowOffset: {
       width: 0,
@@ -1027,57 +1124,56 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.25,
     shadowRadius: 4,
     elevation: 5,
-    width: '80%',
-    maxHeight: '70%',
   },
   modalHeader: {
-    width: '100%',
-    backgroundColor: '#61a3ff',
-    paddingVertical: 15,
+    marginBottom: 15,
     alignItems: 'center',
+    borderBottomWidth: 1,
+    borderBottomColor: '#ddd',
+    paddingBottom: 10,
+    width: '100%',
   },
   modalHeaderTitle: {
-    color: 'white',
-    fontSize: 18,
+    fontSize: 20,
     fontWeight: 'bold',
-    marginBottom: 5,
   },
   modalHeaderSubtitle: {
-    color: 'white',
     fontSize: 12,
+    color: '#777',
+    marginTop: 5,
   },
   modalTimingRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     width: '100%',
-    paddingHorizontal: 20,
-    paddingVertical: 10,
-    borderBottomWidth: 1,
-    borderBottomColor: '#eee',
+    marginBottom: 5,
+    paddingVertical: 2,
   },
   modalTextDay: {
     fontSize: 16,
-    color: '#333',
   },
   modalTextTime: {
     fontSize: 16,
-    color: '#333',
     fontWeight: '500',
   },
+  highlightedDayRow: {
+    backgroundColor: '#f0faff',
+    borderRadius: 5,
+  },
   highlightedDayText: {
-    color: '#007bff',
     fontWeight: 'bold',
+    color: '#00aaff',
   },
   modalCloseButton: {
     marginTop: 20,
     backgroundColor: '#00aaff',
-    paddingVertical: 10,
-    paddingHorizontal: 20,
-    borderRadius: 5,
-    marginBottom: 15,
+    borderRadius: 10,
+    padding: 10,
+    elevation: 2,
   },
   modalCloseButtonText: {
     color: 'white',
     fontWeight: 'bold',
+    textAlign: 'center',
   },
 });
