@@ -28,6 +28,7 @@ import Constants from '../constants/Constants';
 import {useCart} from '../contexts/CartContext';
 import {useHideTabBarOnScroll} from '../components/useHideTabBarOnScroll';
 import GlobalCartBanner from '../components/GlobalCartBanner';
+import {ServiceItem} from '../services/models/ServiceItem';
 
 const LEFT_MENU = [
   {
@@ -96,6 +97,25 @@ const RECENTLY_VIEWED = [
     title: 'Water Purifier',
     icon: require('../assets/images/user.jpg'),
   },
+];
+
+export const hairCut: ServiceItem[] = [
+  {id: 'H1', title: 'Basic Haircut', price: '150', formattedPrice: '150'},
+  {id: 'H2', title: 'Advanced Haircut', price: '250', formattedPrice: '250'},
+  {id: 'H3', title: 'Premium Haircut', price: '400', formattedPrice: '400'},
+];
+export const hairWash: ServiceItem[] = [
+  {id: 'HW1', title: 'Hair Wash', price: '200', formattedPrice: '200'},
+  {id: 'HW2', title: 'Hair Wash', price: '100', formattedPrice: '100'},
+  {id: 'HW3', title: 'Hair Wash Regular', price: '250', formattedPrice: '250'},
+  {id: 'HW4', title: 'Hair Wash  Premium', price: '250', formattedPrice: '250'},
+];
+export const stylingServices: ServiceItem[] = [
+  {id: 'S1', title: 'Blow Dry', price: '350', formattedPrice: '350'},
+  {id: 'S2', title: 'Ironing', price: '750', formattedPrice: '750'},
+  {id: 'S3', title: 'Tongs', price: '250', formattedPrice: '250'},
+  {id: 'S4', title: 'Hair Do', price: '1,250', formattedPrice: '1,250'},
+  {id: 'S5', title: 'Hair Styling', price: '150', formattedPrice: '150'},
 ];
 
 const HAVE_YOU_TRIED = [
@@ -269,34 +289,19 @@ const CategoryScreen = () => {
               <ExpandableServiceItem
                 title={'Haircut'}
                 count={3}
-                dummyItems={[
-                  {id: '1', title: 'Basic Haircut', price: '150'},
-                  {id: '2', title: 'Advanced Haircut', price: '250'},
-                  {id: '3', title: 'Premium Haircut', price: '400'},
-                ]}
+                dummyItems={hairCut}
                 onAddToCart={() => setShowCartBanner(true)}
               />
               <ExpandableServiceItem
                 title="Wash OR Dry"
                 count={4}
-                dummyItems={[
-                  {id: '1', title: 'Hair Wash', price: '200'},
-                  {id: '2', title: 'Hair Wash', price: '100'},
-                  {id: '3', title: 'Hair Wash Regular', price: '250'},
-                  {id: '4', title: 'Hair Wash  Premium', price: '250'},
-                ]}
+                dummyItems={hairWash}
                 onAddToCart={() => setShowCartBanner(true)}
               />
               <ExpandableServiceItem
                 title="Styling"
                 count={5}
-                dummyItems={[
-                  {id: '1', title: 'Blow Dry', price: '350'},
-                  {id: '2', title: 'Ironing', price: '750'},
-                  {id: '3', title: 'Tongs', price: '250'},
-                  {id: '4', title: 'Hair Do', price: '1,250'},
-                  {id: '5', title: 'Hair Styling', price: '150'},
-                ]}
+                dummyItems={stylingServices}
                 onAddToCart={() => setShowCartBanner(true)} // ✅ Correct
               />
               <View style={{marginBottom: 100}} />
@@ -389,7 +394,6 @@ const styles = StyleSheet.create({
   sidebar: {
     width: 80,
     backgroundColor: '#fff',
-    paddingBottom: responsive.padding(80),
   },
   menuIcon: {
     width: 50,

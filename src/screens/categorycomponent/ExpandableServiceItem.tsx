@@ -1,5 +1,5 @@
 import React, {useState} from 'react';
-import {View, Text, TouchableOpacity, StyleSheet} from 'react-native';
+import {Alert, View, Text, TouchableOpacity, StyleSheet} from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import responsive from '../../utils/responsive';
 import colors from '../../constants/colors';
@@ -25,7 +25,7 @@ const ExpandableServiceItem = ({
 }) => {
   const [expanded, setExpanded] = useState(false);
   const [addedItems, setAddedItems] = useState<{[key: string]: boolean}>({});
-  const {addItem} = useCart();
+  const {addItem, items} = useCart();
 
   const toggleExpand = () => {
     setExpanded(prev => !prev);
@@ -72,18 +72,39 @@ const ExpandableServiceItem = ({
             </View>
 
             {/* Right Column (button + customize) */}
+
             <View style={styles.content}>
               <TouchableOpacity
                 style={styles.addButton}
                 onPress={() => {
-                  addItem(item);
-                  setAddedItems(prev => ({...prev, [item.id]: true}));
-                  onAddToCart?.(); // callback to show cart banner
+                  const isAlreadyInCart = items.some(
+                    cartItem => cartItem.id === item.id,
+                  );
+
+                  if (isAlreadyInCart) {
+                    Alert.alert('Info', 'Item already added');
+                  } else {
+                    addItem(item);
+                    setAddedItems(prev => ({...prev, [item.id]: true}));
+                    onAddToCart?.();
+                    Alert.alert('Success', 'Item added successfully');
+                  }
                 }}>
-                <Text style={styles.addButtonText}>
-                  {addedItems[item.id] ? 'Added' : 'ADD'}
-                </Text>
+                {items.some(cartItem => cartItem.id === item.id) ? (
+                  <View style={styles.addedContent}>
+                    <Text style={styles.addButtonText}>Added</Text>
+                    <Ionicons
+                      name="add-circle-outline"
+                      size={16}
+                      color="#fff"
+                      style={styles.iconAdd}
+                    />
+                  </View>
+                ) : (
+                  <Text style={styles.addButtonText}>ADD</Text>
+                )}
               </TouchableOpacity>
+
               <Text style={styles.customizeText}>Customize</Text>
             </View>
           </View>
@@ -136,6 +157,9 @@ const styles = StyleSheet.create({
   icon: {
     marginBottom: 4,
   },
+  iconAdd: {
+    marginLeft: 4,
+  },
   title: {
     fontSize: responsive.fontSize(13),
     fontWeight: '600',
@@ -147,6 +171,12 @@ const styles = StyleSheet.create({
     color: '#444',
     flexShrink: 1,
   },
+  addedContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 0, // if using React Native 0.71+
+  },
+
   content: {
     flex: 1,
     alignItems: 'flex-end',
@@ -156,7 +186,7 @@ const styles = StyleSheet.create({
   },
   addButton: {
     backgroundColor: colors.PRIMARY,
-    paddingHorizontal: 12,
+    paddingHorizontal: 8,
     paddingVertical: 6,
     borderRadius: 20,
     marginBottom: 4,
