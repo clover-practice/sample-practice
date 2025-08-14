@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import React, {useCallback, useEffect, useState} from 'react';
 import {
   Text,
   TouchableWithoutFeedback,
@@ -16,6 +16,7 @@ import OtpInput from '../components/OtpInput';
 import {goBack, navigate, replace} from '../utils/NavigationUtils';
 import {getValue, setValue} from '../utils/keychainStorage';
 import Constants from '../constants/Constants';
+import {useOtpListener} from '../components/useOtpListener';
 
 type RootStackParamList = {
   OtpScreen: {mobile: string};
@@ -47,35 +48,44 @@ const OtpScreen = () => {
     }
   };
 
+  const handleOtpReceived = (otp: string) => {
+    console.log('Received OTP:', otp);
+    // auto-fill or verify OTP here
+  };
+
+  const handleOtpError = useCallback((error: any) => {
+    console.error('OTP error:', error);
+  }, []);
+
+  useOtpListener(handleOtpReceived, handleOtpError);
+
   return (
-    
-      <View style={styles.container}>
-        <CustomHeader
-          title="Login with OTP"
-          showBack={true}
-          onBackPress={goBack}
-        />
+    <View style={styles.container}>
+      <CustomHeader
+        title="Login with OTP"
+        showBack={true}
+        onBackPress={goBack}
+      />
 
-        <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-          <KeyboardAvoidingView
-            style={{flex: 1}}
-            behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-            keyboardVerticalOffset={Platform.OS === 'ios' ? 100 : 0}>
-            <ScrollView
-              contentContainerStyle={styles.content}
-              keyboardShouldPersistTaps="handled">
-              <Text style={styles.otpInfoText}>
-                {mobile
-                  ? `An OTP has been sent to your mobile number\n+91 ${mobile}`
-                  : 'An OTP has been sent to your mobile number.'}
-              </Text>
+      <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+        <KeyboardAvoidingView
+          style={{flex: 1}}
+          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+          keyboardVerticalOffset={Platform.OS === 'ios' ? 100 : 0}>
+          <ScrollView
+            contentContainerStyle={styles.content}
+            keyboardShouldPersistTaps="handled">
+            <Text style={styles.otpInfoText}>
+              {mobile
+                ? `An OTP has been sent to your mobile number\n+91 ${mobile}`
+                : 'An OTP has been sent to your mobile number.'}
+            </Text>
 
-              <OtpInput value={otp} onChange={setOtp} />
-            </ScrollView>
-          </KeyboardAvoidingView>
-        </TouchableWithoutFeedback>
-      </View>
-   
+            <OtpInput value={otp} onChange={setOtp} />
+          </ScrollView>
+        </KeyboardAvoidingView>
+      </TouchableWithoutFeedback>
+    </View>
   );
 };
 
@@ -100,4 +110,3 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
 });
-

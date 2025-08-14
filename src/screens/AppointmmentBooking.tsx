@@ -14,7 +14,7 @@ import {
   Platform,
 } from 'react-native';
 import CustomHeader from '../components/CustomHeader';
-import {goBack} from '../utils/NavigationUtils';
+import {goBack, navigate} from '../utils/NavigationUtils';
 import Constants from '../constants/Constants';
 import responsive from '../utils/responsive';
 import colors from '../constants/colors';
@@ -24,6 +24,7 @@ import Colors from '../constants/colors';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import CustomButton from '../components/CustomButton';
 import TermsPrivacyText from '../components/TermsPrivacyText';
+import {useCart} from '../contexts/CartContext';
 
 const data = [
   {id: '1', title: '05:30 PM'},
@@ -45,13 +46,17 @@ const gridSpacing = 16;
 const screenWidth = Dimensions.get('window').width;
 
 const AppointmmentBooking = () => {
+  const {removeItem, items} = useCart();
   type ServiceItem = {
     id: string;
     title: string;
   };
   // const [selectedId, setSelectedId] = useState<string | null>(null);
   const [selectedId, setSelectedId] = useState<ServiceItem['id'] | null>(null);
-
+  const [expanded, setExpanded] = useState(false);
+  const toggleExpand = () => {
+    setExpanded(prev => !prev);
+  };
   const renderItem = ({item}: {item: ServiceItem}) => {
     const isSelected = selectedId === item.id;
 
@@ -111,12 +116,16 @@ const AppointmmentBooking = () => {
               <View style={styles.subInfoRow}>
                 <View style={styles.row}>
                   <Text style={styles.subTitle}>Your Services</Text>
-                  <Ionicons
-                    name="chevron-up-circle"
-                    size={16}
-                    color="#888"
-                    style={{marginLeft: 4}}
-                  />
+                  <TouchableOpacity onPress={toggleExpand}>
+                    <Ionicons
+                      name={
+                        expanded ? 'chevron-up-circle' : 'chevron-down-circle'
+                      } // toggle icon direction
+                      size={16}
+                      color="#888"
+                      style={{marginLeft: 4}}
+                    />
+                  </TouchableOpacity>
                 </View>
                 <Text style={styles.price}>₹ 1,416</Text>
               </View>
@@ -143,7 +152,8 @@ const AppointmmentBooking = () => {
 
             <CustomButton
               title="Book & Pay after Service"
-              onPress={() => console.log()}
+              // onPress={() => navigate('PayPalCheckout')}
+              onPress={() => navigate('Payment', {amt: '50'})}
               style={styles.button}
             />
           </View>

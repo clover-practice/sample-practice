@@ -20,6 +20,8 @@ import PermissionScreen from '../screens/PermissionScreen';
 import LoginScreen from '../screens/LoginScreen';
 import SalonDetailScreen from '../screens/SalonDetailScreen';
 import RegistrationScreen from '../screens/RegistationScreen';
+import PayPalCheckout from '../screens/PayPalCheckout';
+import Payment from '../screens/Payment';
 
 const Stack = createNativeStackNavigator();
 
@@ -67,6 +69,8 @@ const AppNavigator = () => (
             name="RegistrationScreen"
             component={RegistrationScreen}
           />
+          <Stack.Screen name='PayPalCheckout' component={PayPalCheckout} />
+          <Stack.Screen name='Payment' component={Payment}/>
          
         </Stack.Navigator>
       </TabBarVisibilityProvider>
