@@ -8754,6 +8754,11 @@ react-native-screens@^4.11.1, "react-native-screens@>= 4.0.0":
     react-native-is-edge-to-edge "^1.1.7"
     warn-once "^0.1.0"
 
+react-native-sms-retriever@^1.1.1:
+  version "1.1.1"
+  resolved "https://registry.npmjs.org/react-native-sms-retriever/-/react-native-sms-retriever-1.1.1.tgz"
+  integrity sha512-WRwiITfssx59+TB1iEMmjB7w4OTkatR34js5+4a4pP2jMXJ4aLdXK0hOtHxl8ciS8aIejdd49Sz8AXonlvtdRw==
+
 react-native-svg@^15.12.1, react-native-svg@>=14.0.0:
   version "15.12.1"
   resolved "https://registry.npmjs.org/react-native-svg/-/react-native-svg-15.12.1.tgz"

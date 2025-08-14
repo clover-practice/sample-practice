@@ -5,6 +5,7 @@ const Strings = {
   CURRENT_ADDRESS: 'FETCHING',
 
   GOMAPS_API_KEY: 'AlzaSyRVrLvKBk8-h8Oo7iCZZgfnKSybW9tqmZG', // Sagar Sadamate
+  //GOMAPS_API_KEY: 'AlzaSybyDZFW5ABQaygnhzL_cVEY1eCU2FyTeUs', // Ketan
   NEARBY_PLACES_DETAILS_API_URL:
     'https://maps.gomaps.pro/maps/api/place/details/json',
   NEARBY_PLACES_API_URL:

@@ -14,8 +14,6 @@ import Geolocation from 'react-native-geolocation-service';
 import TopSearchBar from '../components/HomeHeaderComponent';
 import BreakerText from '../components/BreakerText';
 import CustomCarousel from '../components/CustomCarousel';
-// Note: Keeping this import for existing usage, but MapPicker now uses GoMaps.
-// Ensure consistency if you want to use the same geocoding logic everywhere.
 import {getAddressFromLocation} from '@logisticinfotech/react-native-geocoding-reversegeocoding';
 import {navigate} from '../utils/NavigationUtils';
 import {useBottomTabBarHeight} from '@react-navigation/bottom-tabs';
@@ -103,26 +101,16 @@ const HomeScreen = () => {
           setUserCoordinates({latitude, longitude});
 
           try {
-            // Using the existing geocoding library for this fallback path
-            const response = await getAddressFromLocation(latitude, longitude);
+           const response = await getAddressFromLocation(latitude, longitude);
             const result = (response as any)?.result;
-            // const city =
-            //   result?.formattedAddress || // Prefer formattedAddress if available
-            //   result?.city ||
-            //   result?.locality ||
-            //   result?.subAdminArea ||
-            //   result?.adminArea ||
-            //   'Unknown City';
             const city =
               result?.subLocality || ', ' || result?.locality || 'Unknown City';
 
             console.log('RESPONSE ', result);
             console.log('RESPONSE FROM CITY', city);
-
             setCurrentCity(city);
-            // Store this address in keychain as well
             await storeLocation(latitude, longitude, city);
-            await setValue(Constants.CITY_ADDRESS, city); // Update Constants.CITY_ADDRESS
+            await setValue(Constants.CITY_ADDRESS, city); 
           } catch (e) {
             setCurrentCity('Address Unavailable');
             setLocationError('Could not get address.');
@@ -147,7 +135,7 @@ const HomeScreen = () => {
       setLocationLoading(false);
       console.error('Error in requestAndFetchAddress:', err);
     }
-  }, []); // useCallback to memoize the function
+  }, []); 
 
   const getUserData = useCallback(async () => {
     const name = await getValue(Constants.USER_NAME);
@@ -156,29 +144,24 @@ const HomeScreen = () => {
 
   useEffect(() => {
     const initializeHomeScreen = async () => {
-      setLocationLoading(true); // Start loading
-
-      // 1. Prioritize navigation parameters from MapPicker
+      setLocationLoading(true); 
       if (route.params?.selectedAddress && route.params?.selectedCoords) {
         const {selectedAddress, selectedCoords} = route.params;
         setCurrentCity(selectedAddress);
         setUserCoordinates(selectedCoords);
-        // Ensure this new address is also stored in keychain for persistence
         await storeLocation(
           selectedCoords.latitude,
           selectedCoords.longitude,
           selectedAddress,
         );
-        await setValue(Constants.CITY_ADDRESS, selectedAddress); // Crucial: Update Constants.CITY_ADDRESS
+        await setValue(Constants.CITY_ADDRESS, selectedAddress); 
         setLocationLoading(false);
-        return; // Exit early as we have the location
+        return; 
       }
 
-      // 2. Fallback: Try to get address from Constants.CITY_ADDRESS first
       const storedCityAddress = await getValue(Constants.CITY_ADDRESS);
       if (storedCityAddress) {
         setCurrentCity(storedCityAddress);
-        // Attempt to get coordinates from getLocation() if only address is found in CITY_ADDRESS
         const storedLoc = await getLocation();
         if (storedLoc?.latitude && storedLoc?.longitude) {
           setUserCoordinates({
@@ -186,16 +169,11 @@ const HomeScreen = () => {
             longitude: storedLoc.longitude,
           });
         } else {
-          // If CITY_ADDRESS exists but no coordinates, we might need to geocode it
-          // For simplicity, we'll proceed to requestAndFetchAddress if coordinates are critical for MapAndListView
-          // Or you could add a geocoding call here for storedCityAddress
-        }
+         }
         setLocationLoading(false);
-        await getUserData(); // Fetch user data after setting location
-        return; // Exit early as we have the address
+        await getUserData(); 
+        return; 
       }
-
-      // 3. Fallback: Try to get location (address + coords) from getLocation()
       const storedLoc = await getLocation();
       if (storedLoc?.address && storedLoc?.latitude && storedLoc?.longitude) {
         setCurrentCity(storedLoc.address);
@@ -203,16 +181,13 @@ const HomeScreen = () => {
           latitude: storedLoc.latitude,
           longitude: storedLoc.longitude,
         });
-        // Ensure Constants.CITY_ADDRESS is also updated with this full address if it wasn't already
         await setValue(Constants.CITY_ADDRESS, storedLoc.address);
         setLocationLoading(false);
-        await getUserData(); // Fetch user data after setting location
-        return; // Exit early as we have the location
+        await getUserData(); 
+        return; 
       }
-
-      // 4. Last resort: Request current device location
-      await requestAndFetchAddress(); // This also updates currentCity and keychain
-      await getUserData(); // Fetch user data after location is potentially fetched
+      await requestAndFetchAddress(); 
+      await getUserData(); 
     };
 
     initializeHomeScreen();
