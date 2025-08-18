@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, {useState} from 'react';
 import {
   View,
   Text,
@@ -35,14 +35,9 @@ const TopSearchBar: React.FC<TopSearchBarProps> = ({
         {/* Location */}
         <TouchableOpacity
           onPress={onPressLocation}
-          style={styles.locationContainer}
-        >
+          style={styles.locationContainer}>
           <Ionicons name="location-sharp" size={20} color="red" />
-          <Text
-            style={styles.cityText}
-            numberOfLines={1}
-            ellipsizeMode="tail"
-          >
+          <Text style={styles.cityText} numberOfLines={1} ellipsizeMode="tail">
             {city}
           </Text>
         </TouchableOpacity>
@@ -67,31 +62,29 @@ const TopSearchBar: React.FC<TopSearchBarProps> = ({
       </View>
 
       {/* Search bar */}
-      <View style={styles.searchBar}>
+      {/* <View style={styles.searchBar}>
         <Ionicons name="search" size={20} color="#999" />
         <TextInput
           style={styles.input}
           placeholder="Search for salons or services"
           placeholderTextColor="#999"
         />
-      </View>
+      </View> */}
 
       {/* Offer Modal */}
       <Modal
         transparent
         animationType="fade"
         visible={modalVisible}
-        onRequestClose={() => setModalVisible(false)}
-      >
+        onRequestClose={() => setModalVisible(false)}>
         <Pressable
           style={styles.modalOverlay}
-          onPress={() => setModalVisible(false)}
-        >
+          onPress={() => setModalVisible(false)}>
           <View style={styles.modalContent}>
-            <Text style={{ fontSize: 16, fontWeight: 'bold' }}>
+            <Text style={{fontSize: 16, fontWeight: 'bold'}}>
               Offer Details
             </Text>
-            <Text style={{ marginTop: 8 }}>{offerLabel}</Text>
+            <Text style={{marginTop: 8}}>{offerLabel}</Text>
           </View>
         </Pressable>
       </Modal>
@@ -187,19 +180,11 @@ const styles = StyleSheet.create({
     width: '80%',
     shadowColor: '#000',
     shadowOpacity: 0.3,
-    shadowOffset: { width: 0, height: 2 },
+    shadowOffset: {width: 0, height: 2},
     shadowRadius: 6,
     elevation: 5,
   },
 });
-
-
-
-
-
-
-
-
 
 // import React, { useState } from 'react';
 // import {
@@ -330,7 +315,7 @@ const styles = StyleSheet.create({
 //   },
 //   cityText: {
 //     fontWeight: 'normal',
- 
+
 //     marginLeft: 6,
 //     fontSize: Platform.OS === 'android' ? 16 : 13,
 //   },

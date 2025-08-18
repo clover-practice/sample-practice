@@ -32,6 +32,7 @@ import {
 import {useHideTabBarOnScroll} from '../components/useHideTabBarOnScroll';
 import Constants from '../constants/Constants';
 import {SafeAreaView} from 'react-native-safe-area-context';
+import SearchBar from '../components/SearchBar';
 
 // Type Definitions
 type RootStackParamList = {
@@ -42,10 +43,16 @@ type RootStackParamList = {
       }
     | undefined;
 };
-
+const placeholderTextList = [
+  'Search for salons near you',
+  'Products...',
+  'Look for trending styles',
+  'Find deals around you',
+];
 type HomeScreenRouteProp = RouteProp<RootStackParamList, 'HomeScreen'>;
 
 const HomeScreen = () => {
+  const [searchText, setSearchText] = useState('');
   const [currentCity, setCurrentCity] = useState('Fetching...');
   const [userCoordinates, setUserCoordinates] = useState<{
     latitude: number;
@@ -254,6 +261,12 @@ const HomeScreen = () => {
           userInitial={userName}
           onPressAvatar={() => navigate('EditProfileScreen')}
           onPressLocation={() => navigate('MapPicker')}
+        />
+
+        <SearchBar
+          value={searchText}
+          onChangeText={setSearchText}
+          placeholderList={placeholderTextList}
         />
 
         <CustomCarousel

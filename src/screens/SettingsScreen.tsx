@@ -1,5 +1,5 @@
 import {transform} from 'lodash';
-import React from 'react';
+import React, {useState} from 'react';
 import {
   ScrollView,
   Text,
@@ -13,6 +13,7 @@ import {
 } from 'react-native';
 import {useAnimatedKeyboard, useAnimatedStyle} from 'react-native-reanimated';
 import {SafeAreaView, SafeAreaProvider} from 'react-native-safe-area-context';
+import SearchBar from '../components/SearchBar';
 
 const images = new Array(6).fill(
   'https://images.unsplash.com/photo-1556740749-887f6717d7e4',
@@ -23,7 +24,7 @@ const SettingsScreen = () => {
   const scrollX = useAnimatedValue(0);
   const keyboard = useAnimatedKeyboard();
   const {width: windowWidth} = useWindowDimensions();
-  
+
   const animatedStyle = useAnimatedStyle(() => ({
     transform: [{translateY: -keyboard.height.value}],
   }));
