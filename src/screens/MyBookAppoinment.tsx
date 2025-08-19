@@ -12,6 +12,7 @@ import responsive from '../utils/responsive';
 import Constants from '../constants/Constants';
 import Colors from '../constants/colors';
 import ServiceCard from '../components/ServiceCard';
+import customFunctions from '../utils/CustomFunction';
 
 // ✅ 1. Define tab key type
 type TabKey = 'Confirmation' | 'Today' | 'Upcoming';
@@ -25,6 +26,9 @@ type AppointmentItem = {
   date: string;
   time: string;
 };
+const currentDate = customFunctions.getFormattedDateTime();
+const currentDatePlus5 = customFunctions.getFutureDateTimePlus5();
+const currentDateMinus5 = customFunctions.getPastDateTimeMinus5();
 
 // ✅ 3. Define appointment data with correct types
 const appointmentData: Record<TabKey, AppointmentItem[]> = {
@@ -34,7 +38,7 @@ const appointmentData: Record<TabKey, AppointmentItem[]> = {
       title: 'Haircut',
       icon: require('../assets/images/user.jpg'),
       unpaidAmount: 1200,
-      date: '22 Apr, 2025',
+      date: currentDateMinus5,
       time: '06:45 PM',
     },
     {
@@ -42,7 +46,7 @@ const appointmentData: Record<TabKey, AppointmentItem[]> = {
       title: 'Haircut',
       icon: require('../assets/images/user.jpg'),
       unpaidAmount: 1200,
-      date: '22 Apr, 2025',
+      date: currentDateMinus5,
       time: '06:45 PM',
     },
   ],
@@ -52,7 +56,7 @@ const appointmentData: Record<TabKey, AppointmentItem[]> = {
       title: 'Beard Trim',
       icon: require('../assets/images/user.jpg'),
       unpaidAmount: 800,
-      date: '31 Jul, 2025',
+      date: currentDate,
       time: '03:30 PM',
     },
     {
@@ -60,7 +64,7 @@ const appointmentData: Record<TabKey, AppointmentItem[]> = {
       title: 'Beard Trim',
       icon: require('../assets/images/user.jpg'),
       unpaidAmount: 800,
-      date: '31 Jul, 2025',
+      date: currentDate,
       time: '03:30 PM',
     },
   ],
@@ -70,7 +74,7 @@ const appointmentData: Record<TabKey, AppointmentItem[]> = {
       title: 'Facial',
       icon: require('../assets/images/user.jpg'),
       unpaidAmount: 1500,
-      date: '02 Aug, 2025',
+      date: currentDatePlus5,
       time: '11:00 AM',
     },
     {
@@ -78,7 +82,7 @@ const appointmentData: Record<TabKey, AppointmentItem[]> = {
       title: 'Facial',
       icon: require('../assets/images/user.jpg'),
       unpaidAmount: 1500,
-      date: '02 Aug, 2025',
+      date: currentDatePlus5,
       time: '11:00 AM',
     },
   ],
@@ -140,8 +144,7 @@ const MyBookAppoinment = () => {
               title={item.title}
               icon={item.icon}
               unpaidAmount={item.unpaidAmount}
-              date={item.date}
-              time={item.time}
+              datetime={item.date}
               onPayPress={() => console.log('Pay', item.id)}
               onAddServicePress={() => console.log('Add Service', item.title)}
               onTogglePress={handleTogglePress}

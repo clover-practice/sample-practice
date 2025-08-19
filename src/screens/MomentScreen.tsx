@@ -1,203 +1,189 @@
-import React, {useEffect, useRef, useState} from 'react';
+import React, {useCallback, useEffect, useState, useRef} from 'react';
 import {
   View,
   Text,
   StyleSheet,
   FlatList,
   RefreshControl,
-  TextInput,
 } from 'react-native';
+import {useFocusEffect} from '@react-navigation/native';
 import {usePostViewModel} from '../services/viewmodels/PostViewModel';
 import CustomHeader from '../components/CustomHeader';
-import KeyboardAvoidingWrapper from '../utils/KeyboardAvoidingWrapper';
 import {goBack} from '../utils/NavigationUtils';
 import CircularArcLoader from '../components/spinner/CircularLoaderView';
-import Ionicons from 'react-native-vector-icons/Ionicons';
-
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
   withTiming,
-  runOnJS,
+  withRepeat,
 } from 'react-native-reanimated';
+import SearchBar from '../components/SearchBar';
+
+const SkeletonFeed = ({count = 6}: {count?: number}) => {
+  const pulse = useSharedValue(0.6);
+  useEffect(() => {
+    pulse.value = withRepeat(withTiming(1, {duration: 800}), -1, true);
+  }, [pulse]);
+
+  const a = useAnimatedStyle(() => ({opacity: pulse.value}));
+
+  return (
+    <View style={{paddingHorizontal: 12, paddingTop: 8}}>
+      {Array.from({length: count}).map((_, i) => (
+        <View key={i} style={{marginBottom: 16}}>
+          {/* big thumbnail placeholder */}
+          <Animated.View style={[styles.skelThumb, a]} />
+          {/* title lines */}
+          <Animated.View style={[styles.skelLine, {width: '80%'}, a]} />
+          <Animated.View
+            style={[styles.skelLine, {width: '60%', marginTop: 8}, a]}
+          />
+        </View>
+      ))}
+    </View>
+  );
+};
 
 const MomentScreen = () => {
-  const {posts, loading, error, reload} = usePostViewModel();
-  const [isFocused, setIsFocused] = useState(false);
+  const {posts = [], loading, error, reload} = usePostViewModel();
   const [searchText, setSearchText] = useState('');
+  const searchBarRef = useRef<any>(null);
+
+  useFocusEffect(
+    useCallback(() => {
+      return () => {
+        searchBarRef.current?.blur();
+      };
+    }, [])
+  );
 
   const placeholderTextList = [
     'Search for salons near you',
+    'Spa',
     'Try haircut & Spa',
     'Look for trending styles',
     'Find deals around you',
   ];
 
-  const [placeholderText, setPlaceholderText] = useState(
-    placeholderTextList[0],
+  const filteredPosts = posts.filter(p =>
+    String(p.title ?? '')
+      .toLowerCase()
+      .includes(searchText.toLowerCase()),
   );
-  const placeholderIndex = useRef(0);
-  const translateY = useSharedValue(0);
-  const opacity = useSharedValue(1);
 
-  // Update placeholder text
-  const updatePlaceholder = () => {
-    placeholderIndex.current =
-      (placeholderIndex.current + 1) % placeholderTextList.length;
-    setPlaceholderText(placeholderTextList[placeholderIndex.current]);
-  };
-
-  // Animate placeholder every 5s (only when not focused and input is empty)
-  useEffect(() => {
-    const intervalId = setInterval(() => {
-      const shouldAnimate = !isFocused && searchText.length === 0;
-      if (shouldAnimate) {
-        translateY.value = withTiming(-10, {duration: 300});
-        opacity.value = withTiming(0, {duration: 300}, finished => {
-          if (finished) {
-            runOnJS(updatePlaceholder)();
-            translateY.value = 10;
-            opacity.value = 0;
-            translateY.value = withTiming(0, {duration: 300});
-            opacity.value = withTiming(1, {duration: 300});
-          }
-        });
-      }
-    }, 2000);
-
-    return () => clearInterval(intervalId);
-  }, [isFocused, searchText]);
-
-  const animatedStyle = useAnimatedStyle(() => ({
-    transform: [{translateY: translateY.value}],
-    opacity: opacity.value,
-  }));
+  const renderItem = useCallback(
+    ({item}: {item: any}) => (
+      <View style={styles.postItem}>
+        <Text style={styles.postTitle}>{item.title}</Text>
+        <Text style={styles.postBody}>{item.body}</Text>
+        <Text style={styles.commentLabel}>5 Comments</Text>
+      </View>
+    ),
+    [],
+  );
 
   return (
     <View style={styles.safeArea}>
-      <CustomHeader
-        title="Posts"
-        showBack={true}
-        onBackPress={() => goBack()}
-      />
-      <KeyboardAvoidingWrapper containerStyle={styles.containerStyle}>
-        {/* Animated Search Bar */}
-        <View style={styles.searchBar}>
-          <Ionicons name="search" size={20} color="#999" />
-          <View style={styles.placeholderWrapper}>
-            {searchText.length === 0 &&
-              (isFocused ? (
-                <Text style={styles.staticPlaceholder}>{placeholderText}</Text>
-              ) : (
-                <Animated.Text
-                  style={[styles.animatedPlaceholder, animatedStyle]}>
-                  {placeholderText}
-                </Animated.Text>
-              ))}
-            <TextInput
-              style={styles.inputOverlay}
-              value={searchText}
-              onChangeText={text => setSearchText(text)}
-              onFocus={() => setIsFocused(true)}
-              onBlur={() => setIsFocused(false)}
-              placeholder=" " // empty so native placeholder is suppressed
-              cursorColor={'#333'}
-            />
-          </View>
-        </View>
+      <CustomHeader title="Posts" showBack onBackPress={goBack} />
 
-        {/* Posts */}
-        {loading && posts.length === 0 ? (
-          <View style={styles.loaderWrapper}>
-            <CircularArcLoader visible={loading} />
-          </View>
-        ) : error ? (
-          <Text style={{color: 'red'}}>{error}</Text>
-        ) : (
-          <FlatList
-            data={posts.filter(post =>
-              post.title.toLowerCase().includes(searchText.toLowerCase()),
-            )}
-            keyExtractor={item => item.id.toString()}
-            refreshControl={
-              <RefreshControl refreshing={loading} onRefresh={reload} />
-            }
-            renderItem={({item}) => (
-              <View style={styles.postItem}>
-                <Text style={styles.postTitle}>{item.title}</Text>
-                <Text>{item.body}</Text>
-                <Text style={styles.commentLabel}>5 Comments</Text>
-              </View>
-            )}
-          />
-        )}
-      </KeyboardAvoidingWrapper>
+      {/* Search Bar */}
+      <SearchBar
+        ref={searchBarRef}
+        value={searchText}
+        onChangeText={setSearchText}
+        placeholderList={placeholderTextList}
+      />
+
+      {/* Content */}
+      {loading && posts.length === 0 ? (
+        // YouTube-like skeletons while first load happens
+        <SkeletonFeed />
+      ) : error ? (
+        <Text style={styles.errorText}>{String(error)}</Text>
+      ) : filteredPosts.length === 0 ? (
+        <View style={styles.emptyWrap}>
+          <Text style={styles.emptyTitle}>No posts found</Text>
+          <Text style={styles.emptySub}>Try a different search</Text>
+        </View>
+      ) : (
+        <FlatList
+          style={styles.flatListStyle}
+          data={filteredPosts}
+          keyExtractor={item => String(item.id ?? Math.random())}
+          refreshControl={
+            <RefreshControl refreshing={loading} onRefresh={reload} />
+          }
+          renderItem={renderItem}
+          contentContainerStyle={styles.flatListContent}
+        />
+      )}
+
+      {/* Subtle loader if list exists and you trigger refresh */}
+      {loading && posts.length > 0 && (
+        <View style={styles.loaderOverlay}>
+          <CircularArcLoader visible />
+        </View>
+      )}
     </View>
   );
 };
 
 export default MomentScreen;
 
+const SKELETON_BG = '#e8e8e8';
+
 const styles = StyleSheet.create({
-  safeArea: {
-    flex: 1,
-    backgroundColor: '#fff',
-  },
-  containerStyle: {
-    paddingHorizontal: 10,
-    paddingBottom: 60,
-  },
-  loaderWrapper: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  searchBar: {
-    flexDirection: 'row',
-    marginTop: 10,
-    alignItems: 'center',
-    borderRadius: 12,
-    padding: 5,
-    borderColor: '#f2f2f2',
-    borderWidth: 2,
-  },
-  placeholderWrapper: {
-    flex: 1,
-    position: 'relative',
-    justifyContent: 'center',
-  },
-  animatedPlaceholder: {
-    position: 'absolute',
-    left: 8,
-    top: 10,
-    color: '#999',
-    fontSize: 16,
-  },
-  staticPlaceholder: {
-    position: 'absolute',
-    left: 8,
-    top: 10,
-    color: '#999',
-    fontSize: 16,
-  },
-  inputOverlay: {
-    flex: 1,
-    height: 40,
-    fontSize: 16,
-    color: '#000',
-  },
+  safeArea: {flex: 1, backgroundColor: '#fff'},
+  flatListStyle: {flex: 1, paddingHorizontal: 12},
+  flatListContent: {paddingBottom: 100},
+
+
+
+  // Post card
   postItem: {
+    backgroundColor: '#fff',
+    borderRadius: 12,
+    padding: 12,
     marginBottom: 12,
-    borderBottomWidth: 1,
-    paddingBottom: 8,
-    borderColor: '#eee',
+    shadowColor: '#000',
+    shadowOpacity: 0.05,
+    shadowOffset: {width: 0, height: 2},
+    shadowRadius: 4,
+    elevation: 2,
   },
-  postTitle: {
-    fontWeight: 'bold',
-    marginBottom: 4,
-  },
+  postTitle: {fontSize: 16, fontWeight: '600', marginBottom: 6, color: '#222'},
+  postBody: {fontSize: 14, color: '#555', lineHeight: 20},
   commentLabel: {
-    fontWeight: 'bold',
-    marginTop: 4,
+    fontSize: 13,
+    fontWeight: '500',
+    color: '#007AFF',
+    marginTop: 10,
   },
+
+  // Skeleton
+  skelThumb: {
+    height: 180,
+    borderRadius: 12,
+    backgroundColor: SKELETON_BG,
+    marginBottom: 10,
+  },
+  skelLine: {
+    height: 14,
+    borderRadius: 6,
+    backgroundColor: SKELETON_BG,
+  },
+
+  // States
+  errorText: {
+    textAlign: 'center',
+    marginTop: 20,
+    fontSize: 16,
+    color: '#ff4d4f',
+    fontWeight: '500',
+  },
+  emptyWrap: {flex: 1, alignItems: 'center', justifyContent: 'center'},
+  emptyTitle: {fontSize: 16, color: '#222', fontWeight: '600'},
+  emptySub: {fontSize: 13, color: '#888', marginTop: 6},
+
+  loaderOverlay: {position: 'absolute', bottom: 20, alignSelf: 'center'},
 });

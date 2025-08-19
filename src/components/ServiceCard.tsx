@@ -17,8 +17,7 @@ interface ServiceCardProps {
   title: string;
   icon?: any;
   unpaidAmount?: number;
-  date: string;
-  time: string;
+  datetime: string;
   onPayPress?: () => void;
   onAddServicePress?: () => void;
   onTogglePress?: () => void;
@@ -30,14 +29,16 @@ const ServiceCard: React.FC<ServiceCardProps> = ({
   title,
   icon,
   unpaidAmount = 0,
-  date,
-  time,
+  datetime,
   onPayPress,
   onAddServicePress,
   onTogglePress,
   containerStyle,
   isExpanded = false,
 }) => {
+  const parts = datetime.split(' ');
+  const date = parts.slice(0, 3).join(' '); // "18 Aug, 2025"
+  const time = parts.slice(3).join(' '); // "11:22 AM"
   return (
     <View style={[styles.card, containerStyle]}>
       {/* Row 1: Title and Toggle */}
@@ -66,14 +67,15 @@ const ServiceCard: React.FC<ServiceCardProps> = ({
       {/* Row 3: Title + Unpaid | Pay | Date & Time */}
 
       <View style={styles.row3}>
-        <View style={styles.leftBlock}>
-          <Text style={styles.subTitle}>{title}</Text>
-          <Text style={styles.unpaidText}>Unpaid {unpaidAmount}</Text>
+        <View style={styles.leftSection}>
+          <View style={styles.leftBlock}>
+            <Text style={styles.subTitle}>{title}</Text>
+            <Text style={styles.unpaidText}>Unpaid {unpaidAmount}</Text>
+          </View>
+          <TouchableOpacity style={styles.payButton} onPress={onPayPress}>
+            <Text style={styles.payText}>Pay</Text>
+          </TouchableOpacity>
         </View>
-
-        <TouchableOpacity style={styles.payButton} onPress={onPayPress}>
-          <Text style={styles.payText}>Pay</Text>
-        </TouchableOpacity>
 
         <View style={styles.rightBlock}>
           <Text style={styles.date}>{date}</Text>
@@ -141,12 +143,17 @@ const styles = StyleSheet.create({
   // Row 3
   row3: {
     flexDirection: 'row',
-    justifyContent: 'space-around',
-    alignItems: 'center', // 🔥 THIS centers Pay button vertically ,
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+
+  leftSection: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    flex: 1,
   },
 
   leftBlock: {
-    flex: 1,
     justifyContent: 'center',
   },
 
@@ -166,7 +173,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 6,
     borderRadius: 20,
-    marginHorizontal: 10,
+    marginLeft: 15,
   },
 
   payText: {
