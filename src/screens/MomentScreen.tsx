@@ -109,7 +109,7 @@ const MomentScreen = () => {
         {/* Posts */}
         {loading && posts.length === 0 ? (
           <View style={styles.loaderWrapper}>
-            <CircularArcLoader isAnimating={loading} />
+            <CircularArcLoader visible={loading} />
           </View>
         ) : error ? (
           <Text style={{color: 'red'}}>{error}</Text>
