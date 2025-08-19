@@ -2553,7 +2553,10 @@ SPEC CHECKSUMS:
   react-native-geolocation-service: 32b2c2a3b91e70ce2a8d0c684801aaeb0a07e0ec
   react-native-maps: 1df14795015cae551fa9738ed9673960e33b0693
   react-native-safe-area-context: 7e926a200d4bc9c56562275743705c6b56176455
+<<<<<<< HEAD
+=======
   react-native-webview: 85c8fc8ca09f4e67b68afbc86207a1442af5dc80
+>>>>>>> 766836e1d9726d9d4ac153cf7326c1299254f3a9
   React-NativeModulesApple: 2c4377e139522c3d73f5df582e4f051a838ff25e
   React-oscompat: ef5df1c734f19b8003e149317d041b8ce1f7d29c
   React-perflogger: 9a151e0b4c933c9205fd648c246506a83f31395d

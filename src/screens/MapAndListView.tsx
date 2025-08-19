@@ -65,8 +65,8 @@ const MapAndListView: React.FC<MapAndListViewProps> = ({
 
       try {
         const params = new URLSearchParams({
-          location: `${loc.latitude},${loc.longitude}`,
-         // location: `14.5995,120.9842`,
+         location: `${loc.latitude},${loc.longitude}`,
+          //location: `14.5995,120.9842`,
           radius: NEARBY_SEARCH_RADIUS,
           name: Strings.NAME_PLACE,
           key: Strings.GOMAPS_API_KEY,
