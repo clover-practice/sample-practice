@@ -19,6 +19,7 @@ import LinearGradient from 'react-native-linear-gradient';
 import Constants from '../constants/Constants';
 import CustomButton from '../components/CustomButton';
 import {clearAll, getValue, setValue} from '../utils/keychainStorage';
+import navigationString from '../constants/navigationString';
 
 const EditProfileScreen = () => {
   return (
@@ -63,12 +64,13 @@ const EditProfileScreen = () => {
           <Section
             title="My Appointments"
             icon="calendar-today"
-            onPress={() => navigate('MyBookAppoinment')}
+            // onPress={() => navigate('MyBookAppoinment')}
+            onPress={() => navigate(navigationString.BOOKED_APPOINTMENT)}
           />
           <Section
             title="My Wallet"
             icon="account-balance-wallet"
-            onPress={() => navigate('MyWalletScreen')}
+            onPress={() => navigate(navigationString.WALLET)}
           />
 
           {/* Gift Card Section */}
@@ -124,7 +126,7 @@ const EditProfileScreen = () => {
             rightIcon={<Ionicons name="log-out" size={20} color="white" />}
             onPress={async () => {
               await clearAll();
-              resetAndNavigate('Login');
+              resetAndNavigate(navigationString.LOGIN);
             }}
           />
         </View>

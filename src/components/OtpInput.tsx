@@ -33,6 +33,19 @@ const OtpInput: React.FC<OtpInputProps> = ({value, onChange}) => {
     }
   }, [timer]);
 
+  // Sync external value with internal state
+  useEffect(() => {
+    if (value !== undefined) {
+      const newOtp = Array(OTP_LENGTH).fill('');
+      if (value.length > 0) {
+        for (let i = 0; i < Math.min(value.length, OTP_LENGTH); i++) {
+          newOtp[i] = value[i] || '';
+        }
+      }
+      setOtp(newOtp);
+    }
+  }, [value]);
+
   const handleChange = (text: string, index: number) => {
     if (!/^\d*$/.test(text)) return;
 
@@ -75,7 +88,9 @@ const OtpInput: React.FC<OtpInputProps> = ({value, onChange}) => {
         {otp.map((digit, index) => (
           <TextInput
             key={index}
-            ref={ref => (inputRefs.current[index] = ref)}
+            ref={(ref: TextInput | null) => {
+              inputRefs.current[index] = ref;
+            }}
             value={digit}
             onChangeText={text => handleChange(text, index)}
             keyboardType="numeric"

@@ -29,6 +29,7 @@ import {useCart} from '../contexts/CartContext';
 import {useHideTabBarOnScroll} from '../components/useHideTabBarOnScroll';
 import GlobalCartBanner from '../components/GlobalCartBanner';
 import {ServiceItem} from '../services/models/ServiceItem';
+import navigationString from '../constants/navigationString';
 
 const LEFT_MENU = [
   {
@@ -322,7 +323,7 @@ const CategoryScreen = () => {
           </View>
           <TouchableOpacity
             onPress={() => {
-              navigate('AppointmmentBooking');
+              navigate(navigationString.APPOINTMENT_BOOKING);
             }}
             style={styles.viewCartButton}>
             <Text style={styles.viewCartText}>View Cart</Text>

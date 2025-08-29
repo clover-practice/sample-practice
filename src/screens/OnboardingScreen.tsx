@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, {useEffect, useState} from 'react';
 import {
   View,
   Text,
@@ -7,9 +7,9 @@ import {
   TouchableOpacity,
   Image,
 } from 'react-native';
-import { replace } from '../utils/NavigationUtils';
-import { useNavigation, useRoute, RouteProp } from '@react-navigation/native'; // <--- ADD these imports
-import { getValue } from '../utils/keychainStorage';
+import {replace} from '../utils/NavigationUtils';
+import {useNavigation, useRoute, RouteProp} from '@react-navigation/native'; // <--- ADD these imports
+import {getValue} from '../utils/keychainStorage';
 import Constants from '../constants/Constants';
 import CustomLoader from '../components/spinner/CustomLoader';
 import TailSpinnerLoader from '../components/spinner/ TailSpinnerLoader';
@@ -17,6 +17,7 @@ import TailEffectLoader from '../components/spinner/TailEffectLoader';
 import ProgressBarWithPercent from '../components/spinner/ProgressBar';
 import DottedLoader from '../components/spinner/DottedLoader';
 import ArcLoader from '../components/spinner/ArcLoader';
+import navigationString from '../constants/navigationString';
 
 const OnboardingScreen = () => {
   const [loading, setLoading] = useState(false);
@@ -32,12 +33,12 @@ const OnboardingScreen = () => {
     setTimeout(() => {
       if (isLoggedIn === true) {
         setLoading(true);
-        replace('MainApp');
+        replace(navigationString.MAIN_APP);
       } else {
         // replace('PermissionScreen');
-        replace('Login');
+        replace(navigationString.LOGIN);
       }
-      // replace('SmsReceive'); 
+      // replace('SmsReceive');
     }, 1500);
   };
   return (

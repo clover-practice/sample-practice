@@ -31,6 +31,7 @@ import {useHideTabBarOnScroll} from '../components/useHideTabBarOnScroll';
 import Constants from '../constants/Constants';
 import {SafeAreaView} from 'react-native-safe-area-context';
 import SearchBar from '../components/SearchBar';
+import navigationString from '../constants/navigationString';
 
 // Type Definitions
 type RootStackParamList = {
@@ -108,7 +109,7 @@ const HomeScreen = () => {
           setUserCoordinates({latitude, longitude});
 
           try {
-           const response = await getAddressFromLocation(latitude, longitude);
+            const response = await getAddressFromLocation(latitude, longitude);
             const result = (response as any)?.result;
             const city =
               result?.subLocality || ', ' || result?.locality || 'Unknown City';
@@ -117,7 +118,7 @@ const HomeScreen = () => {
             console.log('RESPONSE FROM CITY', city);
             setCurrentCity(city);
             await storeLocation(latitude, longitude, city);
-            await setValue(Constants.CITY_ADDRESS, city); 
+            await setValue(Constants.CITY_ADDRESS, city);
           } catch (e) {
             setCurrentCity('Address Unavailable');
             setLocationError('Could not get address.');
@@ -142,7 +143,7 @@ const HomeScreen = () => {
       setLocationLoading(false);
       console.error('Error in requestAndFetchAddress:', err);
     }
-  }, []); 
+  }, []);
 
   const getUserData = useCallback(async () => {
     const name = await getValue(Constants.USER_NAME);
@@ -151,7 +152,7 @@ const HomeScreen = () => {
 
   useEffect(() => {
     const initializeHomeScreen = async () => {
-      setLocationLoading(true); 
+      setLocationLoading(true);
       if (route.params?.selectedAddress && route.params?.selectedCoords) {
         const {selectedAddress, selectedCoords} = route.params;
         setCurrentCity(selectedAddress);
@@ -161,9 +162,9 @@ const HomeScreen = () => {
           selectedCoords.longitude,
           selectedAddress,
         );
-        await setValue(Constants.CITY_ADDRESS, selectedAddress); 
+        await setValue(Constants.CITY_ADDRESS, selectedAddress);
         setLocationLoading(false);
-        return; 
+        return;
       }
 
       const storedCityAddress = await getValue(Constants.CITY_ADDRESS);
@@ -176,10 +177,10 @@ const HomeScreen = () => {
             longitude: storedLoc.longitude,
           });
         } else {
-         }
+        }
         setLocationLoading(false);
-        await getUserData(); 
-        return; 
+        await getUserData();
+        return;
       }
       const storedLoc = await getLocation();
       if (storedLoc?.address && storedLoc?.latitude && storedLoc?.longitude) {
@@ -190,11 +191,11 @@ const HomeScreen = () => {
         });
         await setValue(Constants.CITY_ADDRESS, storedLoc.address);
         setLocationLoading(false);
-        await getUserData(); 
-        return; 
+        await getUserData();
+        return;
       }
-      await requestAndFetchAddress(); 
-      await getUserData(); 
+      await requestAndFetchAddress();
+      await getUserData();
     };
 
     initializeHomeScreen();
@@ -234,8 +235,8 @@ const HomeScreen = () => {
           city={currentCity}
           offerLabel="50% Offer"
           userInitial={userName}
-          onPressAvatar={() => navigate('EditProfileScreen')}
-          onPressLocation={() => navigate('MapPicker')}
+          onPressAvatar={() => navigate(navigationString.EDIT_PROFILE)}
+          onPressLocation={() => navigate(navigationString.SELECT_ADDRESS)}
         />
 
         <SearchBar
