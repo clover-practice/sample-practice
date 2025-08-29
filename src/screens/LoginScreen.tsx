@@ -24,6 +24,7 @@ import {setValue, storeLocation} from '../utils/keychainStorage';
 import TermsPrivacyText from '../components/TermsPrivacyText';
 import colors from '../constants/colors';
 import CustomLoader from '../components/spinner/CustomLoader';
+import navigationString from '../constants/navigationString';
 const {width} = Dimensions.get('window');
 const hasLocationPermission = async (): Promise<boolean> => {
   if (Platform.OS === 'android') {
@@ -76,7 +77,7 @@ const LoginScreen = () => {
   // }, []);
 
   const handleLogin = async () => {
-    navigate('OtpScreen', {mobile});
+    navigate(navigationString.OTP, {mobile});
     await setValue(Constants.MOBILE_NUMBER, mobile);
   };
 

@@ -25,6 +25,7 @@ import Ionicons from 'react-native-vector-icons/Ionicons';
 import CustomButton from '../components/CustomButton';
 import TermsPrivacyText from '../components/TermsPrivacyText';
 import {useCart} from '../contexts/CartContext';
+import navigationString from '../constants/navigationString';
 
 const data = [
   {id: '1', title: '05:30 PM'},
@@ -152,8 +153,8 @@ const AppointmmentBooking = () => {
 
             <CustomButton
               title="Book & Pay after Service"
-              // onPress={() => navigate('PayPalCheckout')}
-              onPress={() => navigate('Payment', {amt: '50'})}
+              // onPress={() => navigate(navigationString.PAY_PAL)}
+              onPress={() => navigate(navigationString.PAYMENT, {amt: '50'})}
               style={styles.button}
             />
           </View>

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, {useState, useEffect, useCallback} from 'react';
 import {
   View,
   StyleSheet,
@@ -9,10 +9,12 @@ import {
   ActivityIndicator,
   FlatList,
 } from 'react-native';
-import { getDistance } from 'geolib';
-import { useNavigation, NavigationProp } from '@react-navigation/native';
+import {getDistance} from 'geolib';
+import {useNavigation, NavigationProp} from '@react-navigation/native';
 
 import Strings from '../constants/Constants';
+import {navigate} from '../utils/NavigationUtils';
+import navigationString from '../constants/navigationString';
 
 // Define the PlaceItem interface here as it's needed for the RootStackParamList type
 interface PlaceItem {
@@ -20,7 +22,7 @@ interface PlaceItem {
   title: string;
   description: string;
   address: string;
-  coordinate: { latitude: number; longitude: number };
+  coordinate: {latitude: number; longitude: number};
   rating: number | null;
   isOpen: boolean | null;
   iconUrl: string | null;
@@ -40,7 +42,7 @@ interface MapAndListViewProps {
   disableScroll?: boolean;
 }
 
-const { width, height } = Dimensions.get('window');
+const {width, height} = Dimensions.get('window');
 const CARD_HEIGHT = height / 5;
 const CARD_WIDTH = width - 10;
 const NEARBY_SEARCH_RADIUS = '5000';
@@ -58,14 +60,14 @@ const MapAndListView: React.FC<MapAndListViewProps> = ({
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
 
   const fetchPlaces = useCallback(
-    async (loc: { latitude: number; longitude: number }) => {
+    async (loc: {latitude: number; longitude: number}) => {
       setLoading(true);
       setError(null);
       setLocations([]);
 
       try {
         const params = new URLSearchParams({
-         location: `${loc.latitude},${loc.longitude}`,
+          location: `${loc.latitude},${loc.longitude}`,
           //location: `14.5995,120.9842`,
           radius: NEARBY_SEARCH_RADIUS,
           name: Strings.NAME_PLACE,
@@ -81,8 +83,8 @@ const MapAndListView: React.FC<MapAndListViewProps> = ({
           const mapped: PlaceItem[] = data.results.map((place: any) => {
             const coord = place.geometry.location;
             const distMeters = getDistance(
-              { latitude: loc.latitude, longitude: loc.longitude },
-              { latitude: coord.lat, longitude: coord.lng }
+              {latitude: loc.latitude, longitude: loc.longitude},
+              {latitude: coord.lat, longitude: coord.lng},
             );
             const distanceKm = (distMeters / 1000).toFixed(1);
 
@@ -100,9 +102,12 @@ const MapAndListView: React.FC<MapAndListViewProps> = ({
             return {
               id: place.place_id || `${coord.lat}-${coord.lng}`,
               title: place.name,
-              description: place.types?.map((t: string) => t.replace(/_/g, ' ')).join(', ') || 'Unknown',
+              description:
+                place.types
+                  ?.map((t: string) => t.replace(/_/g, ' '))
+                  .join(', ') || 'Unknown',
               address: place.vicinity || 'No address',
-              coordinate: { latitude: coord.lat, longitude: coord.lng },
+              coordinate: {latitude: coord.lat, longitude: coord.lng},
               rating: place.rating ?? null,
               isOpen: place.opening_hours?.open_now ?? null,
               iconUrl: place.icon || null,
@@ -133,16 +138,19 @@ const MapAndListView: React.FC<MapAndListViewProps> = ({
         setLoading(false);
       }
     },
-    [setLoading, setError, setLocations]
+    [setLoading, setError, setLocations],
   );
 
-  const handleCardPress = useCallback((item: PlaceItem) => {
-    navigation.navigate('SalonDetailScreen', item);
-  }, [navigation]);
+  const handleCardPress = useCallback(
+    (item: PlaceItem) => {
+      navigate(navigationString.SALON_DETAILS, item);
+    },
+    [navigation],
+  );
 
   useEffect(() => {
     if (latitude !== null && longitude !== null) {
-      const loc = { latitude, longitude };
+      const loc = {latitude, longitude};
       // Removed setCurrentLocation as currentLocation state is removed
       fetchPlaces(loc);
     } else {
@@ -159,11 +167,12 @@ const MapAndListView: React.FC<MapAndListViewProps> = ({
         key={item.id}
         style={styles.card}
         activeOpacity={0.8}
-        onPress={() => handleCardPress(item)}
-      >
+        onPress={() => handleCardPress(item)}>
         <View style={styles.textContent}>
           <View style={styles.titleRow}>
-            {item.iconUrl && <Image source={{ uri: item.iconUrl }} style={styles.cardIcon} />}
+            {item.iconUrl && (
+              <Image source={{uri: item.iconUrl}} style={styles.cardIcon} />
+            )}
             <Text style={styles.cardTitle} numberOfLines={1}>
               {item.title}
             </Text>
@@ -172,14 +181,23 @@ const MapAndListView: React.FC<MapAndListViewProps> = ({
             {item.address}
           </Text>
           <View style={styles.infoRow}>
-            {item.rating != null && <Text style={styles.cardRating}>⭐ {item.rating}</Text>}
+            {item.rating != null && (
+              <Text style={styles.cardRating}>⭐ {item.rating}</Text>
+            )}
             <Text
               style={[
                 styles.cardStatus,
-                item.isOpen == null ? styles.cardStatusUnknown : item.isOpen ? styles.openStatus : styles.closedStatus,
-              ]}
-            >
-              {item.isOpen == null ? 'Unknown' : item.isOpen ? 'Open' : 'Closed'}
+                item.isOpen == null
+                  ? styles.cardStatusUnknown
+                  : item.isOpen
+                  ? styles.openStatus
+                  : styles.closedStatus,
+              ]}>
+              {item.isOpen == null
+                ? 'Unknown'
+                : item.isOpen
+                ? 'Open'
+                : 'Closed'}
             </Text>
           </View>
           <Text style={styles.cardDescription} numberOfLines={2}>
@@ -191,7 +209,7 @@ const MapAndListView: React.FC<MapAndListViewProps> = ({
         </View>
       </TouchableOpacity>
     ),
-    [handleCardPress]
+    [handleCardPress],
   );
 
   const renderEmptyList = useCallback(() => {
@@ -199,7 +217,9 @@ const MapAndListView: React.FC<MapAndListViewProps> = ({
       return (
         <View style={styles.centered}>
           <ActivityIndicator size="large" color="#0000ff" />
-          <Text style={styles.loadingText}>Fetching nearby places for your location…</Text>
+          <Text style={styles.loadingText}>
+            Fetching nearby places for your location…
+          </Text>
         </View>
       );
     }
@@ -213,7 +233,9 @@ const MapAndListView: React.FC<MapAndListViewProps> = ({
     if (latitude === null || longitude === null) {
       return (
         <View style={styles.centered}>
-          <Text style={styles.infoText}>Please provide your location to see nearby places.</Text>
+          <Text style={styles.infoText}>
+            Please provide your location to see nearby places.
+          </Text>
         </View>
       );
     }
@@ -228,8 +250,8 @@ const MapAndListView: React.FC<MapAndListViewProps> = ({
     <View style={styles.container}>
       <FlatList
         data={locations}
-        keyExtractor={(item) => item.id}
-        renderItem={({ item }) => renderListItem(item)}
+        keyExtractor={item => item.id}
+        renderItem={({item}) => renderListItem(item)}
         showsVerticalScrollIndicator={!disableScroll}
         scrollEnabled={!disableScroll}
         contentContainerStyle={styles.flatListContainer}
@@ -246,12 +268,23 @@ const MapAndListView: React.FC<MapAndListViewProps> = ({
 };
 
 const styles = StyleSheet.create({
-  container: { flex: 1 },
-  centered: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#f0f0f0' },
-  loadingText: { marginTop: 10, fontSize: 16, color: '#555' },
-  errorText: { color: 'red', fontSize: 18, fontWeight: 'bold', textAlign: 'center', marginBottom: 8 },
-  infoText: { fontSize: 16, color: '#888', textAlign: 'center' },
-  flatListContainer: { paddingVertical: 2, paddingHorizontal: 5, flexGrow: 1 },
+  container: {flex: 1},
+  centered: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#f0f0f0',
+  },
+  loadingText: {marginTop: 10, fontSize: 16, color: '#555'},
+  errorText: {
+    color: 'red',
+    fontSize: 18,
+    fontWeight: 'bold',
+    textAlign: 'center',
+    marginBottom: 8,
+  },
+  infoText: {fontSize: 16, color: '#888', textAlign: 'center'},
+  flatListContainer: {paddingVertical: 2, paddingHorizontal: 5, flexGrow: 1},
   card: {
     flexDirection: 'column',
     height: CARD_HEIGHT,
@@ -261,23 +294,28 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
     borderRadius: 8,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
+    shadowOffset: {width: 0, height: 2},
     shadowOpacity: 0.25,
     shadowRadius: 3.84,
     elevation: 5,
   },
-  textContent: { flex: 1, padding: 10, justifyContent: 'space-between' },
-  titleRow: { flexDirection: 'row', alignItems: 'center', marginBottom: 5 },
-  cardIcon: { width: 20, height: 20, marginRight: 5, resizeMode: 'contain' },
-  cardTitle: { fontSize: 16, fontWeight: 'bold', flexShrink: 1 },
-  cardAddress: { fontSize: 12, color: '#666', marginBottom: 5 },
-  infoRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 5 },
-  cardRating: { fontSize: 12, fontWeight: 'bold', color: '#FFD700' },
-  cardStatus: { fontSize: 12, fontWeight: 'bold' },
-  openStatus: { color: 'green' },
-  closedStatus: { color: 'red' },
-  cardStatusUnknown: { color: '#888' },
-  cardDescription: { fontSize: 10, color: '#444' },
+  textContent: {flex: 1, padding: 10, justifyContent: 'space-between'},
+  titleRow: {flexDirection: 'row', alignItems: 'center', marginBottom: 5},
+  cardIcon: {width: 20, height: 20, marginRight: 5, resizeMode: 'contain'},
+  cardTitle: {fontSize: 16, fontWeight: 'bold', flexShrink: 1},
+  cardAddress: {fontSize: 12, color: '#666', marginBottom: 5},
+  infoRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: 5,
+  },
+  cardRating: {fontSize: 12, fontWeight: 'bold', color: '#FFD700'},
+  cardStatus: {fontSize: 12, fontWeight: 'bold'},
+  openStatus: {color: 'green'},
+  closedStatus: {color: 'red'},
+  cardStatusUnknown: {color: '#888'},
+  cardDescription: {fontSize: 10, color: '#444'},
   buttonRow: {
     flexDirection: 'row',
     justifyContent: 'flex-start',
@@ -290,8 +328,13 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: '#333',
   },
-  noResultsContainer: { flex: 1, justifyContent: 'center', alignItems: 'center', marginTop: 50 },
-  noResultsText: { fontSize: 16, color: '#888' },
+  noResultsContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginTop: 50,
+  },
+  noResultsText: {fontSize: 16, color: '#888'},
   bottomErrorBar: {
     backgroundColor: 'rgba(255, 99, 71, 0.8)',
     padding: 8,
@@ -301,7 +344,12 @@ const styles = StyleSheet.create({
     right: 0,
     alignItems: 'center',
   },
-  bottomErrorText: { color: 'white', fontWeight: 'bold', fontSize: 12, textAlign: 'center' },
+  bottomErrorText: {
+    color: 'white',
+    fontWeight: 'bold',
+    fontSize: 12,
+    textAlign: 'center',
+  },
 });
 
 export default MapAndListView;

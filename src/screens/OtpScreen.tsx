@@ -17,6 +17,7 @@ import {goBack, navigate, replace} from '../utils/NavigationUtils';
 import {getValue, setValue} from '../utils/keychainStorage';
 import Constants from '../constants/Constants';
 import {useOtpListener} from '../components/useOtpListener';
+import navigationString from '../constants/navigationString';
 
 type RootStackParamList = {
   OtpScreen: {mobile: string};
@@ -42,9 +43,9 @@ const OtpScreen = () => {
     console.log('🔐 Submitting OTP:', otp);
     const kycDone = await getValue(Constants.KYC_DONE);
     if (kycDone === true) {
-      navigate('MainApp');
+      navigate(navigationString.MAIN_APP);
     } else {
-      navigate('RegistrationScreen');
+      navigate(navigationString.CUSTOMER_KYC);
     }
   };
 

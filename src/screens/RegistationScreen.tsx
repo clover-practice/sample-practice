@@ -18,6 +18,7 @@ import colors from '../constants/colors';
 import {setValue, getValue} from '../utils/keychainStorage';
 import Constants from '../constants/Constants';
 import AppTextInput from '../components/AppTextInput';
+import navigationString from '../constants/navigationString';
 
 const {width} = Dimensions.get('window');
 const PRIMARY_COLOR = '#C00054';
@@ -47,7 +48,7 @@ const RegistrationScreen = () => {
     await setValue(Constants.USER_NAME, name);
     await setValue(Constants.EMAIL, email);
 
-    navigate('MainApp');
+    navigate(navigationString.MAIN_APP);
   };
 
   return (
