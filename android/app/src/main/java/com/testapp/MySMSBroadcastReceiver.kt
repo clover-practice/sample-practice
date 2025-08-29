@@ -7,7 +7,6 @@ import android.util.Log
 import com.google.android.gms.auth.api.phone.SmsRetriever
 import com.google.android.gms.common.api.CommonStatusCodes
 import com.google.android.gms.common.api.Status
-
 class MySMSBroadcastReceiver : BroadcastReceiver() {
 
     private var listener: Listener? = null
@@ -20,10 +19,11 @@ class MySMSBroadcastReceiver : BroadcastReceiver() {
         if (intent?.action == SmsRetriever.SMS_RETRIEVED_ACTION) {
             val extras = intent.extras
             extras?.let {
-                val status = it.get(SmsRetriever.EXTRA_STATUS) as? Status
+                val status = it.getParcelable<Status>(SmsRetriever.EXTRA_STATUS)
                 if (status?.statusCode == CommonStatusCodes.SUCCESS) {
                     val message = it.getString(SmsRetriever.EXTRA_SMS_MESSAGE)
-                    val otp = Regex("\\d{6,}").find(message ?: "")?.value // ==> You can change this to your logic or need. Here i use 6 digit OTP number extraction.
+                    val otp =
+                        Regex("\\d{6,}").find(message ?: "")?.value // Extract 6+ digit OTP
                     Log.d("OTPModule", "Extracted OTP: $otp")
                     listener?.onOtpReceived(otp)
                 } else {
