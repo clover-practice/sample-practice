@@ -8,14 +8,16 @@ import {
   TouchableOpacity,
   Modal,
   Platform,
+  Alert,
+  NativeModules,
 } from 'react-native';
 import {replace} from '../utils/NavigationUtils';
 import {getValue} from '../utils/keychainStorage';
 import Constants from '../constants/Constants';
 import ArcLoader from '../components/spinner/ArcLoader';
 import navigationString from '../constants/navigationString';
-import {NativeModules} from 'react-native';
 
+import JailMonkey from 'jail-monkey';
 const {DeveloperMode} = NativeModules;
 
 const OnboardingScreen = () => {
@@ -24,6 +26,9 @@ const OnboardingScreen = () => {
 
   useEffect(() => {
     checkDevMode();
+    // (async () => {
+    //   await checkDeviceSecurity();
+    // })();
   }, []);
 
   async function checkDevMode() {
@@ -62,6 +67,36 @@ const OnboardingScreen = () => {
   const proceedApp = () => {
     setDevModeEnabled(false);
     replace(navigationString.MAIN_APP); // direct navigation
+  };
+
+  const checkDeviceSecurity = async () => {
+    if (JailMonkey.isJailBroken()) {
+      Alert.alert(
+        '⚠️ Security Warning',
+        'This device is jailbroken or rooted. For security reasons, the app will exit.',
+        [{text: 'Exit', onPress: () => BackHandler.exitApp()}],
+      );
+      return;
+    }
+
+    if (JailMonkey.isOnExternalStorage()) {
+      Alert.alert(
+        '⚠️ Security Warning',
+        'App is running on external storage. Please install on internal storage.',
+      );
+    }
+
+    if (JailMonkey.hookDetected()) {
+      Alert.alert('⚠️ Security Warning', 'App hook/tamper detected!');
+    }
+
+    const debugged = await JailMonkey.isDebuggedMode(); // 👈 await here
+    if (debugged) {
+      Alert.alert(
+        '⚠️ Warning',
+        'Debugger detected. App may not function securely.',
+      );
+    }
   };
 
   return (

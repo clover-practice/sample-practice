@@ -23,6 +23,7 @@
     "@types/lodash.debounce": "^4.0.9",
     "axios": "^1.11.0",
     "geolib": "^3.3.4",
+    "jail-monkey": "^2.8.4",
     "lodash": "^4.17.21",
     "node-fetch": "^3.3.2",
     "react": "19.0.0",
