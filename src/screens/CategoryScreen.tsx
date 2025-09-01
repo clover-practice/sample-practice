@@ -527,7 +527,8 @@ const styles = StyleSheet.create({
   },
   cartBanner: {
     position: 'absolute',
-    bottom: 50, // ⬅️ move it above tab bar
+    bottom: Platform.OS === 'android' ? 96 : 94,
+
     left: 0,
     right: 0,
     backgroundColor: '#fff',
