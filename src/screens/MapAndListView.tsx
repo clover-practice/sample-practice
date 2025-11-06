@@ -50,7 +50,7 @@ const NEARBY_SEARCH_RADIUS = '5000';
 const MapAndListView: React.FC<MapAndListViewProps> = ({
   latitude,
   longitude,
-  disableScroll = false,
+  disableScroll = true,
 }) => {
   const [locations, setLocations] = useState<PlaceItem[]>([]);
   const [loading, setLoading] = useState<boolean>(true);

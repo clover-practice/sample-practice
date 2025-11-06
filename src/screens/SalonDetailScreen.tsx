@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import React, {useState, useEffect, useRef, useCallback} from 'react';
 import {
   View,
   Text,
@@ -13,14 +13,14 @@ import {
   Linking,
   Platform,
 } from 'react-native';
-import { useRoute, RouteProp } from '@react-navigation/native';
+import {useRoute, RouteProp} from '@react-navigation/native';
 
 import HeaderImageCarousel from '../components/HeaderImageCarouselDetails';
 import CustomHeader from '../components/CustomHeader';
-import { goBack } from '../utils/NavigationUtils';
+import {goBack} from '../utils/NavigationUtils';
 import Strings from '../constants/Constants';
 
-const { width } = Dimensions.get('window');
+const {width} = Dimensions.get('window');
 
 // Define the Review interface based on Google Places API response structure
 interface Review {
@@ -45,7 +45,7 @@ interface PlaceItem {
   title: string;
   description: string;
   address: string;
-  coordinate: { latitude: number; longitude: number };
+  coordinate: {latitude: number; longitude: number};
   rating: number | null;
   isOpen: boolean | null;
   iconUrl: string | null;
@@ -185,47 +185,71 @@ export default function SalonDetailScreen() {
   const photosRef = useRef<View>(null);
   const aboutRef = useRef<View>(null);
   const reviewsRef = useRef<View>(null);
-  const sectionRefs = { Services: servicesRef, Photos: photosRef, About: aboutRef, Reviews: reviewsRef };
-  const sectionYPositions = useRef<{ Reviews?: number; About?: number; Photos?: number }>({});
+  const sectionRefs = {
+    Services: servicesRef,
+    Photos: photosRef,
+    About: aboutRef,
+    Reviews: reviewsRef,
+  };
+  const sectionYPositions = useRef<{
+    Reviews?: number;
+    About?: number;
+    Photos?: number;
+  }>({});
 
   // Function to scroll to a specific section
-  const scrollToSection = useCallback((tabName: string) => {
-    const ref = sectionRefs[tabName as keyof typeof sectionRefs];
-    if (ref && ref.current && scrollViewRef.current) {
-      ref.current.measureLayout(
-        scrollViewRef.current as any,
-        (x, y, width, height) => {
-          const offset = headerHeight;
-          scrollViewRef.current?.scrollTo({ y: y - offset, animated: true });
-        },
-      );
-    }
-  }, [headerHeight]);
+  const scrollToSection = useCallback(
+    (tabName: string) => {
+      const ref = sectionRefs[tabName as keyof typeof sectionRefs];
+      if (ref && ref.current && scrollViewRef.current) {
+        ref.current.measureLayout(
+          scrollViewRef.current as any,
+          (x, y, width, height) => {
+            const offset = headerHeight;
+            scrollViewRef.current?.scrollTo({y: y - offset, animated: true});
+          },
+        );
+      }
+    },
+    [headerHeight],
+  );
 
   // Function to determine the active tab and handle sticky header
-  const handleScroll = useCallback((event: any) => {
-    const scrollY = event.nativeEvent.contentOffset.y;
-    const newIsTabSticky = scrollY >= tabBarY - headerHeight;
-    setIsTabSticky(newIsTabSticky);
-    setHeaderIsVisible(newIsTabSticky);
+  const handleScroll = useCallback(
+    (event: any) => {
+      const scrollY = event.nativeEvent.contentOffset.y;
+      const newIsTabSticky = scrollY >= tabBarY - headerHeight;
+      setIsTabSticky(newIsTabSticky);
+      setHeaderIsVisible(newIsTabSticky);
 
-    let newActiveTab = activeTab;
-    const offset = headerHeight + 20;
+      let newActiveTab = activeTab;
+      const offset = headerHeight + 20;
 
-    if (sectionYPositions.current.Reviews && scrollY >= sectionYPositions.current.Reviews - offset) {
-      newActiveTab = 'Reviews';
-    } else if (sectionYPositions.current.About && scrollY >= sectionYPositions.current.About - offset) {
-      newActiveTab = 'About';
-    } else if (sectionYPositions.current.Photos && scrollY >= sectionYPositions.current.Photos - offset) {
-      newActiveTab = 'Photos';
-    } else {
-      newActiveTab = 'Services';
-    }
+      if (
+        sectionYPositions.current.Reviews &&
+        scrollY >= sectionYPositions.current.Reviews - offset
+      ) {
+        newActiveTab = 'Reviews';
+      } else if (
+        sectionYPositions.current.About &&
+        scrollY >= sectionYPositions.current.About - offset
+      ) {
+        newActiveTab = 'About';
+      } else if (
+        sectionYPositions.current.Photos &&
+        scrollY >= sectionYPositions.current.Photos - offset
+      ) {
+        newActiveTab = 'Photos';
+      } else {
+        newActiveTab = 'Services';
+      }
 
-    if (newActiveTab !== activeTab) {
-      setActiveTab(newActiveTab);
-    }
-  }, [activeTab, tabBarY, headerHeight]);
+      if (newActiveTab !== activeTab) {
+        setActiveTab(newActiveTab);
+      }
+    },
+    [activeTab, tabBarY, headerHeight],
+  );
 
   // Measure all section positions on layout change
   const onLayout = useCallback(() => {
@@ -242,7 +266,7 @@ export default function SalonDetailScreen() {
     }
 
     const measureSections = () => {
-      const positions: { [key: string]: number } = {};
+      const positions: {[key: string]: number} = {};
       const sectionKeys = Object.keys(sectionRefs);
       let loadedCount = 0;
 
@@ -293,8 +317,8 @@ export default function SalonDetailScreen() {
 
           const fetchedAmenities: string[] = [];
           const result = data.result;
-          console.log("RESPONSE DATA",JSON.stringify(result))
- 
+          console.log('RESPONSE DATA', JSON.stringify(result));
+
           if (result.wheelchair_accessible_entrance)
             fetchedAmenities.push('Wheelchair Accessible Entrance');
           if (result.restroom) fetchedAmenities.push('Restroom Available');
@@ -485,12 +509,12 @@ export default function SalonDetailScreen() {
   const renderAboutSection = () => (
     <View ref={aboutRef} style={styles.sectionContainer}>
       <Text style={styles.sectionTitle}>About</Text>
-      <View >
+      <View>
         {loadingDetails ? (
           <ActivityIndicator
             size="small"
             color="#0000ff"
-            style={{ marginVertical: 10 }}
+            style={{marginVertical: 10}}
           />
         ) : detailsError ? (
           <Text style={styles.statusErrorText}>
@@ -498,8 +522,7 @@ export default function SalonDetailScreen() {
           </Text>
         ) : (
           <Text style={styles.aboutText}>
-            {description ||
-              'No detailed description available for this salon.'}
+            {description || 'No detailed description available for this salon.'}
           </Text>
         )}
 
@@ -508,7 +531,7 @@ export default function SalonDetailScreen() {
           <ActivityIndicator
             size="small"
             color="#0000ff"
-            style={{ marginVertical: 10 }}
+            style={{marginVertical: 10}}
           />
         ) : detailsError ? (
           <Text style={styles.statusErrorText}>
@@ -556,14 +579,12 @@ export default function SalonDetailScreen() {
               <View style={styles.reviewHeader}>
                 {review.profile_photo_url && (
                   <Image
-                    source={{ uri: review.profile_photo_url }}
+                    source={{uri: review.profile_photo_url}}
                     style={styles.reviewerImage}
                   />
                 )}
                 <View style={styles.reviewerInfo}>
-                  <Text style={styles.reviewerName}>
-                    {review.author_name}
-                  </Text>
+                  <Text style={styles.reviewerName}>{review.author_name}</Text>
                   <Text style={styles.reviewRating}>
                     {'⭐'.repeat(review.rating)} {review.rating}
                   </Text>
@@ -581,13 +602,12 @@ export default function SalonDetailScreen() {
   );
 
   return (
-
     <View style={styles.container}>
       {headerIsVisible && (
         <View
           ref={headerRef}
           onLayout={event => {
-            const { height } = event.nativeEvent.layout;
+            const {height} = event.nativeEvent.layout;
             setHeaderHeight(height);
           }}
           style={styles.headerWrapper}>
@@ -604,8 +624,7 @@ export default function SalonDetailScreen() {
         onScroll={handleScroll}
         scrollEventThrottle={16}
         onLayout={onLayout}
-        contentContainerStyle={{ paddingBottom: 50 }}>
-
+        contentContainerStyle={{paddingBottom: 50}}>
         <HeaderImageCarousel images={HEADER_IMAGES} duration={5000} />
 
         <View style={styles.infoContainer}>
@@ -620,8 +639,7 @@ export default function SalonDetailScreen() {
               onPress={() => setIsHoursModalVisible(true)}
               style={styles.hoursDropdownContainer}
               disabled={
-                !fetchedFullOpeningHours ||
-                fetchedFullOpeningHours.length === 0
+                !fetchedFullOpeningHours || fetchedFullOpeningHours.length === 0
               }>
               <Text style={styles.timeText}>
                 {displayTodayHours || 'Hours not available'}
@@ -654,9 +672,7 @@ export default function SalonDetailScreen() {
 
         <View ref={tabContainerRef} style={styles.tabContainer}>
           {TABS.map(tab => (
-            <TouchableOpacity
-              key={tab}
-              onPress={() => scrollToSection(tab)}>
+            <TouchableOpacity key={tab} onPress={() => scrollToSection(tab)}>
               <Text
                 style={[
                   styles.tabText,
@@ -672,15 +688,12 @@ export default function SalonDetailScreen() {
         {renderPhotosSection()}
         {renderAboutSection()}
         {renderReviewsSection()}
-
       </ScrollView>
 
       {isTabSticky && (
-        <View style={[styles.stickyTabContainer, { top: headerHeight }]}>
+        <View style={[styles.stickyTabContainer, {top: headerHeight}]}>
           {TABS.map(tab => (
-            <TouchableOpacity
-              key={tab}
-              onPress={() => scrollToSection(tab)}>
+            <TouchableOpacity key={tab} onPress={() => scrollToSection(tab)}>
               <Text
                 style={[
                   styles.tabText,
@@ -725,14 +738,13 @@ export default function SalonDetailScreen() {
                 key={index}
                 style={[
                   styles.modalTimingRow,
-                  index === currentDayIndexForModal &&
-                  styles.highlightedDayRow,
+                  index === currentDayIndexForModal && styles.highlightedDayRow,
                 ]}>
                 <Text
                   style={[
                     styles.modalTextDay,
                     index === currentDayIndexForModal &&
-                    styles.highlightedDayText,
+                      styles.highlightedDayText,
                   ]}>
                   {dayText.split(':')[0]}
                 </Text>
@@ -740,7 +752,7 @@ export default function SalonDetailScreen() {
                   style={[
                     styles.modalTextTime,
                     index === currentDayIndexForModal &&
-                    styles.highlightedDayText,
+                      styles.highlightedDayText,
                   ]}>
                   {dayText.split(': ').slice(1).join(': ') || 'Closed'}
                 </Text>
@@ -791,15 +803,11 @@ export default function SalonDetailScreen() {
         }}>
         <View style={styles.centeredView}>
           <View style={styles.modalView}>
-            <Text style={styles.statusErrorText}>
-              {mapNotSupportedMessage}
-            </Text>
+            <Text style={styles.statusErrorText}>{mapNotSupportedMessage}</Text>
             <TouchableOpacity
               style={styles.modalCloseButton}
               onPress={() =>
-                setIsMapNotSupportedModalVisible(
-                  !isMapNotSupportedModalVisible,
-                )
+                setIsMapNotSupportedModalVisible(!isMapNotSupportedModalVisible)
               }>
               <Text style={styles.modalCloseButtonText}>OK</Text>
             </TouchableOpacity>
@@ -807,7 +815,6 @@ export default function SalonDetailScreen() {
         </View>
       </Modal>
     </View>
-
   );
 }
 
@@ -1047,7 +1054,7 @@ const styles = StyleSheet.create({
     padding: 12,
     marginBottom: 10,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
+    shadowOffset: {width: 0, height: 1},
     shadowOpacity: 0.2,
     shadowRadius: 1,
     elevation: 2,
