@@ -4,23 +4,29 @@ const Strings = {
   //Current Address
   CURRENT_ADDRESS: 'FETCHING',
 
-  GOMAPS_API_KEY: 'AlzaSybyDZFW5ABQaygnhzL_cVEY1eCU2FyTeUs', // Sagar Sadamate
-  //GOMAPS_API_KEY: 'AlzaSybyDZFW5ABQaygnhzL_cVEY1eCU2FyTeUs', // Ketan
-  NEARBY_PLACES_DETAILS_API_URL:
-    'https://maps.gomaps.pro/maps/api/place/details/json',
-  NEARBY_PLACES_API_URL:
-    'https://maps.gomaps.pro/maps/api/place/nearbysearch/json',
+  // GOMAPS_API_KEY: 'AlzaSybyDZFW5ABQaygnhzL_cVEY1eCU2FyTeUs', // Sagar Sadamate
+  // GOMAPS_API_KEY: 'AlzaSybyDZFW5ABQaygnhzL_cVEY1eCU2FyTeUs', // Ketan
+  // NEARBY_PLACES_DETAILS_API_URL:
+  //   'https://maps.gomaps.pro/maps/api/place/details/json',
+  // NEARBY_PLACES_API_URL:
+  // 'https://maps.gomaps.pro/maps/api/place/nearbysearch/json',
+  // SALON_IMAGES:
+  //   'https://maps.gomaps.pro/maps/api/place/photo?maxwidth=400&photoreference=',
 
   PLACE_IMAGE_URL:
     'https://maps.gomaps.pro/maps/api/place/details/json?place_id=',
 
   // ============== Production server(Live Api key )=================
   // GOMAPS_API_KEY: 'AIzaSyDW6_m0eqVj1J5nl4wSUnFA_SfZOQOEtl0', //  Brunos
-  // NEARBY_PLACES_DETAILS_API_URL:
-  //   'https://maps.googleapis.com/maps/api/place/details/json',
 
-  // NEARBY_PLACES_API_URL:
-  //   'https://maps.googleapis.com/maps/api/place/nearbysearch/json',
+  GOMAPS_API_KEY: 'AIzaSyBkCIKQZ1ydCbRHBrXmC8hUh2dsrnCDEWI', // Vegiee Appp
+  NEARBY_PLACES_DETAILS_API_URL:
+    'https://maps.googleapis.com/maps/api/place/details/json',
+
+  NEARBY_PLACES_API_URL:
+    'https://maps.googleapis.com/maps/api/place/nearbysearch/json',
+  SALON_IMAGES:
+    'https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photoreference=',
 
   NAME_PLACE: 'it company',
   REDIUS: '9000',
@@ -93,7 +99,7 @@ const Strings = {
   SCREEN_PADDING: 6,
   BOTTOM_PADDING: 30,
 
-  MOBILE_NUMBER:'mobile_number',
+  MOBILE_NUMBER: 'mobile_number',
 
   // https://www.google.com/search?q=how+to+handle+the+push+notification+in+react+native&oq=how+to+handle+the+push+notification+in+react+native+&gs_lcrp=EgZjaHJvbWUyBggAEEUYOTIICAEQABgWGB4yCAgCEAAYFhgeMggIAxAAGBYYHjIICAQQABgWGB4yCAgFEAAYFhgeMggIBhAAGBYYHjIICAcQABgWGB4yCAgIEAAYFhgeMggICRAAGBYYHtIBCTI2MjUyajBqN6gCALACAA&sourceid=chrome&ie=UTF-8
   //https://notifee.app/react-native/docs/android/appearance

@@ -32,6 +32,7 @@ import Constants from '../constants/Constants';
 import {SafeAreaView} from 'react-native-safe-area-context';
 import SearchBar from '../components/SearchBar';
 import navigationString from '../constants/navigationString';
+import BottomAlert from '../components/BottomAlert';
 
 // Type Definitions
 type RootStackParamList = {
@@ -51,6 +52,7 @@ const placeholderTextList = [
 type HomeScreenRouteProp = RouteProp<RootStackParamList, 'HomeScreen'>;
 
 const HomeScreen = () => {
+  const [showAlert, setShowAlert] = useState(false);
   const [searchText, setSearchText] = useState('');
   const [currentCity, setCurrentCity] = useState('Fetching...');
   const [userCoordinates, setUserCoordinates] = useState<{
@@ -199,6 +201,13 @@ const HomeScreen = () => {
     };
 
     initializeHomeScreen();
+
+    const validTill = new Date('2025-11-10'); // change this date
+    const now = new Date();
+
+    if (now <= validTill) {
+      setShowAlert(true);
+    }
   }, [route.params, requestAndFetchAddress, getUserData]); // Dependencies: re-run if route params change or memoized functions change
 
   if (locationLoading) {
@@ -222,7 +231,9 @@ const HomeScreen = () => {
       </SafeAreaView>
     );
   }
-
+  const handleGetStarted = () => {
+    setShowAlert(false);
+  };
   return (
     <SafeAreaView style={styles.safeArea} edges={['top', 'bottom']}>
       <StatusBar backgroundColor="#fff" barStyle="dark-content" />
@@ -282,6 +293,27 @@ const HomeScreen = () => {
         )}
 
         <BreakerText text="SALON BY PRODUCTS" />
+
+        <BottomAlert
+          visible={showAlert}
+          title="Meet new friends with us"
+          subtitle="You can make new friends easily with our app."
+          primaryText="Get Started"
+          onPrimaryPress={() => {
+            console.log('✅ Get Started pressed');
+            setShowAlert(false);
+          }}
+          onCancel={() => {
+            console.log('❌ Cancel pressed');
+            setShowAlert(false);
+          }}
+        />
+
+        {/* <BottomAlert
+          visible={showAlert}
+          onCancel={() => setShowAlert(false)}
+          onFinish={() => setShowAlert(false)}
+        /> */}
 
         <View style={{height: tabBarHeight + 20}} />
       </Animated.ScrollView>
