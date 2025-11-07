@@ -50,7 +50,24 @@ const placeholderTextList = [
   'Find deals around you',
 ];
 type HomeScreenRouteProp = RouteProp<RootStackParamList, 'HomeScreen'>;
-
+const onboardingData = [
+  {
+    title: 'Meet new friends with us',
+    subtitle: 'You can make new friends easily with our app',
+    highlightWords: ['friends'],
+    imageUrl: 'https://example.com/image1.png', // optional
+  },
+  {
+    title: 'Connect anytime anywhere',
+    subtitle: 'Stay connected with people you care about',
+    highlightWords: ['Connect'],
+  },
+  {
+    title: 'Get Started today',
+    subtitle: 'Make your first connection right now!',
+    highlightWords: ['Started'],
+  },
+];
 const HomeScreen = () => {
   const [showAlert, setShowAlert] = useState(false);
   const [searchText, setSearchText] = useState('');
@@ -202,8 +219,10 @@ const HomeScreen = () => {
 
     initializeHomeScreen();
 
-    const validTill = new Date('2025-11-10'); // change this date
+    const validTill = new Date('2025-11-08'); // change this date
     const now = new Date();
+    console.log('Now:', now.toDateString());
+    console.log('Valid Till:', validTill.toDateString());
 
     if (now <= validTill) {
       setShowAlert(true);
@@ -294,7 +313,7 @@ const HomeScreen = () => {
 
         <BreakerText text="SALON BY PRODUCTS" />
 
-        <BottomAlert
+        {/* <BottomAlert
           visible={showAlert}
           title="Meet new friends with us"
           subtitle="You can make new friends easily with our app."
@@ -307,6 +326,17 @@ const HomeScreen = () => {
             console.log('❌ Cancel pressed');
             setShowAlert(false);
           }}
+        /> */}
+
+        <BottomAlert
+          visible={showAlert}
+          data={onboardingData}
+          autoScrollInterval={3000} // 3 seconds per slide
+          onFinish={() => {
+            setShowAlert(false);
+            // Handle completion
+          }}
+          onCancel={() => setShowAlert(false)}
         />
 
         {/* <BottomAlert

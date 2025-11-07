@@ -23,6 +23,7 @@ import RegistrationScreen from '../screens/RegistationScreen';
 import PayPalCheckout from '../screens/PayPalCheckout';
 import Payment from '../screens/Payment';
 import navigationString from '../constants/navigationString';
+import SplashScreen from '../screens/SplashScreen';
 
 const Stack = createNativeStackNavigator();
 
@@ -35,7 +36,11 @@ const AppNavigator = () => (
           backgroundColor="#ffffff"
           barStyle="dark-content"
         />
-        <Stack.Navigator screenOptions={{headerShown: false}}>
+        <Stack.Navigator
+          screenOptions={{headerShown: false}}
+          initialRouteName="Splash">
+          <Stack.Screen name="Splash" component={SplashScreen} />
+
           <Stack.Screen
             name={navigationString.ON_BORDING}
             component={OnboardingScreen}

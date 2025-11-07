@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import React, {useEffect, useState, useRef} from 'react';
 import {
   View,
   Text,
@@ -10,22 +10,33 @@ import {
   Platform,
   Alert,
   NativeModules,
+  FlatList,
+  NativeScrollEvent,
+  NativeSyntheticEvent,
+  SafeAreaView,
+  ScrollView,
+  StatusBar,
 } from 'react-native';
 import {replace} from '../utils/NavigationUtils';
 import {getValue} from '../utils/keychainStorage';
 import Constants from '../constants/Constants';
 import ArcLoader from '../components/spinner/ArcLoader';
 import navigationString from '../constants/navigationString';
-
 import JailMonkey from 'jail-monkey';
+import OnboardingItem from '../components/OnboardingItem';
+import {SlideData, SLIDES} from '../data/products';
+import {width} from '../styles/responsiveSize';
+
 const {DeveloperMode} = NativeModules;
 
 const OnboardingScreen = () => {
   const [loading, setLoading] = useState(false);
   const [devModeEnabled, setDevModeEnabled] = useState(false);
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const slidesRef = useRef<FlatList<SlideData>>(null);
 
   useEffect(() => {
-    checkDevMode();
+    // checkDevMode();
     // (async () => {
     //   await checkDeviceSecurity();
     // })();
@@ -36,10 +47,10 @@ const OnboardingScreen = () => {
       if (Platform.OS === 'android') {
         const enabled = await DeveloperMode.isDeveloperModeEnabled();
         if (enabled) {
-          setDevModeEnabled(true); // show bottom sheet
+          setDevModeEnabled(true);
         } else {
           setLoading(true);
-          checkLoginStatus(); // normal flow
+          checkLoginStatus();
         }
       } else {
         setLoading(true);
@@ -49,8 +60,10 @@ const OnboardingScreen = () => {
       console.error(err);
     }
   }
+
   const checkLoginStatus = async () => {
     const isLoggedIn = await getValue(Constants.IS_LOGIN);
+    console.log('isLoggedIn', isLoggedIn);
     setTimeout(() => {
       if (isLoggedIn === true) {
         replace(navigationString.MAIN_APP);
@@ -60,20 +73,18 @@ const OnboardingScreen = () => {
     }, 1500);
   };
 
-  const exitApp = () => {
-    BackHandler.exitApp();
-  };
+  const exitApp = () => BackHandler.exitApp();
 
   const proceedApp = () => {
     setDevModeEnabled(false);
-    replace(navigationString.MAIN_APP); // direct navigation
+    replace(navigationString.MAIN_APP);
   };
 
   const checkDeviceSecurity = async () => {
     if (JailMonkey.isJailBroken()) {
       Alert.alert(
         '⚠️ Security Warning',
-        'This device is jailbroken or rooted. For security reasons, the app will exit.',
+        'This device is jailbroken or rooted. The app will exit.',
         [{text: 'Exit', onPress: () => BackHandler.exitApp()}],
       );
       return;
@@ -90,7 +101,7 @@ const OnboardingScreen = () => {
       Alert.alert('⚠️ Security Warning', 'App hook/tamper detected!');
     }
 
-    const debugged = await JailMonkey.isDebuggedMode(); // 👈 await here
+    const debugged = await JailMonkey.isDebuggedMode();
     if (debugged) {
       Alert.alert(
         '⚠️ Warning',
@@ -99,50 +110,182 @@ const OnboardingScreen = () => {
     }
   };
 
+  const handleScroll = (event: NativeSyntheticEvent<NativeScrollEvent>) => {
+    const newIndex = Math.round(event.nativeEvent.contentOffset.x / width);
+    setCurrentIndex(newIndex);
+  };
+
+  const scrollToNext = () => {
+    if (currentIndex < SLIDES.length - 1) {
+      slidesRef.current?.scrollToIndex({
+        index: currentIndex + 1,
+        animated: true,
+      });
+    } else {
+      replace(navigationString.LOGIN);
+    }
+  };
+
+  const renderItem = ({item}: {item: SlideData}) => (
+    <OnboardingItem {...item} />
+  );
+
+  const Pagination: React.FC = () => (
+    <View style={styles.paginationContainer}>
+      {SLIDES.map((_, index) => (
+        <View
+          key={index.toString()}
+          style={[
+            styles.dot,
+            index === currentIndex ? styles.activeDot : styles.inactiveDot,
+          ]}
+        />
+      ))}
+    </View>
+  );
+
   return (
-    <View style={styles.container}>
-      <Image source={require('../assets/images/app_logo.png')} />
-      {loading && <ArcLoader />}
+    <SafeAreaView style={styles.safeArea}>
+      <StatusBar
+        barStyle="light-content" // or "dark-content"
+        backgroundColor="#0C0C0C" // only affects Android
+      />
+      <View style={styles.container}>
+        {/* Main Slides */}
+        <FlatList
+          data={SLIDES}
+          renderItem={renderItem}
+          keyExtractor={item => item.id}
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          pagingEnabled
+          bounces={false}
+          ref={slidesRef}
+          onScroll={handleScroll}
+          scrollEventThrottle={16}
+        />
 
-      {/* 🚨 BottomSheet Modal when Dev Mode is ON */}
-      <Modal
-        transparent
-        animationType="slide"
-        visible={devModeEnabled}
-        onRequestClose={exitApp}>
-        <View style={styles.modalBackground}>
-          <View style={styles.sheet}>
-            <Text style={styles.title}>⚠️ Developer Mode Detected</Text>
-            <Text style={styles.desc}>
-              Developer Mode is enabled. Do you want to continue?
-            </Text>
-
-            <View style={styles.buttonRow}>
+        {/* Bottom Controls */}
+        <View style={styles.bottomRow}>
+          <Pagination />
+          <View style={styles.bottomRow}>
+            {/* Skip Button */}
+            {currentIndex < SLIDES.length - 1 && (
               <TouchableOpacity
-                style={[styles.button, styles.exitBtn]}
-                onPress={exitApp}>
-                <Text style={styles.buttonText}>Exit</Text>
+                style={styles.skipButton}
+                onPress={() => replace(navigationString.LOGIN)}>
+                <Text style={styles.skipText}>Skip</Text>
               </TouchableOpacity>
-
-              <TouchableOpacity
-                style={[styles.button, styles.okBtn]}
-                onPress={proceedApp}>
-                <Text style={styles.buttonText}>OK</Text>
-              </TouchableOpacity>
-            </View>
+            )}
+            <TouchableOpacity onPress={scrollToNext} style={styles.nextButton}>
+              <Text style={styles.nextText}>
+                {currentIndex === SLIDES.length - 1 ? 'Get Started' : 'Next'}
+              </Text>
+            </TouchableOpacity>
           </View>
         </View>
-      </Modal>
-    </View>
+
+        {/* Loader */}
+        {/* {loading && <ArcLoader />} */}
+
+        {/* Dev Mode Modal */}
+        <Modal
+          transparent
+          animationType="slide"
+          visible={devModeEnabled}
+          onRequestClose={exitApp}>
+          <View style={styles.modalBackground}>
+            <View style={styles.sheet}>
+              <Text style={styles.title}>⚠️ Developer Mode Detected</Text>
+              <Text style={styles.desc}>
+                Developer Mode is enabled. Do you want to continue?
+              </Text>
+
+              <View style={styles.buttonRow}>
+                <TouchableOpacity
+                  style={[styles.button, styles.exitBtn]}
+                  onPress={exitApp}>
+                  <Text style={styles.buttonText}>Exit</Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                  style={[styles.button, styles.okBtn]}
+                  onPress={proceedApp}>
+                  <Text style={styles.buttonText}>OK</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          </View>
+        </Modal>
+      </View>
+    </SafeAreaView>
   );
 };
 
+export default OnboardingScreen;
+
 const styles = StyleSheet.create({
+  safeArea: {
+    flex: 1,
+    backgroundColor: '#0C0C0C',
+    paddingBottom: 40,
+  },
   container: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
+    backgroundColor: '#0C0C0C',
   },
+  // Pagination + Buttons
+  bottomRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingHorizontal: 8,
+    backgroundColor: '#0C0C0C',
+    paddingBottom: Platform.OS === 'ios' ? 30 : 20,
+  },
+
+  paginationContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#0C0C0C',
+  },
+  dot: {
+    height: 8,
+    width: 8,
+    borderRadius: 4,
+    marginHorizontal: 4,
+  },
+  activeDot: {
+    backgroundColor: '#FAFAFA',
+    width: 20,
+  },
+  inactiveDot: {
+    backgroundColor: '#404040',
+  },
+  nextButton: {
+    backgroundColor: '#CFAE6E',
+    paddingHorizontal: 20,
+    paddingVertical: 10,
+    borderRadius: 25,
+  },
+  nextText: {
+    color: '#171717',
+    fontSize: 14,
+  },
+  skipButton: {
+    right: 20,
+    padding: 10,
+    backgroundColor: '#404040',
+    borderRadius: 20,
+    paddingVertical: 10,
+  },
+  skipText: {
+    fontSize: 14,
+    fontWeight: 'normal',
+    paddingHorizontal: 10,
+    color: '#A3A3A3',
+  },
+  // Modal
   modalBackground: {
     flex: 1,
     justifyContent: 'flex-end',
@@ -187,8 +330,6 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
 });
-
-export default OnboardingScreen;
 
 // import React, {useEffect, useState} from 'react';
 // import {
